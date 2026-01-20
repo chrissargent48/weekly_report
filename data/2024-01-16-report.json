@@ -1,0 +1,81 @@
+{
+  "id": "2024-01-16",
+  "weekEnding": "2024-01-16",
+  "overview": {
+    "executiveSummary": "",
+    "weather": [],
+    "kpis": {
+      "percentComplete": 0,
+      "manHoursWeek": 0,
+      "manHoursTotal": 0,
+      "safetyIncidents": 0,
+      "weatherDaysLost": 0
+    }
+  },
+  "safety": {
+    "stats": {
+      "nearMisses": {
+        "week": 0,
+        "ytd": 0
+      },
+      "firstAids": {
+        "week": 0,
+        "ytd": 0
+      },
+      "recordables": {
+        "week": 0,
+        "ytd": 0
+      },
+      "lostTime": {
+        "week": 0,
+        "ytd": 0
+      },
+      "stopWorks": {
+        "week": 0,
+        "ytd": 0
+      }
+    },
+    "narrative": ""
+  },
+  "resources": {
+    "manpower": [
+      {
+        "id": "0.8998509837230073",
+        "entity": "RECON",
+        "role": "Laborer",
+        "headcount": 1,
+        "hours": 8
+      }
+    ],
+    "equipment": {
+      "onSite": [
+        {
+          "id": "0.9599477430423433",
+          "type": "Excavator",
+          "status": "Active",
+          "notes": ""
+        }
+      ],
+      "mobilized": [],
+      "demobilized": []
+    }
+  },
+  "progress": {
+    "bidItems": [],
+    "activitiesThisWeek": [],
+    "lookAheadThreeWeek": []
+  },
+  "financials": {
+    "invoices": [],
+    "summary": {
+      "earnedToDate": 0,
+      "remainingContractValue": 0,
+      "totalBilled": 0
+    }
+  },
+  "schedule": {
+    "milestones": [],
+    "analysis": ""
+  },
+  "photos": []
+}

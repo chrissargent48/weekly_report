@@ -1,0 +1,928 @@
+{
+  "id": "2026-01-18",
+  "weekEnding": "2026-01-18",
+  "periodStart": "2026-01-12",
+  "overview": {
+    "executiveSummary": "This week, the team focused on site calibration and initiating drilling operations. Early in the week, we identified a discrepancy in the site alignment caused by an invalid RPLS control mark during GPS calibration. Corey identified the error, corrected the control with the help of our surveying contractor, and the crew successfully re-staked the alignment by Tuesday.\n\nFollowing the correction, we completed potholing for the vault low spots (6 dug) and accepted deliveries for the construction entrance (rock and fabric). The drilling crew mobilized mid-week and successfully punched in all sump locations, including a field directed  add-on at SB-12, with all necessary screen and tee materials placed.",
+    "weather": [
+      {
+        "date": "2026-01-12",
+        "condition": "Partly Cloudy",
+        "tempHigh": 35,
+        "tempLow": 27,
+        "wind": 15,
+        "hoursLost": 0,
+        "notes": ""
+      },
+      {
+        "date": "2026-01-13",
+        "condition": "Rain",
+        "tempHigh": 46,
+        "tempLow": 28,
+        "wind": 14,
+        "hoursLost": 2,
+        "notes": ""
+      },
+      {
+        "date": "2026-01-14",
+        "condition": "Snow",
+        "tempHigh": 44,
+        "tempLow": 26,
+        "wind": 17,
+        "hoursLost": 0,
+        "notes": ""
+      },
+      {
+        "date": "2026-01-15",
+        "condition": "Snow",
+        "tempHigh": 25,
+        "tempLow": 14,
+        "wind": 17,
+        "hoursLost": 0,
+        "notes": ""
+      },
+      {
+        "date": "2026-01-16",
+        "condition": "Snow",
+        "tempHigh": 32,
+        "tempLow": 11,
+        "wind": 12,
+        "hoursLost": 0,
+        "notes": ""
+      },
+      {
+        "date": "2026-01-17",
+        "condition": "Snow",
+        "tempHigh": 37,
+        "tempLow": 26,
+        "wind": 14,
+        "hoursLost": 0,
+        "notes": ""
+      },
+      {
+        "date": "2026-01-18",
+        "condition": "Snow",
+        "tempHigh": 27,
+        "tempLow": 14,
+        "wind": 9,
+        "hoursLost": 0,
+        "notes": ""
+      }
+    ],
+    "kpis": {
+      "percentComplete": 17,
+      "schedulePerformanceIndex": 0,
+      "manHoursWeek": 0,
+      "manHoursTotal": 1404,
+      "safetyIncidents": 0,
+      "weatherDaysLost": 0
+    }
+  },
+  "safety": {
+    "stats": {
+      "nearMisses": {
+        "week": 0,
+        "ytd": 0
+      },
+      "firstAids": {
+        "week": 0,
+        "ytd": 0
+      },
+      "recordables": {
+        "week": 0,
+        "ytd": 0
+      },
+      "lostTime": {
+        "week": 0,
+        "ytd": 0
+      },
+      "stopWorks": {
+        "week": 0,
+        "ytd": 0
+      },
+      "hofs": {
+        "ytd": 2,
+        "week": 2
+      }
+    },
+    "narrative": "Next weeks production schedule focuses on upcoming trenching activities. All excavations will be conducted in strict accordance with OSHA standards, requiring that a designated competent person inspects and signs off on trenches daily before any crew entry. With snow and ice in the forecast, the team must maintain heightened awareness regarding slip, trip, and fall hazards. Particular attention must be paid to footing around trench edges and maintaining clear, stable access points despite the deteriorating weather conditions.",
+    "weeklyTopic": "Line of Fire",
+    "weeklyTopicNotes": "Line of fire is any position where you could be struck, caught, or crushed if something moves unexpectedly. It sounds simple, but these are the kinds of hazards that don’t always give you a second chance.\n\nThink about a few examples:\n\nReaching under a suspended load because you think it’s steady.\n\nStanding between a truck and a piece of equipment during backing.\n\nPutting your hands between pinch points to “just make a quick adjustment.”\n\nIn the moment, those things can feel small, but all it takes is one shift, one slip, or one movement, and you’re in harm’s way.\n\nA lot of line of fire incidents happen not because people don’t know better, but because they’re focused on getting the job done. And that’s exactly why we’ve got to slow down, look around, and ask ourselves: If something moves right now, where am I going to be?\n\nThat quick question can save you from a life-changing injury.\n\nAt the end of the day, no task is worth putting yourself in the line of fire. Take the extra step. Step back, reposition, and think before you act. Because the best way to survive a line of fire hazards is to not be in it at all."
+  },
+  "resources": {
+    "manpower": [
+      {
+        "id": "0.6351935114365966",
+        "type": "recon",
+        "category": "management",
+        "location": "remote",
+        "name": "Rick Meyers",
+        "role": "Branch Manager",
+        "dailyHours": {
+          "mon": 0,
+          "tue": 0,
+          "wed": 0,
+          "thu": 0,
+          "fri": 0,
+          "sat": 0,
+          "sun": 0
+        }
+      },
+      {
+        "id": "0.36134090378130934",
+        "type": "recon",
+        "category": "management",
+        "location": "remote",
+        "name": "Chris Sargent",
+        "role": "Sr Project Manager",
+        "dailyHours": {
+          "mon": 8,
+          "tue": 8,
+          "wed": 8,
+          "thu": 8,
+          "fri": 8,
+          "sat": 0,
+          "sun": 0
+        }
+      },
+      {
+        "id": "0.17175255613202756",
+        "type": "recon",
+        "name": "Gary Starks",
+        "role": "Construction Manager",
+        "dailyHours": {
+          "mon": 0,
+          "tue": 0,
+          "wed": 0,
+          "thu": 0,
+          "fri": 0,
+          "sat": 0,
+          "sun": 0
+        },
+        "location": "onsite",
+        "category": "management"
+      },
+      {
+        "id": "0.6911065803214155",
+        "type": "recon",
+        "name": "Corey Allen",
+        "role": "Superintendent",
+        "dailyHours": {
+          "mon": 10,
+          "tue": 10,
+          "wed": 10,
+          "thu": 10,
+          "fri": 10,
+          "sat": 0,
+          "sun": 0
+        },
+        "category": "management"
+      },
+      {
+        "id": "0.37169239122309206",
+        "type": "recon",
+        "name": "Sabrina Starks",
+        "role": "HSEQ",
+        "dailyHours": {
+          "mon": 0,
+          "tue": 0,
+          "wed": 0,
+          "thu": 0,
+          "fri": 0,
+          "sat": 0,
+          "sun": 0
+        }
+      },
+      {
+        "id": "0.087006685114843",
+        "type": "recon",
+        "name": "Kevin Arnold",
+        "role": "Equipment Operator",
+        "dailyHours": {
+          "mon": 8,
+          "tue": 10,
+          "wed": 10,
+          "thu": 10,
+          "fri": 10,
+          "sat": 0,
+          "sun": 0
+        }
+      },
+      {
+        "id": "0.9463375486123178",
+        "type": "recon",
+        "name": "Mason Riddle",
+        "role": "Equipment Operator",
+        "dailyHours": {
+          "mon": 10,
+          "tue": 10,
+          "wed": 10,
+          "thu": 10,
+          "fri": 10,
+          "sat": 0,
+          "sun": 0
+        }
+      },
+      {
+        "id": "0.1685471307149068",
+        "type": "recon",
+        "name": "David Strecker",
+        "role": "Equipment Operator",
+        "dailyHours": {
+          "mon": 10,
+          "tue": 10,
+          "wed": 10,
+          "thu": 10,
+          "fri": 10,
+          "sat": 0,
+          "sun": 0
+        }
+      },
+      {
+        "id": "0.9576609341018101",
+        "type": "subcontractor",
+        "name": "",
+        "company": "Keller Group PLC",
+        "role": "Driller",
+        "dailyHours": {
+          "mon": 0,
+          "tue": 0,
+          "wed": 8,
+          "thu": 10,
+          "fri": 10,
+          "sat": 0,
+          "sun": 0
+        }
+      },
+      {
+        "id": "0.8017473310239669",
+        "type": "subcontractor",
+        "name": "",
+        "company": "Land Clearing Specialists",
+        "role": "E&S/Clearing",
+        "dailyHours": {
+          "mon": 0,
+          "tue": 0,
+          "wed": 0,
+          "thu": 0,
+          "fri": 0,
+          "sat": 0,
+          "sun": 0
+        }
+      },
+      {
+        "id": "0.6484688064447643",
+        "type": "subcontractor",
+        "name": "",
+        "company": "Morris Knowles & Ass Inc",
+        "role": "PLS",
+        "dailyHours": {
+          "mon": 0,
+          "tue": 0,
+          "wed": 0,
+          "thu": 6,
+          "fri": 3,
+          "sat": 0,
+          "sun": 0
+        }
+      }
+    ],
+    "equipment": {
+      "onSite": [
+        {
+          "id": "0.11090660594170698",
+          "type": "Excavator - Cat 320",
+          "status": "Active",
+          "notes": "",
+          "dailyHours": {
+            "mon": 8,
+            "tue": 8,
+            "wed": 8,
+            "thu": 8,
+            "fri": 8,
+            "sat": 0
+          }
+        },
+        {
+          "id": "0.039420726833595765",
+          "type": "Loader - Cat 926M",
+          "status": "Active",
+          "notes": "",
+          "dailyHours": {
+            "mon": 8,
+            "tue": 8,
+            "wed": 8,
+            "thu": 8,
+            "fri": 8
+          }
+        },
+        {
+          "id": "0.38375538043120927",
+          "type": "Mini Excavator - Takeuchi TB290",
+          "status": "Active",
+          "notes": "Originally brought on for a week, rental extended ",
+          "dailyHours": {
+            "mon": 8,
+            "tue": 8,
+            "wed": 8,
+            "thu": 8,
+            "fri": 8
+          }
+        },
+        {
+          "id": "0.5484300722881494",
+          "type": "Mini Ex Breaker",
+          "status": "Demobilized",
+          "notes": "",
+          "dailyHours": {
+            "mon": 0
+          },
+          "dates": {
+            "pickup": "2026-01-12"
+          }
+        },
+        {
+          "id": "59782cfb-3741-4f96-80c2-f46f7415cc32",
+          "type": "Office Trailer - 20 ft",
+          "status": "Active",
+          "notes": "",
+          "dailyHours": {
+            "mon": 8,
+            "tue": 8,
+            "wed": 8,
+            "thu": 8,
+            "fri": 8,
+            "sat": 0,
+            "sun": 0
+          },
+          "dates": {
+            "delivery": "",
+            "pickup": ""
+          }
+        },
+        {
+          "id": "738de816-6a4f-4b64-9046-960127995cf9",
+          "type": "Topcon GPS",
+          "status": "Active",
+          "notes": "",
+          "dailyHours": {
+            "mon": 8,
+            "tue": 8,
+            "wed": 8,
+            "thu": 8,
+            "fri": 8,
+            "sat": 0,
+            "sun": 0
+          },
+          "dates": {
+            "delivery": "",
+            "pickup": ""
+          }
+        },
+        {
+          "id": "455d9166-27fc-42e3-a3b4-230147d52f9e",
+          "type": "Jumping Jack Tamper",
+          "status": "Demobilized",
+          "notes": "",
+          "dailyHours": {
+            "mon": 0,
+            "tue": 0,
+            "wed": 0,
+            "thu": 0,
+            "fri": 0,
+            "sat": 0,
+            "sun": 0
+          },
+          "dates": {
+            "delivery": "",
+            "pickup": "2026-01-12"
+          }
+        }
+      ],
+      "mobilized": [],
+      "demobilized": []
+    },
+    "materials": [
+      {
+        "id": "e16b4583-2b99-4c23-bf8e-0c2e2f6acb1b",
+        "date": "2026-01-19",
+        "description": "AASHTO #3 (Construction Entrance)",
+        "quantity": 23.74,
+        "uom": "TN",
+        "ticketNumber": "46808"
+      },
+      {
+        "id": "7e8b79c5-be63-4fee-826c-b61740ed75d8",
+        "date": "2026-01-13",
+        "description": "FX-80HS Non Woven Fabris",
+        "quantity": 10,
+        "uom": "EA",
+        "ticketNumber": "BOL"
+      }
+    ],
+    "procurement": [
+      {
+        "id": "b7c61ffb-9512-48a4-bc6b-8280c1414698",
+        "item": "Vaults for SB-7, SB-8, SB-9",
+        "status": "Ordered",
+        "notes": "Lids held up production",
+        "eta": "2026-01-26",
+        "vendor": "Mid-Atlantic Precast"
+      },
+      {
+        "id": "9c4e01ed-522c-41f6-b09f-129a1a611111",
+        "item": "Corrugated Metal Pipe - Road Ditch",
+        "status": "Ordered",
+        "notes": "",
+        "vendor": "LB Water",
+        "eta": "2026-01-21"
+      },
+      {
+        "id": "243e9832-c6b7-4026-b94a-cdc20b79bc10",
+        "item": "GCL For trench",
+        "status": "Ordered",
+        "notes": "",
+        "vendor": "IWT",
+        "eta": "2026-01-20"
+      },
+      {
+        "id": "16df350b-5925-4c2e-8711-b12e39f10469",
+        "item": "Perf Pipe, Air Line HDPE, Fluid HDPE",
+        "status": "Ordered",
+        "notes": "",
+        "vendor": "ISCO",
+        "eta": "2026-01-22"
+      },
+      {
+        "id": "23171d8a-01c2-469e-95cb-256716dd1f84",
+        "item": "PVC Piping - Carrier Pipe, Fittings",
+        "status": "Pending",
+        "notes": "Awaiting Submittal Response",
+        "vendor": "LB Water"
+      },
+      {
+        "id": "1e09d9d2-bfae-437c-a0aa-aa0fde48b543",
+        "item": "Air Line Fittings",
+        "status": "Pending",
+        "notes": "Awaiting Submittal Response",
+        "vendor": "Various"
+      },
+      {
+        "id": "70aa12e5-0f21-4332-8d1c-8a051047ad76",
+        "item": "Fluid Line Fittings",
+        "status": "Pending",
+        "notes": "Awaiting Submittal Response",
+        "vendor": "Various"
+      },
+      {
+        "id": "27db89e9-f603-4936-870b-0c6f310956a2",
+        "item": "Sump Pumps/Hoses/Fittings/Regulator",
+        "status": "Ordered",
+        "notes": "",
+        "vendor": "QED",
+        "eta": "2026-01-23"
+      }
+    ]
+  },
+  "progress": {
+    "bidItems": [
+      {
+        "itemId": "bid-1-01",
+        "itemNumber": "1.01",
+        "description": "Mobilization/Demobilization (4)",
+        "thisWeekQty": 0,
+        "toDateQty": 0.5
+      },
+      {
+        "itemId": "bid-1-02",
+        "itemNumber": "1.02",
+        "description": "Pre-Construction Survey, Survey Control, Topographic Survey for Measurement and Payment, As-Built Survey",
+        "thisWeekQty": 0.2,
+        "toDateQty": 0.2
+      },
+      {
+        "itemId": "bid-1-03",
+        "itemNumber": "1.03",
+        "description": "Installation/Inspection/Maintanence/Removal of Erosion and Sediment Controls (5)",
+        "thisWeekQty": 0,
+        "toDateQty": 0.4
+      },
+      {
+        "itemId": "bid-1-04",
+        "itemNumber": "1.04",
+        "description": "Installation, Maintenance and Removal of Temporary Fencing at Wetland Boundaries",
+        "thisWeekQty": 0,
+        "toDateQty": 760
+      },
+      {
+        "itemId": "bid-1-05",
+        "itemNumber": "1.05",
+        "description": "Tree Clearing, Grubbing, and Chipping",
+        "thisWeekQty": 0,
+        "toDateQty": 3500
+      },
+      {
+        "itemId": "bid-1-06",
+        "itemNumber": "1.06",
+        "description": "Temporary Access Roads including Rock Construction Entrances and Timber Mats, Maintanence of Exising Access Roads and Dust Control (9)",
+        "thisWeekQty": 0,
+        "toDateQty": 0.2
+      },
+      {
+        "itemId": "bid-4-03",
+        "itemNumber": "4.03",
+        "description": "Provide and Install Type DW Headwall",
+        "thisWeekQty": 0,
+        "toDateQty": 1
+      },
+      {
+        "itemId": "bid-5-03",
+        "itemNumber": "5.03",
+        "description": "Collection Sumps",
+        "thisWeekQty": 3,
+        "toDateQty": 3
+      },
+      {
+        "itemId": "bid-5-04",
+        "itemNumber": "5.04",
+        "description": "Sump Casing (2.5 LF Stainless Steel) (6)",
+        "thisWeekQty": 18,
+        "toDateQty": 18
+      },
+      {
+        "itemId": "bid-5-05",
+        "itemNumber": "5.05",
+        "description": "Collection Piping, Cleanouts, Fittings, and Connections to Sump Casing",
+        "thisWeekQty": 0.1,
+        "toDateQty": 0.1
+      },
+      {
+        "itemId": "bid-5-09",
+        "itemNumber": "5.09",
+        "description": "EDD Stream Crossing Backfill",
+        "thisWeekQty": 8,
+        "toDateQty": 8
+      },
+      {
+        "itemId": "bid-6-01",
+        "itemNumber": "6.01",
+        "description": "Provide Temporary Railroad Crossing, Stream Crossing, and Access Road",
+        "thisWeekQty": 0.5,
+        "toDateQty": 0.75
+      },
+      {
+        "itemId": "bid-6-02",
+        "itemNumber": "6.02",
+        "description": "Excavate and Remove Existing Vaults and Transport to ECTS, Install 5' X 5'X 4' Vaults with Precast Double Hinged Door and Backfill Excavation",
+        "thisWeekQty": 1.6,
+        "toDateQty": 1.6
+      }
+    ],
+    "activitiesThisWeek": [],
+    "lookAheadThreeWeek": [],
+    "lookAheadItems": [
+      {
+        "id": "la-1768849758980",
+        "type": "schedule",
+        "taskId": "task-9ae64171",
+        "wbs": "5.05",
+        "description": "Install 4in SDR11 HDPE Pipe",
+        "baselineStart": "Tue 1/20/26",
+        "baselineFinish": "Wed 1/21/26",
+        "forecastStart": "2026-01-22",
+        "forecastFinish": "2026-01-22",
+        "included": true
+      },
+      {
+        "id": "la-1768849773650",
+        "type": "schedule",
+        "taskId": "task-60efa675",
+        "wbs": "5.06",
+        "description": "Backfill with No8 Stone",
+        "baselineStart": "Wed 1/21/26",
+        "baselineFinish": "Thu 1/22/26",
+        "forecastStart": "2026-01-23",
+        "forecastFinish": "2026-01-23",
+        "included": true
+      },
+      {
+        "id": "la-1768849796253",
+        "type": "schedule",
+        "taskId": "task-1fcf8973",
+        "wbs": "5.10",
+        "description": "Set 5x5x4 Vaults",
+        "baselineStart": "Thu 1/22/26",
+        "baselineFinish": "Fri 1/23/26",
+        "forecastStart": "2026-01-26",
+        "forecastFinish": "2026-01-26",
+        "included": true
+      },
+      {
+        "id": "la-1768849941779",
+        "type": "schedule",
+        "taskId": "task-06819d31",
+        "wbs": "5.05",
+        "description": "Install Airline and Water Conveyance Lines",
+        "baselineStart": "Tue 1/27/26",
+        "baselineFinish": "Wed 1/28/26",
+        "forecastStart": "2026-01-26",
+        "forecastFinish": "2026-01-27",
+        "included": true
+      },
+      {
+        "id": "la-1768849957936",
+        "type": "schedule",
+        "taskId": "task-72f79e5b",
+        "wbs": "5.07",
+        "description": "Backfill Trench with Native Fill",
+        "baselineStart": "Wed 1/28/26",
+        "baselineFinish": "Thu 1/29/26",
+        "forecastStart": "Wed 1/28/26",
+        "forecastFinish": "Thu 1/29/26",
+        "included": true
+      },
+      {
+        "id": "la-1768849988787",
+        "type": "schedule",
+        "taskId": "task-7a04abc0",
+        "wbs": "5.08",
+        "description": "Install GCL Liner",
+        "baselineStart": "Fri 1/23/26",
+        "baselineFinish": "Tue 1/27/26",
+        "forecastStart": "Fri 1/23/26",
+        "forecastFinish": "Tue 1/27/26",
+        "included": true
+      },
+      {
+        "id": "la-1768850000121",
+        "type": "schedule",
+        "taskId": "task-7bdf9fc5",
+        "wbs": "5.11",
+        "description": "Install Mechanical Components in Vaults",
+        "baselineStart": "Thu 1/29/26",
+        "baselineFinish": "Tue 2/3/26",
+        "forecastStart": "Thu 1/29/26",
+        "forecastFinish": "Tue 2/3/26",
+        "included": true
+      },
+      {
+        "id": "la-1768850003874",
+        "type": "schedule",
+        "taskId": "task-61aa2fff",
+        "wbs": "8.01",
+        "description": "Restore Area (Southern Bench)",
+        "baselineStart": "Thu 1/29/26",
+        "baselineFinish": "Fri 1/30/26",
+        "forecastStart": "Thu 1/29/26",
+        "forecastFinish": "Fri 1/30/26",
+        "included": true
+      },
+      {
+        "id": "la-1768850005389",
+        "type": "schedule",
+        "taskId": "task-3558c2ea",
+        "wbs": "5.13",
+        "description": "Place Excess Sediment Material",
+        "baselineStart": "Thu 1/29/26",
+        "baselineFinish": "Fri 1/30/26",
+        "forecastStart": "Thu 1/29/26",
+        "forecastFinish": "Fri 1/30/26",
+        "included": true
+      },
+      {
+        "id": "la-1768850006982",
+        "type": "schedule",
+        "taskId": "task-763eedc6",
+        "wbs": "5.14",
+        "description": "Transport Material to Spoil Management",
+        "baselineStart": "Thu 1/29/26",
+        "baselineFinish": "Fri 1/30/26",
+        "forecastStart": "Thu 1/29/26",
+        "forecastFinish": "Fri 1/30/26",
+        "included": true
+      },
+      {
+        "id": "la-1768850007920",
+        "type": "schedule",
+        "taskId": "task-f98414e9",
+        "wbs": "5.12",
+        "description": "Develop Wells",
+        "baselineStart": "Tue 2/3/26",
+        "baselineFinish": "Thu 2/19/26",
+        "forecastStart": "Tue 2/3/26",
+        "forecastFinish": "Thu 2/19/26",
+        "included": true
+      },
+      {
+        "id": "la-1768850009204",
+        "type": "schedule",
+        "taskId": "task-4925e626",
+        "wbs": "1.05",
+        "description": "Clearing Grubbing and Chipping",
+        "baselineStart": "Tue 2/3/26",
+        "baselineFinish": "Wed 2/4/26",
+        "forecastStart": "Tue 2/3/26",
+        "forecastFinish": "Wed 2/4/26",
+        "included": true
+      },
+      {
+        "id": "la-1768850009853",
+        "type": "schedule",
+        "taskId": "task-4dc28bb0",
+        "wbs": "1.03",
+        "description": "Install Filter Socks and RCE",
+        "baselineStart": "Wed 2/4/26",
+        "baselineFinish": "Thu 2/5/26",
+        "forecastStart": "Wed 2/4/26",
+        "forecastFinish": "Thu 2/5/26",
+        "included": true
+      },
+      {
+        "id": "la-1768850010788",
+        "type": "schedule",
+        "taskId": "task-d5fba4c4",
+        "wbs": "1.06",
+        "description": "Develop Temp Access Road",
+        "baselineStart": "Thu 2/5/26",
+        "baselineFinish": "Tue 2/10/26",
+        "forecastStart": "Thu 2/5/26",
+        "forecastFinish": "Tue 2/10/26",
+        "included": true
+      }
+    ]
+  },
+  "financials": {
+    "invoices": [
+      {
+        "id": "af4b1c90-ac4d-432b-baec-5379c74111fa",
+        "period": "2025-12-31",
+        "invoiceNumber": "INV-26-006",
+        "amount": 84833.34,
+        "retainage": 0,
+        "datePaid": ""
+      }
+    ],
+    "summary": {
+      "earnedToDate": 0,
+      "remainingContractValue": 0,
+      "totalBilled": 0
+    }
+  },
+  "schedule": {
+    "milestones": [],
+    "analysis": ""
+  },
+  "photos": [
+    {
+      "id": "dc60118a-c057-44eb-86c0-54c80a51d19f",
+      "url": "/uploads/8d22c3bd-6f1d-4630-baad-f89d66122c99/images/079fb09c-0679-4da0-9b4b-61e7a6539eff.jpg",
+      "caption": "IMG_20260119_073915",
+      "directionLooking": "01-19-26 - Crew laying out alignment/locations of sumps"
+    },
+    {
+      "id": "7a64749b-9f99-45a4-9eda-62859a2ba0bc",
+      "url": "/uploads/8d22c3bd-6f1d-4630-baad-f89d66122c99/images/14c0406f-e4e0-4a95-9478-f15c92cec206.jpg",
+      "caption": "IMG_20260119_073921",
+      "directionLooking": "01-19-26 - Crew laying out alignment/locations of sumps"
+    },
+    {
+      "id": "70751aba-f121-4ec8-b875-d843e81f6931",
+      "url": "/uploads/8d22c3bd-6f1d-4630-baad-f89d66122c99/images/addff7f0-d406-4db1-96fa-1f0238b8986d.jpg",
+      "caption": "IMG_20260119_073916",
+      "directionLooking": "01-19-26 - Crew laying out alignment/locations of sumps"
+    },
+    {
+      "id": "b50c5253-db36-4031-85e4-882ff6c9b7a5",
+      "url": "/uploads/8d22c3bd-6f1d-4630-baad-f89d66122c99/images/3a7bb603-db85-4c01-8ecd-762f60cd3b9d.jpg",
+      "caption": "IMG_20260119_073835",
+      "directionLooking": "01-19-26 - Fence Removed at SB-09 Location"
+    },
+    {
+      "id": "5d5b8540-24d7-4757-bae9-bdea9d27117b",
+      "url": "/uploads/8d22c3bd-6f1d-4630-baad-f89d66122c99/images/678b1f89-aa1e-4b55-ac05-9497cc4e03bf.jpg",
+      "caption": "IMG_20260119_073837",
+      "directionLooking": "01-19-26 - Crew installing stream crossing to SB-9"
+    },
+    {
+      "id": "8390d79c-8f6e-4ac1-a5a4-8b229c745126",
+      "url": "/uploads/8d22c3bd-6f1d-4630-baad-f89d66122c99/images/5547cbbd-6e82-4449-8d6c-b9c753d09ac5.jpg",
+      "caption": "IMG_20260119_073838",
+      "directionLooking": "01-19-26 - Crew installing stream crossing to SB-9"
+    },
+    {
+      "id": "1ceafede-b0c3-4f62-b2bb-e2a44eaed607",
+      "url": "/uploads/8d22c3bd-6f1d-4630-baad-f89d66122c99/images/ff434e16-530e-4a31-ba66-737110ca98e5.jpg",
+      "caption": "IMG_20260119_073843",
+      "directionLooking": "01-19-26 - Drilling Sumps"
+    },
+    {
+      "id": "ff311474-8a4d-4b99-a957-f62627ad3202",
+      "url": "/uploads/8d22c3bd-6f1d-4630-baad-f89d66122c99/images/373ef592-ad9b-4973-9c65-338d23d29072.jpg",
+      "caption": "IMG_20260119_073853",
+      "directionLooking": "01-19-26 - Drilling Sump SB-08"
+    },
+    {
+      "id": "76c180e7-5d32-47d3-ba76-7a3a96cb5a37",
+      "url": "/uploads/8d22c3bd-6f1d-4630-baad-f89d66122c99/images/edd4925f-6564-4853-9541-077e330e4dd1.jpg",
+      "caption": "IMG_20260119_073844",
+      "directionLooking": "01-19-26 - Drilling Sumps"
+    },
+    {
+      "id": "24487394-172a-4606-8401-a531456338fe",
+      "url": "/uploads/8d22c3bd-6f1d-4630-baad-f89d66122c99/images/be8180a1-cb8a-4575-970a-7d404193ab6a.jpg",
+      "caption": "IMG_20260119_073848",
+      "directionLooking": "01-19-26 - Sump SB-09"
+    },
+    {
+      "id": "7dffe304-b563-4163-b9f4-695bbe5fd192",
+      "url": "/uploads/8d22c3bd-6f1d-4630-baad-f89d66122c99/images/86fde2a4-2f94-4d94-9e2b-716d455b4767.jpg",
+      "caption": "IMG_20260119_073850",
+      "directionLooking": "01-19-26 - Sump SB-09 (Installed)"
+    },
+    {
+      "id": "fdc35c51-4f18-44f4-925d-3a6fca300cbf",
+      "url": "/uploads/8d22c3bd-6f1d-4630-baad-f89d66122c99/images/7315fb32-1d3b-4d55-9b96-2ddb57c69508.jpg",
+      "caption": "IMG_20260119_073855",
+      "directionLooking": "01-19-26 - Sump SB-08"
+    },
+    {
+      "id": "8b4d4f50-8fe8-4ca0-b42e-f3caecdafc75",
+      "url": "/uploads/8d22c3bd-6f1d-4630-baad-f89d66122c99/images/a4e82778-33cb-4700-acfd-287838d8265a.jpg",
+      "caption": "IMG_20260119_073857",
+      "directionLooking": "01-199-26 - Sump SB-08"
+    }
+  ],
+  "issues": [],
+  "rfis": [],
+  "submittals": [
+    {
+      "id": "2bc38314-4724-4fbf-a6ad-11bcc91621c7",
+      "submittalNumber": "004.2",
+      "description": "SWBP",
+      "dateSent": "2026-01-14",
+      "dateNeededBy": "",
+      "status": "Revision"
+    },
+    {
+      "id": "ba758c0e-9bfa-4596-bc65-a76e089caef0",
+      "submittalNumber": "005.2",
+      "description": "PPC Plan",
+      "dateSent": "2026-01-14",
+      "dateNeededBy": "",
+      "status": "Revision"
+    },
+    {
+      "id": "173bb856-9554-474e-b9bf-a200962f7e8c",
+      "submittalNumber": "006.2",
+      "description": "CQC Plan",
+      "dateSent": "2026-01-14",
+      "dateNeededBy": "",
+      "status": "Revision"
+    },
+    {
+      "id": "3a2da3cd-73d4-43b5-a38c-584a5cc72f34",
+      "submittalNumber": "068.2",
+      "description": "4 Inch SS Screen",
+      "dateSent": "2026-01-13",
+      "dateNeededBy": "2026-01-15",
+      "status": "Revision"
+    },
+    {
+      "id": "c89c4422-27f4-403e-b873-cec339dac72a",
+      "submittalNumber": "072.2",
+      "description": "Air Fittings",
+      "dateSent": "2026-01-15",
+      "dateNeededBy": "2026-01-20",
+      "status": "Revision"
+    },
+    {
+      "id": "5832afe2-5c0d-4d74-825f-6a7ca195448c",
+      "submittalNumber": "073.2",
+      "description": "Liquid Fittings",
+      "dateSent": "",
+      "dateNeededBy": "",
+      "status": "New"
+    },
+    {
+      "id": "726ba6fb-567f-450e-b049-459f7539620f",
+      "submittalNumber": "075.2",
+      "description": "Waste Removal Plan",
+      "dateSent": "2026-01-14",
+      "dateNeededBy": "",
+      "status": "Revision"
+    }
+  ],
+  "fieldDirectives": [
+    {
+      "id": "47ce132f-ecf1-421d-8aef-efc72e2d900b",
+      "number": "FD-001",
+      "dateIssued": "2026-01-16",
+      "description": "Crew directed to auger/drill additional location at SB-12.  ~2 hours spent, drilling crew, and RECON Crew",
+      "issuedBy": "",
+      "status": "Draft",
+      "timeImpact": "Minor",
+      "scopeImpact": "Addition"
+    }
+  ],
+  "changeOrders": []
+}

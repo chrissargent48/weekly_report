@@ -1,0 +1,29 @@
+{
+  "identity": {
+    "projectName": "UX Audit Test",
+    "location": "Test City, TS",
+    "subtitle": "",
+    "jobNumber": ""
+  },
+  "personnel": {
+    "recon": [],
+    "client": {
+      "company": "",
+      "representatives": []
+    },
+    "engineer": {
+      "company": "",
+      "representatives": []
+    },
+    "stakeholders": []
+  },
+  "contract": {
+    "originalValue": 0,
+    "startDate": "",
+    "substantialCompletionDate": ""
+  },
+  "distributionList": {
+    "to": [],
+    "cc": []
+  }
+}

@@ -1,0 +1,80 @@
+{
+  "identity": {
+    "projectName": "Ford City - Former Facility SLA - 2024 Site Improvements",
+    "location": "1696 Ford City Road, Kittanning, PA",
+    "subtitle": "",
+    "jobNumber": "850030",
+    "companyAddress": "Suite 450",
+    "logoUrl": "/uploads/8d22c3bd-6f1d-4630-baad-f89d66122c99/images/9e9dd211-b828-451b-8192-5671540c80e9.svg"
+  },
+  "personnel": {
+    "recon": [
+      {
+        "name": "Chris Sargent",
+        "role": "Project Manager",
+        "email": "chris.sargent@keller-na.com",
+        "phone": "2817335766"
+      },
+      {
+        "name": "Gary Starks",
+        "role": "Construction Manager",
+        "email": "gary.starks@keller-na.com",
+        "phone": "9705892061"
+      },
+      {
+        "name": "Corey Allen",
+        "role": "Superintendent",
+        "email": "corey.allen@keller-na.com",
+        "phone": "9709462823"
+      },
+      {
+        "name": "Rick Meyers",
+        "role": "Business Manager",
+        "email": "rick.meyers@keller-na.com",
+        "phone": "7135171505"
+      }
+    ],
+    "client": {
+      "rep": "",
+      "eor": "",
+      "representatives": [
+        {
+          "name": "Brianne Hastings",
+          "role": "Owner's Rep",
+          "email": "bhastings@ppg.com",
+          "phone": "4126132743"
+        }
+      ],
+      "company": "PPG Industries, Inc",
+      "address": "One PPG Place, Pittsburgh, PA 15272"
+    },
+    "stakeholders": [],
+    "engineer": {
+      "company": "Key Environmental Inc",
+      "address": "200 3rd Ave, Carnegie, PA 15106",
+      "representatives": [
+        {
+          "name": "Christine Zubrow",
+          "role": "Lead Engineer",
+          "email": "czubrow@keyenvir.com",
+          "phone": "4128187827"
+        },
+        {
+          "name": "Donavin Armour",
+          "role": "Site Engineer",
+          "email": "darmour@keyenvir.com",
+          "phone": "4126073871"
+        }
+      ]
+    }
+  },
+  "contract": {
+    "originalValue": 0,
+    "startDate": "",
+    "substantialCompletionDate": ""
+  },
+  "distributionList": {
+    "to": [],
+    "cc": []
+  }
+}

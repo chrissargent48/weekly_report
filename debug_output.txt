@@ -1,0 +1,11 @@
+--- Processing Schedule.xlsx ---
+First 3 rows (Raw):
+[0] ["Bid Item","Task Name","% Complete","Duration","Start","Finish"]
+[1] [1.01,"      Notice to Proceed",1,"0.8 days","Mon 11/24/25","Mon 11/24/25"]
+[2] [1.01,"         Mobilization",0.5,"4 days","Mon 12/8/25","Fri 12/12/25"]
+Has Header detected: true
+Row 1 parsed as: {"name":"Notice to Proceed","baselineStart":"Mon 11/24/25","baselineFinish":"Mon 11/24/25","baselineDuration":0,"percentComplete":"1","linkedBidItem":1.01}
+Row 2 parsed as: {"name":"Mobilization","baselineStart":"Mon 12/8/25","baselineFinish":"Fri 12/12/25","baselineDuration":4,"percentComplete":"0.5","linkedBidItem":1.01}
+Row 3 parsed as: {"name":"Install Temporary Railroad Crossing","baselineStart":"Tue 12/16/25","baselineFinish":"Tue 1/6/26","baselineDuration":12,"percentComplete":"1","linkedBidItem":6.01}
+Row 4 parsed as: {"name":"Install Swamp Mat Access Road","baselineStart":"Mon 1/5/26","baselineFinish":"Tue 1/6/26","baselineDuration":1,"percentComplete":"1","linkedBidItem":1.06}
+Row 5 parsed as: {"name":"Replace Vault 1","baselineStart":"Tue 1/6/26","baselineFinish":"Wed 1/7/26","baselineDuration":1,"percentComplete":"1","linkedBidItem":6.02}

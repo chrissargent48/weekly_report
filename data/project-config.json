@@ -1,0 +1,28 @@
+{
+  "identity": {
+    "projectName": "Ford City",
+    "subtitle": "",
+    "jobNumber": "",
+    "location": ""
+  },
+  "personnel": {
+    "recon": {
+      "pm": "",
+      "superintendent": "",
+      "businessManager": ""
+    },
+    "client": {
+      "rep": "",
+      "eor": ""
+    }
+  },
+  "contract": {
+    "originalValue": 0,
+    "startDate": "",
+    "substantialCompletionDate": ""
+  },
+  "distributionList": {
+    "to": [],
+    "cc": []
+  }
+}

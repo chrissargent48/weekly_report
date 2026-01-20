@@ -1,0 +1,66 @@
+{
+  "id": "2026-01-01",
+  "weekEnding": "2026-01-01",
+  "overview": {
+    "executiveSummary": "",
+    "weather": [],
+    "kpis": {
+      "percentComplete": 0,
+      "manHoursWeek": 0,
+      "manHoursTotal": 0,
+      "safetyIncidents": 0,
+      "weatherDaysLost": 0
+    }
+  },
+  "safety": {
+    "stats": {
+      "nearMisses": {
+        "week": 0,
+        "ytd": 0
+      },
+      "firstAids": {
+        "week": 0,
+        "ytd": 0
+      },
+      "recordables": {
+        "week": 0,
+        "ytd": 0
+      },
+      "lostTime": {
+        "week": 0,
+        "ytd": 0
+      },
+      "stopWorks": {
+        "week": 0,
+        "ytd": 0
+      }
+    },
+    "narrative": ""
+  },
+  "resources": {
+    "manpower": [],
+    "equipment": {
+      "onSite": [],
+      "mobilized": [],
+      "demobilized": []
+    }
+  },
+  "progress": {
+    "bidItems": [],
+    "activitiesThisWeek": [],
+    "lookAheadThreeWeek": []
+  },
+  "financials": {
+    "invoices": [],
+    "summary": {
+      "earnedToDate": 0,
+      "remainingContractValue": 0,
+      "totalBilled": 0
+    }
+  },
+  "schedule": {
+    "milestones": [],
+    "analysis": ""
+  },
+  "photos": []
+}

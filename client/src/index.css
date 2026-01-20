@@ -1,0 +1,75 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+  .btn-primary {
+    @apply bg-brand-primary text-white hover:brightness-95 transition-all shadow-sm active:scale-95 px-4 py-2 rounded-lg font-medium;
+  }
+
+  .btn-secondary {
+    @apply bg-white text-brand-surface-dark border border-zinc-200 hover:bg-zinc-50 transition-all shadow-sm active:scale-95 px-4 py-2 rounded-lg font-medium;
+  }
+
+  .form-input {
+    @apply w-full rounded-md border-zinc-300 shadow-sm focus:border-brand-primary focus:ring-brand-primary sm:text-sm h-9 px-3;
+  }
+}
+
+body {
+  font-family:
+    "Inter",
+    -apple-system,
+    BlinkMacSystemFont,
+    sans-serif;
+  @apply bg-slate-50 text-slate-900;
+}
+
+@media print {
+  @page { 
+    margin: 0; 
+    size: auto; 
+  }
+  
+  body { 
+    margin: 0; 
+    padding: 0; 
+    background-color: white !important; 
+    -webkit-print-color-adjust: exact !important; 
+    print-color-adjust: exact !important;
+  }
+
+  /* Hide sidebar, navigation, and other UI elements */
+  .no-print, nav, aside, header.sticky, .sidebar, button, .border-dashed { 
+    display: none !important; 
+  }
+
+  /* Ensure print container takes full width/height */
+  #root, .print-container {
+    width: 100%;
+    margin: 0;
+    padding: 0;
+  }
+
+  .print-page { 
+    page-break-after: always; 
+    break-after: page; 
+    width: 210mm; /* A4 width */
+    height: 297mm; /* A4 height */
+    position: relative; 
+    margin: 0 auto; 
+    padding: 0; 
+    overflow: hidden; /* Prevent spillover */
+  }
+
+  .print-page:last-child { 
+    page-break-after: auto; 
+    break-after: auto; 
+  }
+
+  /* Reset text colors for print */
+  * {
+    print-color-adjust: exact !important;
+    -webkit-print-color-adjust: exact !important;
+  }
+}

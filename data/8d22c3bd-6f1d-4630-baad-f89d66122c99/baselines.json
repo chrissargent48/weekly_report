@@ -1,0 +1,1378 @@
+{
+  "bidItems": [
+    {
+      "id": "bid-1-01",
+      "itemNumber": "1.01",
+      "description": "Mobilization/Demobilization (4)",
+      "unit": "LS",
+      "contractQty": 1,
+      "unitPrice": 72910,
+      "totalValue": 72910
+    },
+    {
+      "id": "bid-1-02",
+      "itemNumber": "1.02",
+      "description": "Pre-Construction Survey, Survey Control, Topographic Survey for Measurement and Payment, As-Built Survey",
+      "unit": "LS",
+      "contractQty": 1,
+      "unitPrice": 29030,
+      "totalValue": 29030
+    },
+    {
+      "id": "bid-1-03",
+      "itemNumber": "1.03",
+      "description": "Installation/Inspection/Maintanence/Removal of Erosion and Sediment Controls (5)",
+      "unit": "LS",
+      "contractQty": 1,
+      "unitPrice": 18830,
+      "totalValue": 18830
+    },
+    {
+      "id": "bid-1-04",
+      "itemNumber": "1.04",
+      "description": "Installation, Maintenance and Removal of Temporary Fencing at Wetland Boundaries",
+      "unit": "LF",
+      "contractQty": 760,
+      "unitPrice": 6,
+      "totalValue": 4560
+    },
+    {
+      "id": "bid-1-05",
+      "itemNumber": "1.05",
+      "description": "Tree Clearing, Grubbing, and Chipping",
+      "unit": "SY",
+      "contractQty": 5000,
+      "unitPrice": 1.37,
+      "totalValue": 6850.000000000001
+    },
+    {
+      "id": "bid-1-06",
+      "itemNumber": "1.06",
+      "description": "Temporary Access Roads including Rock Construction Entrances and Timber Mats, Maintanence of Exising Access Roads and Dust Control (9)",
+      "unit": "LS",
+      "contractQty": 1,
+      "unitPrice": 111794.21,
+      "totalValue": 111794.21
+    },
+    {
+      "id": "bid-2-01",
+      "itemNumber": "2.01",
+      "description": "Channel Excavate and Grade, Stockpile Sediments",
+      "unit": "CY",
+      "contractQty": 2300,
+      "unitPrice": 13.8,
+      "totalValue": 31740
+    },
+    {
+      "id": "bid-2-02",
+      "itemNumber": "2.02",
+      "description": "Placement of Native Streambed Material and Construct Earthen Berm",
+      "unit": "CY",
+      "contractQty": 410,
+      "unitPrice": 23.5,
+      "totalValue": 9635
+    },
+    {
+      "id": "bid-2-03",
+      "itemNumber": "2.03",
+      "description": "10 oz/sy Non-Woven Geotextile Placement",
+      "unit": "SY",
+      "contractQty": 3580,
+      "unitPrice": 5.35,
+      "totalValue": 19153
+    },
+    {
+      "id": "bid-2-04",
+      "itemNumber": "2.04",
+      "description": "Biodegradable Erosion Control Matting Installation",
+      "unit": "SY",
+      "contractQty": 1300,
+      "unitPrice": 8.18,
+      "totalValue": 10634
+    },
+    {
+      "id": "bid-2-05",
+      "itemNumber": "2.05",
+      "description": "RipRap (R-4) Armoring Material for Side Slopes and Installation",
+      "unit": "CY",
+      "contractQty": 2350,
+      "unitPrice": 62.68,
+      "totalValue": 147298
+    },
+    {
+      "id": "bid-2-06",
+      "itemNumber": "2.06",
+      "description": "Place and Spread Excess Sediment Material in non-wetland areas of the LOD",
+      "unit": "SY",
+      "contractQty": 11340,
+      "unitPrice": 1.6,
+      "totalValue": 18144
+    },
+    {
+      "id": "bid-2-07",
+      "itemNumber": "2.07",
+      "description": "Transportation of Material to Spoil Management Area",
+      "unit": "CY",
+      "contractQty": 523,
+      "unitPrice": 22.6,
+      "totalValue": 11819.800000000001
+    },
+    {
+      "id": "bid-3-01",
+      "itemNumber": "3.01",
+      "description": "Excavate, Grade and Backfill Southern Embankment",
+      "unit": "CY",
+      "contractQty": 920,
+      "unitPrice": 15.4,
+      "totalValue": 14168
+    },
+    {
+      "id": "bid-3-02",
+      "itemNumber": "3.02",
+      "description": "10 oz/sy Non-Woven Geotextile Placement",
+      "unit": "SY",
+      "contractQty": 1220,
+      "unitPrice": 3.65,
+      "totalValue": 4453
+    },
+    {
+      "id": "bid-3-03",
+      "itemNumber": "3.03",
+      "description": "Riprap Material and Placement",
+      "unit": "CY",
+      "contractQty": 820,
+      "unitPrice": 79.16,
+      "totalValue": 64911.2
+    },
+    {
+      "id": "bid-3-04",
+      "itemNumber": "3.04",
+      "description": "Place and Spread Excess Sediment Material in non-wetland areas of the LOD",
+      "unit": "SY",
+      "contractQty": 610,
+      "unitPrice": 1.6,
+      "totalValue": 976
+    },
+    {
+      "id": "bid-3-05",
+      "itemNumber": "3.05",
+      "description": "Transportation of Material to Spoil Management Area",
+      "unit": "CY",
+      "contractQty": 1,
+      "unitPrice": 22.6,
+      "totalValue": 22.6
+    },
+    {
+      "id": "bid-4-01",
+      "itemNumber": "4.01",
+      "description": "Excavate and Remove Existing Culvert, Install New Culvert, Embed Culvert with Native Soil, and Backfill, includes Disposal",
+      "unit": "LF",
+      "contractQty": 20,
+      "unitPrice": 510,
+      "totalValue": 10200
+    },
+    {
+      "id": "bid-4-02",
+      "itemNumber": "4.02",
+      "description": "10 oz/sy Non-Woven Geotextile and RipRap Material and Placement",
+      "unit": "SY",
+      "contractQty": 36,
+      "unitPrice": 39,
+      "totalValue": 1404
+    },
+    {
+      "id": "bid-4-03",
+      "itemNumber": "4.03",
+      "description": "Provide and Install Type DW Headwall",
+      "unit": "EA",
+      "contractQty": 2,
+      "unitPrice": 4970,
+      "totalValue": 9940
+    },
+    {
+      "id": "bid-5-01",
+      "itemNumber": "5.01",
+      "description": "Dewatering and Water Management (Leachate and Groundwater)",
+      "unit": "Day",
+      "contractQty": 1,
+      "unitPrice": 6370,
+      "totalValue": 6370
+    },
+    {
+      "id": "bid-5-02",
+      "itemNumber": "5.02",
+      "description": "Trench Excavation, Stockpile, Surface Water Management and Stability",
+      "unit": "BCY",
+      "contractQty": 170,
+      "unitPrice": 103.5,
+      "totalValue": 17595
+    },
+    {
+      "id": "bid-5-03",
+      "itemNumber": "5.03",
+      "description": "Collection Sumps",
+      "unit": "EA",
+      "contractQty": 3,
+      "unitPrice": 1990,
+      "totalValue": 5970
+    },
+    {
+      "id": "bid-5-04",
+      "itemNumber": "5.04",
+      "description": "Sump Casing (2.5 LF Stainless Steel) (6)",
+      "unit": "LF",
+      "contractQty": 26,
+      "unitPrice": 145,
+      "totalValue": 3770
+    },
+    {
+      "id": "bid-5-05",
+      "itemNumber": "5.05",
+      "description": "Collection Piping, Cleanouts, Fittings, and Connections to Sump Casing",
+      "unit": "LS",
+      "contractQty": 1,
+      "unitPrice": 15350,
+      "totalValue": 15350
+    },
+    {
+      "id": "bid-5-06",
+      "itemNumber": "5.06",
+      "description": "Backfill Trench (PennDOT 2B River Gravel)",
+      "unit": "BCY",
+      "contractQty": 85,
+      "unitPrice": 162,
+      "totalValue": 13770
+    },
+    {
+      "id": "bid-5-07",
+      "itemNumber": "5.07",
+      "description": "Backfill Native Material",
+      "unit": "BCY",
+      "contractQty": 89,
+      "unitPrice": 63.5,
+      "totalValue": 5651.5
+    },
+    {
+      "id": "bid-5-08",
+      "itemNumber": "5.08",
+      "description": "Impermeable Geomembrane (GCL)",
+      "unit": "SY",
+      "contractQty": 150,
+      "unitPrice": 35.8,
+      "totalValue": 5370
+    },
+    {
+      "id": "bid-5-09",
+      "itemNumber": "5.09",
+      "description": "EDD Stream Crossing Backfill",
+      "unit": "BCY",
+      "contractQty": 8,
+      "unitPrice": 525,
+      "totalValue": 4200
+    },
+    {
+      "id": "bid-5-10",
+      "itemNumber": "5.10",
+      "description": "Sump Vaults (5' X 5' X 4') and Precast Double Hinged Door.",
+      "unit": "EA",
+      "contractQty": 3,
+      "unitPrice": 13360,
+      "totalValue": 40080
+    },
+    {
+      "id": "bid-5-11",
+      "itemNumber": "5.11",
+      "description": "Provide and Install Pump, Piping, Tubing, Valves, Fittings and Appurtenances and Make Connections to Existing System",
+      "unit": "LS",
+      "contractQty": 1,
+      "unitPrice": 36140,
+      "totalValue": 36140
+    },
+    {
+      "id": "bid-5-12",
+      "itemNumber": "5.12",
+      "description": "Develop Sumps and Trench",
+      "unit": "Weeks",
+      "contractQty": 2,
+      "unitPrice": 2375,
+      "totalValue": 4750
+    },
+    {
+      "id": "bid-5-13",
+      "itemNumber": "5.13",
+      "description": "Place and Spread Excess Sediment Material in non-wetland areas of the LOD",
+      "unit": "SY",
+      "contractQty": 1,
+      "unitPrice": 1.6,
+      "totalValue": 1.6
+    },
+    {
+      "id": "bid-5-14",
+      "itemNumber": "5.14",
+      "description": "Transportation of Material to Spoil Management Area",
+      "unit": "CY",
+      "contractQty": 85,
+      "unitPrice": 22.6,
+      "totalValue": 1921.0000000000002
+    },
+    {
+      "id": "bid-6-01",
+      "itemNumber": "6.01",
+      "description": "Provide Temporary Railroad Crossing, Stream Crossing, and Access Road",
+      "unit": "LS",
+      "contractQty": 1,
+      "unitPrice": 16650,
+      "totalValue": 16650
+    },
+    {
+      "id": "bid-6-02",
+      "itemNumber": "6.02",
+      "description": "Excavate and Remove Existing Vaults and Transport to ECTS, Install 5' X 5'X 4' Vaults with Precast Double Hinged Door and Backfill Excavation",
+      "unit": "EA",
+      "contractQty": 2,
+      "unitPrice": 21250,
+      "totalValue": 42500
+    },
+    {
+      "id": "bid-6-03",
+      "itemNumber": "6.03",
+      "description": "Remove stream crossing, install erosion control matting and stabilize",
+      "unit": "LS",
+      "contractQty": 1,
+      "unitPrice": 12250,
+      "totalValue": 12250
+    },
+    {
+      "id": "bid-6-04",
+      "itemNumber": "6.04",
+      "description": "Transportation of Material to Spoil Management Area",
+      "unit": "LCY",
+      "contractQty": 6,
+      "unitPrice": 22.6,
+      "totalValue": 135.60000000000002
+    },
+    {
+      "id": "bid-7-01",
+      "itemNumber": "7.01",
+      "description": "Interim Stockpiling and Dewatering",
+      "unit": "CY",
+      "contractQty": 85,
+      "unitPrice": 47,
+      "totalValue": 3995
+    },
+    {
+      "id": "bid-7-02",
+      "itemNumber": "7.02",
+      "description": "Spread, Grade and Compact Materials Generated From Site Excavation Work",
+      "unit": "CY",
+      "contractQty": 85,
+      "unitPrice": 41,
+      "totalValue": 3485
+    },
+    {
+      "id": "bid-7-03",
+      "itemNumber": "7.03",
+      "description": "Geosynthetic Clay Liner",
+      "unit": "SY",
+      "contractQty": 180,
+      "unitPrice": 30,
+      "totalValue": 5400
+    },
+    {
+      "id": "bid-7-04",
+      "itemNumber": "7.04",
+      "description": "Soils Cover Non-impacted Site Material Placement (8)",
+      "unit": "CY",
+      "contractQty": 40,
+      "unitPrice": 43.5,
+      "totalValue": 1740
+    },
+    {
+      "id": "bid-7-05",
+      "itemNumber": "7.05",
+      "description": "Top Soil Cover Material Import and Placement",
+      "unit": "CY",
+      "contractQty": 20,
+      "unitPrice": 165,
+      "totalValue": 3300
+    },
+    {
+      "id": "bid-8-01",
+      "itemNumber": "8.01",
+      "description": "Temporary Stabilization Annual Rye (Seeding, Mulch)",
+      "unit": "SY",
+      "contractQty": 11951,
+      "unitPrice": 0.82,
+      "totalValue": 9799.82
+    },
+    {
+      "id": "bid-8-02",
+      "itemNumber": "8.02",
+      "description": "Permanent Stabilization (Lime, Seed, Fertilizer, Mulch)",
+      "unit": "SY",
+      "contractQty": 11951,
+      "unitPrice": 1.17,
+      "totalValue": 13982.669999999998
+    },
+    {
+      "id": "bid-8-03",
+      "itemNumber": "8.03",
+      "description": "Wetland Restoration",
+      "unit": "SY",
+      "contractQty": 1060,
+      "unitPrice": 7,
+      "totalValue": 7420
+    }
+  ],
+  "schedule": [
+    {
+      "id": "task-1c986cd1",
+      "wbs": "1.01",
+      "name": "Notice to Proceed",
+      "baselineStart": "Mon 11/24/25",
+      "baselineFinish": "Mon 11/24/25",
+      "baselineDuration": 0.8,
+      "percentComplete": 100,
+      "isCriticalPath": false,
+      "linkedBidItem": "1.01"
+    },
+    {
+      "id": "task-92a1cb03",
+      "wbs": "1.01",
+      "name": "Mobilization",
+      "baselineStart": "Mon 12/8/25",
+      "baselineFinish": "Fri 12/12/25",
+      "baselineDuration": 4,
+      "percentComplete": 50,
+      "isCriticalPath": false,
+      "linkedBidItem": "1.01"
+    },
+    {
+      "id": "task-8c655cc9",
+      "wbs": "6.01",
+      "name": "Install Temporary Railroad Crossing",
+      "baselineStart": "Tue 12/16/25",
+      "baselineFinish": "Tue 1/6/26",
+      "baselineDuration": 12,
+      "percentComplete": 100,
+      "isCriticalPath": false,
+      "linkedBidItem": "6.01"
+    },
+    {
+      "id": "task-ef7e8f88",
+      "wbs": "1.06",
+      "name": "Install Swamp Mat Access Road",
+      "baselineStart": "Mon 1/5/26",
+      "baselineFinish": "Tue 1/6/26",
+      "baselineDuration": 1,
+      "percentComplete": 100,
+      "isCriticalPath": false,
+      "linkedBidItem": "1.06"
+    },
+    {
+      "id": "task-c7de62f7",
+      "wbs": "6.02",
+      "name": "Replace Vault 1",
+      "baselineStart": "Tue 1/6/26",
+      "baselineFinish": "Wed 1/7/26",
+      "baselineDuration": 1,
+      "percentComplete": 100,
+      "isCriticalPath": false,
+      "linkedBidItem": "6.02"
+    },
+    {
+      "id": "task-cd4820fd",
+      "wbs": "6.02",
+      "name": "Replace Vault 2",
+      "baselineStart": "Wed 1/7/26",
+      "baselineFinish": "Thu 1/8/26",
+      "baselineDuration": 1,
+      "percentComplete": 100,
+      "isCriticalPath": false,
+      "linkedBidItem": "6.02"
+    },
+    {
+      "id": "task-0be50da8",
+      "wbs": "6.03",
+      "name": "Remove Access Mats and Restore Area",
+      "baselineStart": "Thu 1/8/26",
+      "baselineFinish": "Thu 2/12/26",
+      "baselineDuration": 20,
+      "percentComplete": 1,
+      "isCriticalPath": false,
+      "linkedBidItem": "6.03"
+    },
+    {
+      "id": "task-40a46119",
+      "wbs": "6.04",
+      "name": "Transport Material to Spoil Management",
+      "baselineStart": "Thu 1/8/26",
+      "baselineFinish": "Thu 2/12/26",
+      "baselineDuration": 20,
+      "percentComplete": 0,
+      "isCriticalPath": false,
+      "linkedBidItem": "6.04"
+    },
+    {
+      "id": "task-934c130c",
+      "wbs": "8.01",
+      "name": "Restore Area (East Slope)",
+      "baselineStart": "Thu 1/8/26",
+      "baselineFinish": "Thu 2/12/26",
+      "baselineDuration": 20,
+      "percentComplete": 0,
+      "isCriticalPath": false,
+      "linkedBidItem": "8.01"
+    },
+    {
+      "id": "task-90b25ea5",
+      "wbs": "1.05",
+      "name": "Clear and Strip Access Alignment",
+      "baselineStart": "Fri 12/19/25",
+      "baselineFinish": "Mon 12/22/25",
+      "baselineDuration": 1,
+      "percentComplete": 100,
+      "isCriticalPath": false,
+      "linkedBidItem": "1.05"
+    },
+    {
+      "id": "task-2678bb9e",
+      "wbs": "5.09",
+      "name": "Install Stream Crossing and Pump Around",
+      "baselineStart": "Thu 1/15/26",
+      "baselineFinish": "Mon 1/26/26",
+      "baselineDuration": 6,
+      "percentComplete": 0,
+      "isCriticalPath": false,
+      "linkedBidItem": "5.09"
+    },
+    {
+      "id": "task-e461825a",
+      "wbs": "5.03",
+      "name": "Drill Sumps SB 9 8 and 7",
+      "baselineStart": "Fri 1/16/26",
+      "baselineFinish": "Mon 1/19/26",
+      "baselineDuration": 1,
+      "percentComplete": 0,
+      "isCriticalPath": false,
+      "linkedBidItem": "5.03"
+    },
+    {
+      "id": "task-ff988243",
+      "wbs": "5.02",
+      "name": "Excavate Trench STA 6+93 to Vault 4",
+      "baselineStart": "Mon 1/19/26",
+      "baselineFinish": "Tue 1/20/26",
+      "baselineDuration": 0.5,
+      "percentComplete": 0,
+      "isCriticalPath": false,
+      "linkedBidItem": "5.02"
+    },
+    {
+      "id": "task-9ae64171",
+      "wbs": "5.05",
+      "name": "Install 4in SDR11 HDPE Pipe",
+      "baselineStart": "Tue 1/20/26",
+      "baselineFinish": "Wed 1/21/26",
+      "baselineDuration": 1,
+      "percentComplete": 0,
+      "isCriticalPath": false,
+      "linkedBidItem": "5.05"
+    },
+    {
+      "id": "task-60efa675",
+      "wbs": "5.06",
+      "name": "Backfill with No8 Stone",
+      "baselineStart": "Wed 1/21/26",
+      "baselineFinish": "Thu 1/22/26",
+      "baselineDuration": 1,
+      "percentComplete": 0,
+      "isCriticalPath": false,
+      "linkedBidItem": "5.06"
+    },
+    {
+      "id": "task-1fcf8973",
+      "wbs": "5.10",
+      "name": "Set 5x5x4 Vaults",
+      "baselineStart": "Thu 1/22/26",
+      "baselineFinish": "Fri 1/23/26",
+      "baselineDuration": 1,
+      "percentComplete": 0,
+      "isCriticalPath": false,
+      "linkedBidItem": "5.10"
+    },
+    {
+      "id": "task-7a04abc0",
+      "wbs": "5.08",
+      "name": "Install GCL Liner",
+      "baselineStart": "Fri 1/23/26",
+      "baselineFinish": "Tue 1/27/26",
+      "baselineDuration": 1,
+      "percentComplete": 0,
+      "isCriticalPath": false,
+      "linkedBidItem": "5.08"
+    },
+    {
+      "id": "task-06819d31",
+      "wbs": "5.05",
+      "name": "Install Airline and Water Conveyance Lines",
+      "baselineStart": "Tue 1/27/26",
+      "baselineFinish": "Wed 1/28/26",
+      "baselineDuration": 1,
+      "percentComplete": 0,
+      "isCriticalPath": false,
+      "linkedBidItem": "5.05"
+    },
+    {
+      "id": "task-72f79e5b",
+      "wbs": "5.07",
+      "name": "Backfill Trench with Native Fill",
+      "baselineStart": "Wed 1/28/26",
+      "baselineFinish": "Thu 1/29/26",
+      "baselineDuration": 1,
+      "percentComplete": 0,
+      "isCriticalPath": false,
+      "linkedBidItem": "5.07"
+    },
+    {
+      "id": "task-7bdf9fc5",
+      "wbs": "5.11",
+      "name": "Install Mechanical Components in Vaults",
+      "baselineStart": "Thu 1/29/26",
+      "baselineFinish": "Tue 2/3/26",
+      "baselineDuration": 2,
+      "percentComplete": 0,
+      "isCriticalPath": false,
+      "linkedBidItem": "5.11"
+    },
+    {
+      "id": "task-f98414e9",
+      "wbs": "5.12",
+      "name": "Develop Wells",
+      "baselineStart": "Tue 2/3/26",
+      "baselineFinish": "Thu 2/19/26",
+      "baselineDuration": 10,
+      "percentComplete": 0,
+      "isCriticalPath": false,
+      "linkedBidItem": "5.12"
+    },
+    {
+      "id": "task-61aa2fff",
+      "wbs": "8.01",
+      "name": "Restore Area (Southern Bench)",
+      "baselineStart": "Thu 1/29/26",
+      "baselineFinish": "Fri 1/30/26",
+      "baselineDuration": 1,
+      "percentComplete": 0,
+      "isCriticalPath": false,
+      "linkedBidItem": "8.01"
+    },
+    {
+      "id": "task-3558c2ea",
+      "wbs": "5.13",
+      "name": "Place Excess Sediment Material",
+      "baselineStart": "Thu 1/29/26",
+      "baselineFinish": "Fri 1/30/26",
+      "baselineDuration": 0.4,
+      "percentComplete": 0,
+      "isCriticalPath": false,
+      "linkedBidItem": "5.13"
+    },
+    {
+      "id": "task-763eedc6",
+      "wbs": "5.14",
+      "name": "Transport Material to Spoil Management",
+      "baselineStart": "Thu 1/29/26",
+      "baselineFinish": "Fri 1/30/26",
+      "baselineDuration": 0.4,
+      "percentComplete": 0,
+      "isCriticalPath": false,
+      "linkedBidItem": "5.14"
+    },
+    {
+      "id": "task-4925e626",
+      "wbs": "1.05",
+      "name": "Clearing Grubbing and Chipping",
+      "baselineStart": "Tue 2/3/26",
+      "baselineFinish": "Wed 2/4/26",
+      "baselineDuration": 1,
+      "percentComplete": 50,
+      "isCriticalPath": false,
+      "linkedBidItem": "1.05"
+    },
+    {
+      "id": "task-4dc28bb0",
+      "wbs": "1.03",
+      "name": "Install Filter Socks and RCE",
+      "baselineStart": "Wed 2/4/26",
+      "baselineFinish": "Thu 2/5/26",
+      "baselineDuration": 1,
+      "percentComplete": 0,
+      "isCriticalPath": false,
+      "linkedBidItem": "1.03"
+    },
+    {
+      "id": "task-d5fba4c4",
+      "wbs": "1.06",
+      "name": "Develop Temp Access Road",
+      "baselineStart": "Thu 2/5/26",
+      "baselineFinish": "Tue 2/10/26",
+      "baselineDuration": 2,
+      "percentComplete": 0,
+      "isCriticalPath": false,
+      "linkedBidItem": "1.06"
+    },
+    {
+      "id": "task-fb7bbb16",
+      "wbs": "3.01",
+      "name": "Excavate Grade and Backfill Embankment",
+      "baselineStart": "Tue 2/10/26",
+      "baselineFinish": "Tue 2/17/26",
+      "baselineDuration": 4,
+      "percentComplete": 0,
+      "isCriticalPath": false,
+      "linkedBidItem": "3.01"
+    },
+    {
+      "id": "task-86908cf6",
+      "wbs": "3.02",
+      "name": "Install 10oz Geotextile",
+      "baselineStart": "Tue 2/17/26",
+      "baselineFinish": "Wed 2/18/26",
+      "baselineDuration": 1,
+      "percentComplete": 0,
+      "isCriticalPath": false,
+      "linkedBidItem": "3.02"
+    },
+    {
+      "id": "task-ff403b01",
+      "wbs": "3.03",
+      "name": "Install Rip Rap Aggregate",
+      "baselineStart": "Wed 2/18/26",
+      "baselineFinish": "Tue 2/24/26",
+      "baselineDuration": 3,
+      "percentComplete": 0,
+      "isCriticalPath": false,
+      "linkedBidItem": "3.03"
+    },
+    {
+      "id": "task-46e15ed3",
+      "wbs": "8.01",
+      "name": "Restore Area (Roadside Slope)",
+      "baselineStart": "Tue 2/24/26",
+      "baselineFinish": "Tue 2/24/26",
+      "baselineDuration": 0.4,
+      "percentComplete": 0,
+      "isCriticalPath": false,
+      "linkedBidItem": "8.01"
+    },
+    {
+      "id": "task-5ff229b4",
+      "wbs": "3.04",
+      "name": "Place Excess Sediment Material",
+      "baselineStart": "Tue 2/24/26",
+      "baselineFinish": "Tue 2/24/26",
+      "baselineDuration": 0.4,
+      "percentComplete": 0,
+      "isCriticalPath": false,
+      "linkedBidItem": "3.04"
+    },
+    {
+      "id": "task-f0b90c36",
+      "wbs": "3.05",
+      "name": "Transport Material to Spoil Management",
+      "baselineStart": "Tue 2/24/26",
+      "baselineFinish": "Tue 2/24/26",
+      "baselineDuration": 0.4,
+      "percentComplete": 0,
+      "isCriticalPath": false,
+      "linkedBidItem": "3.05"
+    },
+    {
+      "id": "task-47aca50a",
+      "wbs": "4.01",
+      "name": "Remove Existing Culvert and Excavate Trench",
+      "baselineStart": "Tue 2/24/26",
+      "baselineFinish": "Wed 2/25/26",
+      "baselineDuration": 1,
+      "percentComplete": 0,
+      "isCriticalPath": false,
+      "linkedBidItem": "4.01"
+    },
+    {
+      "id": "task-23983de9",
+      "wbs": "4.03",
+      "name": "Install Headwall(s)",
+      "baselineStart": "Fri 2/20/26",
+      "baselineFinish": "Wed 2/25/26",
+      "baselineDuration": 1,
+      "percentComplete": 12,
+      "isCriticalPath": false,
+      "linkedBidItem": "4.03"
+    },
+    {
+      "id": "task-7644762a",
+      "wbs": "4.01",
+      "name": "Install 30in Culvert",
+      "baselineStart": "Wed 2/25/26",
+      "baselineFinish": "Thu 2/26/26",
+      "baselineDuration": 1,
+      "percentComplete": 0,
+      "isCriticalPath": false,
+      "linkedBidItem": "4.01"
+    },
+    {
+      "id": "task-a4ede4d8",
+      "wbs": "4.02",
+      "name": "Place Geotextile and Rip Rap",
+      "baselineStart": "Wed 2/25/26",
+      "baselineFinish": "Thu 2/26/26",
+      "baselineDuration": 1,
+      "percentComplete": 0,
+      "isCriticalPath": false,
+      "linkedBidItem": "4.02"
+    },
+    {
+      "id": "task-bf66fbb1",
+      "wbs": "2.01",
+      "name": "S-2 Ditch Excavate and Grade Channel",
+      "baselineStart": "Thu 2/26/26",
+      "baselineFinish": "Fri 2/27/26",
+      "baselineDuration": 0.8,
+      "percentComplete": 0,
+      "isCriticalPath": false,
+      "linkedBidItem": "2.01"
+    },
+    {
+      "id": "task-2117b154",
+      "wbs": "2.05",
+      "name": "S-2 Ditch Install Rip Rap",
+      "baselineStart": "Fri 2/27/26",
+      "baselineFinish": "Mon 3/2/26",
+      "baselineDuration": 0.8,
+      "percentComplete": 0,
+      "isCriticalPath": false,
+      "linkedBidItem": "2.05"
+    },
+    {
+      "id": "task-47a642ab",
+      "wbs": "2.01",
+      "name": "S-1 Ditch Excavate and Grade Channel",
+      "baselineStart": "Mon 3/2/26",
+      "baselineFinish": "Tue 3/3/26",
+      "baselineDuration": 1,
+      "percentComplete": 0,
+      "isCriticalPath": false,
+      "linkedBidItem": "2.01"
+    },
+    {
+      "id": "task-afa2b81c",
+      "wbs": "2.05",
+      "name": "S-1 Ditch Install Rip Rap",
+      "baselineStart": "Tue 3/3/26",
+      "baselineFinish": "Wed 3/4/26",
+      "baselineDuration": 1,
+      "percentComplete": 0,
+      "isCriticalPath": false,
+      "linkedBidItem": "2.05"
+    },
+    {
+      "id": "task-0dd559b2",
+      "wbs": "2.04",
+      "name": "Deploy ECB on Berm",
+      "baselineStart": "Wed 3/4/26",
+      "baselineFinish": "Thu 3/5/26",
+      "baselineDuration": 0.4,
+      "percentComplete": 0,
+      "isCriticalPath": false,
+      "linkedBidItem": "2.04"
+    },
+    {
+      "id": "task-8eed75bf",
+      "wbs": "2.02",
+      "name": "Place Native Streambed Material",
+      "baselineStart": "Mon 3/2/26",
+      "baselineFinish": "Tue 3/3/26",
+      "baselineDuration": 0.8,
+      "percentComplete": 0,
+      "isCriticalPath": false,
+      "linkedBidItem": "2.02"
+    },
+    {
+      "id": "task-dd2e9e9a",
+      "wbs": "2.03",
+      "name": "Install Geotextile",
+      "baselineStart": "Mon 3/2/26",
+      "baselineFinish": "Tue 3/3/26",
+      "baselineDuration": 0.8,
+      "percentComplete": 0,
+      "isCriticalPath": false,
+      "linkedBidItem": "2.03"
+    },
+    {
+      "id": "task-a76928be",
+      "wbs": "2.06",
+      "name": "Place Excess Sediment Material",
+      "baselineStart": "Tue 3/3/26",
+      "baselineFinish": "Wed 3/4/26",
+      "baselineDuration": 0.8,
+      "percentComplete": 0,
+      "isCriticalPath": false,
+      "linkedBidItem": "2.06"
+    },
+    {
+      "id": "task-1e64bf1d",
+      "wbs": "2.07",
+      "name": "Transport Material to Spoil Management",
+      "baselineStart": "Tue 3/3/26",
+      "baselineFinish": "Wed 3/4/26",
+      "baselineDuration": 0.8,
+      "percentComplete": 0,
+      "isCriticalPath": false,
+      "linkedBidItem": "2.07"
+    },
+    {
+      "id": "task-3e28b66e",
+      "wbs": "7.01",
+      "name": "Interim Stockpiling and Dewatering",
+      "baselineStart": "Mon 3/2/26",
+      "baselineFinish": "Wed 3/4/26",
+      "baselineDuration": 1.6,
+      "percentComplete": 0,
+      "isCriticalPath": false,
+      "linkedBidItem": "7.01"
+    },
+    {
+      "id": "task-eb2ce601",
+      "wbs": "7.02",
+      "name": "Spread Grade and Compact Material",
+      "baselineStart": "Wed 3/4/26",
+      "baselineFinish": "Fri 3/6/26",
+      "baselineDuration": 1.6,
+      "percentComplete": 0,
+      "isCriticalPath": false,
+      "linkedBidItem": "7.02"
+    },
+    {
+      "id": "task-b9da4b21",
+      "wbs": "7.03",
+      "name": "Geosynthetic Clay Liner",
+      "baselineStart": "Wed 3/4/26",
+      "baselineFinish": "Thu 3/5/26",
+      "baselineDuration": 0.8,
+      "percentComplete": 0,
+      "isCriticalPath": false,
+      "linkedBidItem": "7.03"
+    },
+    {
+      "id": "task-80a79a60",
+      "wbs": "7.04",
+      "name": "Soils Cover Placement",
+      "baselineStart": "Fri 3/6/26",
+      "baselineFinish": "Fri 3/6/26",
+      "baselineDuration": 0.4,
+      "percentComplete": 0,
+      "isCriticalPath": false,
+      "linkedBidItem": "7.04"
+    },
+    {
+      "id": "task-42739301",
+      "wbs": "7.05",
+      "name": "Top Soil Cover Import and Placement",
+      "baselineStart": "Fri 3/6/26",
+      "baselineFinish": "Mon 3/9/26",
+      "baselineDuration": 0.4,
+      "percentComplete": 0,
+      "isCriticalPath": false,
+      "linkedBidItem": "7.05"
+    },
+    {
+      "id": "task-d0fcd17a",
+      "wbs": "8.02",
+      "name": "Permanent Stabilization",
+      "baselineStart": "Mon 4/6/26",
+      "baselineFinish": "Tue 4/7/26",
+      "baselineDuration": 1,
+      "percentComplete": 0,
+      "isCriticalPath": false,
+      "linkedBidItem": "8.02"
+    },
+    {
+      "id": "task-d1a58966",
+      "wbs": "8.03",
+      "name": "Wetland Restoration",
+      "baselineStart": "Fri 3/6/26",
+      "baselineFinish": "Tue 3/10/26",
+      "baselineDuration": 1,
+      "percentComplete": 0,
+      "isCriticalPath": false,
+      "linkedBidItem": "8.03"
+    },
+    {
+      "id": "task-9b8e8efb",
+      "wbs": "1.01",
+      "name": "Demobilization",
+      "baselineStart": "Tue 3/10/26",
+      "baselineFinish": "Thu 3/12/26",
+      "baselineDuration": 2,
+      "percentComplete": 0,
+      "isCriticalPath": false,
+      "linkedBidItem": "1.01"
+    },
+    {
+      "id": "task-4ad84777",
+      "wbs": "1.02",
+      "name": "As-Built Survey",
+      "baselineStart": "Tue 3/3/26",
+      "baselineFinish": "Tue 3/10/26",
+      "baselineDuration": 4,
+      "percentComplete": 0,
+      "isCriticalPath": false,
+      "linkedBidItem": "1.02"
+    }
+  ],
+  "taskLinks": {
+    "task-1c986cd1": [
+      {
+        "bidItemId": "bid-1-01",
+        "allocationPercent": 6
+      }
+    ],
+    "task-92a1cb03": [
+      {
+        "bidItemId": "bid-1-01",
+        "allocationPercent": 40
+      },
+      {
+        "bidItemId": "bid-1-04",
+        "allocationPercent": 100
+      }
+    ],
+    "task-4ad84777": [
+      {
+        "bidItemId": "bid-1-02",
+        "allocationPercent": 100
+      }
+    ],
+    "task-9b8e8efb": [
+      {
+        "bidItemId": "bid-1-01",
+        "allocationPercent": 54
+      }
+    ],
+    "task-d1a58966": [
+      {
+        "bidItemId": "bid-8-03",
+        "allocationPercent": 100
+      }
+    ],
+    "task-d0fcd17a": [
+      {
+        "bidItemId": "bid-8-02",
+        "allocationPercent": 100
+      }
+    ],
+    "task-42739301": [
+      {
+        "bidItemId": "bid-7-05",
+        "allocationPercent": 100
+      }
+    ],
+    "task-80a79a60": [
+      {
+        "bidItemId": "bid-7-04",
+        "allocationPercent": 100
+      }
+    ],
+    "task-b9da4b21": [
+      {
+        "bidItemId": "bid-7-03",
+        "allocationPercent": 100
+      }
+    ],
+    "task-eb2ce601": [
+      {
+        "bidItemId": "bid-7-02",
+        "allocationPercent": 100
+      }
+    ],
+    "task-3e28b66e": [
+      {
+        "bidItemId": "bid-7-01",
+        "allocationPercent": 100
+      }
+    ],
+    "task-1e64bf1d": [
+      {
+        "bidItemId": "bid-2-07",
+        "allocationPercent": 100
+      }
+    ],
+    "task-a76928be": [
+      {
+        "bidItemId": "bid-2-06",
+        "allocationPercent": 100
+      }
+    ],
+    "task-dd2e9e9a": [
+      {
+        "bidItemId": "bid-2-03",
+        "allocationPercent": 100
+      }
+    ],
+    "task-8eed75bf": [
+      {
+        "bidItemId": "bid-2-02",
+        "allocationPercent": 100
+      }
+    ],
+    "task-0dd559b2": [
+      {
+        "bidItemId": "bid-2-04",
+        "allocationPercent": 100
+      }
+    ],
+    "task-afa2b81c": [
+      {
+        "bidItemId": "bid-2-05",
+        "allocationPercent": 50
+      }
+    ],
+    "task-47a642ab": [
+      {
+        "bidItemId": "bid-2-01",
+        "allocationPercent": 50
+      }
+    ],
+    "task-2117b154": [
+      {
+        "bidItemId": "bid-2-05",
+        "allocationPercent": 50
+      }
+    ],
+    "task-bf66fbb1": [
+      {
+        "bidItemId": "bid-2-01",
+        "allocationPercent": 50
+      }
+    ],
+    "task-a4ede4d8": [
+      {
+        "bidItemId": "bid-4-02",
+        "allocationPercent": 100
+      }
+    ],
+    "task-7644762a": [
+      {
+        "bidItemId": "bid-4-01",
+        "allocationPercent": 50
+      }
+    ],
+    "task-23983de9": [
+      {
+        "bidItemId": "bid-4-03",
+        "allocationPercent": 100
+      }
+    ],
+    "task-47aca50a": [
+      {
+        "bidItemId": "bid-4-01",
+        "allocationPercent": 50
+      }
+    ],
+    "task-f0b90c36": [
+      {
+        "bidItemId": "bid-3-05",
+        "allocationPercent": 100
+      }
+    ],
+    "task-5ff229b4": [
+      {
+        "bidItemId": "bid-3-04",
+        "allocationPercent": 100
+      }
+    ],
+    "task-46e15ed3": [
+      {
+        "bidItemId": "bid-8-01",
+        "allocationPercent": 20
+      }
+    ],
+    "task-ff403b01": [
+      {
+        "bidItemId": "bid-3-03",
+        "allocationPercent": 100
+      }
+    ],
+    "task-86908cf6": [
+      {
+        "bidItemId": "bid-3-02",
+        "allocationPercent": 100
+      }
+    ],
+    "task-8c655cc9": [
+      {
+        "bidItemId": "bid-6-01",
+        "allocationPercent": 100
+      }
+    ],
+    "task-ef7e8f88": [
+      {
+        "bidItemId": "bid-1-06",
+        "allocationPercent": 50
+      }
+    ],
+    "task-c7de62f7": [
+      {
+        "bidItemId": "bid-6-02",
+        "allocationPercent": 50
+      }
+    ],
+    "task-cd4820fd": [
+      {
+        "bidItemId": "bid-6-02",
+        "allocationPercent": 50
+      }
+    ],
+    "task-0be50da8": [
+      {
+        "bidItemId": "bid-6-03",
+        "allocationPercent": 100
+      }
+    ],
+    "task-40a46119": [
+      {
+        "bidItemId": "bid-6-04",
+        "allocationPercent": 100
+      }
+    ],
+    "task-934c130c": [
+      {
+        "bidItemId": "bid-8-01",
+        "allocationPercent": 40
+      }
+    ],
+    "task-90b25ea5": [
+      {
+        "bidItemId": "bid-1-05",
+        "allocationPercent": 50
+      }
+    ],
+    "task-2678bb9e": [
+      {
+        "bidItemId": "bid-5-09",
+        "allocationPercent": 100
+      },
+      {
+        "bidItemId": "bid-5-01",
+        "allocationPercent": 100
+      }
+    ],
+    "task-e461825a": [
+      {
+        "bidItemId": "bid-5-03",
+        "allocationPercent": 100
+      },
+      {
+        "bidItemId": "bid-5-04",
+        "allocationPercent": 100
+      }
+    ],
+    "task-ff988243": [
+      {
+        "bidItemId": "bid-5-02",
+        "allocationPercent": 100
+      }
+    ],
+    "task-9ae64171": [
+      {
+        "bidItemId": "bid-5-05",
+        "allocationPercent": 50
+      }
+    ],
+    "task-60efa675": [
+      {
+        "bidItemId": "bid-5-06",
+        "allocationPercent": 100
+      }
+    ],
+    "task-1fcf8973": [
+      {
+        "bidItemId": "bid-5-10",
+        "allocationPercent": 100
+      }
+    ],
+    "task-7a04abc0": [
+      {
+        "bidItemId": "bid-5-08",
+        "allocationPercent": 100
+      }
+    ],
+    "task-06819d31": [
+      {
+        "bidItemId": "bid-5-05",
+        "allocationPercent": 50
+      }
+    ],
+    "task-72f79e5b": [
+      {
+        "bidItemId": "bid-5-07",
+        "allocationPercent": 100
+      }
+    ],
+    "task-7bdf9fc5": [
+      {
+        "bidItemId": "bid-5-11",
+        "allocationPercent": 100
+      }
+    ],
+    "task-f98414e9": [
+      {
+        "bidItemId": "bid-5-12",
+        "allocationPercent": 100
+      }
+    ],
+    "task-61aa2fff": [
+      {
+        "bidItemId": "bid-8-01",
+        "allocationPercent": 40
+      }
+    ],
+    "task-3558c2ea": [
+      {
+        "bidItemId": "bid-5-13",
+        "allocationPercent": 100
+      }
+    ],
+    "task-763eedc6": [
+      {
+        "bidItemId": "bid-5-14",
+        "allocationPercent": 100
+      }
+    ],
+    "task-4925e626": [
+      {
+        "bidItemId": "bid-1-05",
+        "allocationPercent": 50
+      }
+    ],
+    "task-4dc28bb0": [
+      {
+        "bidItemId": "bid-1-03",
+        "allocationPercent": 100
+      }
+    ],
+    "task-d5fba4c4": [
+      {
+        "bidItemId": "bid-1-06",
+        "allocationPercent": 50
+      }
+    ],
+    "task-fb7bbb16": [
+      {
+        "bidItemId": "bid-3-01",
+        "allocationPercent": 100
+      }
+    ]
+  }
+}
