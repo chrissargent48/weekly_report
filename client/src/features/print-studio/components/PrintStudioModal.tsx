@@ -1,16 +1,21 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useCallback } from 'react';
 import { Dialog, Transition } from '@headlessui/react';
 import { Fragment } from 'react';
 import { usePrintConfig } from '../hooks/usePrintConfig';
 import { usePageMap } from '../hooks/usePageMap';
 import { PrintPreview } from '../renderers/html-preview/PrintPreview';
 import { Sidebar } from './Sidebar';
+import { ThumbnailNavigator } from './ThumbnailNavigator';
+import { PropertiesPanel } from './PropertiesPanel';
+import { OverflowWarnings } from './OverflowWarnings';
+import { SelectionProvider } from '../context/SelectionContext';
+import { ImagePositionProvider } from '../context/ImagePositionContext';
 import { ReportData } from '../config/printConfig.types';
 import { XMarkIcon, PrinterIcon } from '@heroicons/react/24/outline';
 import { DndContext, KeyboardSensor, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
 import { sortableKeyboardCoordinates } from '@dnd-kit/sortable';
 import { ProjectConfig } from '../../../types';
-import { useHtmlPDFGeneration } from '../hooks/useHtmlPDFGeneration';
+import { usePagedPDFGeneration } from '../hooks/usePagedPDFGeneration';
 
 interface Props {
   open: boolean;
@@ -21,6 +26,7 @@ interface Props {
 
 export function PrintStudioModal({ open, onClose, reportData, projectConfig }: Props) {
   const [showPageBreakGuides, setShowPageBreakGuides] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
   const previewRef = useRef<HTMLDivElement>(null);
 
   // Custom sensors for drag and drop to preventing scrolling while dragging
@@ -39,24 +45,40 @@ export function PrintStudioModal({ open, onClose, reportData, projectConfig }: P
     setHeroPhoto,
     setStripPhotos,
     toggleCoverPhotos,
+    setHeroPhotoPosition,
+    setStripPhotoPosition,
+    setPhotoPosition,
   } = usePrintConfig();
 
   // 2. Calculated Layout
   const pageMap = usePageMap(config, reportData);
 
-  // 3. PDF Generation - Now using HTML-to-PDF for true WYSIWYG
-  const { generatePDF, isGenerating, error } = useHtmlPDFGeneration();
+  // 3. PDF Generation - Using Paged.js for accurate CSS Paged Media
+  const { generatePDF, isGenerating, error } = usePagedPDFGeneration();
 
   const handleDownload = async () => {
     // Generate filename from project name and date
-    const safeName = projectConfig.identity.projectName
-      .replace(/[^a-zA-Z0-9]/g, '_')
-      .substring(0, 50);
     const dateStr = reportData.weekEnding || new Date().toISOString().split('T')[0];
     const filename = `WeeklyReport_${projectConfig.identity.jobNumber}_${dateStr}`;
 
     await generatePDF(previewRef, filename);
   };
+
+  // Track scroll position to update current page indicator
+  const handleScroll = useCallback((e: React.UIEvent<HTMLDivElement>) => {
+    const container = e.currentTarget;
+    const pages = container.querySelectorAll('.preview-page');
+    const containerTop = container.scrollTop + container.offsetHeight / 3;
+
+    pages.forEach((page, index) => {
+      const rect = page.getBoundingClientRect();
+      const pageTop = page.getBoundingClientRect().top - container.getBoundingClientRect().top + container.scrollTop;
+
+      if (pageTop <= containerTop && pageTop + rect.height > containerTop) {
+        setCurrentPage(index + 1);
+      }
+    });
+  }, []);
 
   return (
     <Transition.Root show={open} as={Fragment}>
@@ -74,6 +96,8 @@ export function PrintStudioModal({ open, onClose, reportData, projectConfig }: P
                 <h1 className="text-lg font-bold">Print Studio</h1>
                 <div className="text-xs text-zinc-400 flex gap-2">
                   <span>{pageMap.totalPages} Pages</span>
+                  <span>•</span>
+                  <span>Page {currentPage}</span>
                   <span>•</span>
                   <span>{projectConfig.identity.projectName}</span>
                 </div>
@@ -98,38 +122,78 @@ export function PrintStudioModal({ open, onClose, reportData, projectConfig }: P
             </div>
           </div>
 
-          {/* Main Workspace */}
-          <div className="flex-1 flex overflow-hidden">
-            {/* Sidebar Controls */}
-            <DndContext sensors={sensors}>
-              <Sidebar
-                config={config}
-                reportData={reportData}
-                onToggleSection={toggleSection}
-                onReorderSections={reorderSections}
-                onSetSpacing={setSpacing}
-                onSetLogoScale={setLogoScale}
-                onSetHeroPhoto={setHeroPhoto}
-                onSetStripPhotos={setStripPhotos}
-                onToggleCoverPhotos={toggleCoverPhotos}
-                showPageBreakGuides={showPageBreakGuides}
-                onTogglePageBreakGuides={setShowPageBreakGuides}
-              />
-            </DndContext>
+          {/* Main Workspace - Wrapped with Providers */}
+          <SelectionProvider>
+            <ImagePositionProvider
+              config={config}
+              setHeroPhotoPosition={setHeroPhotoPosition}
+              setStripPhotoPosition={setStripPhotoPosition}
+              setPhotoPosition={setPhotoPosition}
+            >
+              <div className="flex-1 flex overflow-hidden">
+                {/* Thumbnail Navigator */}
+                <ThumbnailNavigator
+                  pageMap={pageMap}
+                  currentPage={currentPage}
+                  onPageSelect={setCurrentPage}
+                  previewRef={previewRef}
+                />
 
-            {/* Preview Area */}
-            <div className="flex-1 overflow-y-auto bg-zinc-100/50 p-8 relative flex flex-col items-center">
-              <PrintPreview
-                ref={previewRef}
-                config={config}
-                pageMap={pageMap}
-                reportData={reportData}
-                projectConfig={projectConfig}
-                showPageBreakGuides={showPageBreakGuides}
-              />
-              <div className="h-20" /> {/* Spacer at bottom */}
-            </div>
-          </div>
+                {/* Sidebar Controls */}
+                <DndContext sensors={sensors}>
+                  <div className="w-80 md:w-96 bg-white border-r border-zinc-200 flex flex-col h-full shrink-0 z-10 overflow-hidden">
+                    <div className="flex-1 overflow-y-auto">
+                      <Sidebar
+                        config={config}
+                        reportData={reportData}
+                        onToggleSection={toggleSection}
+                        onReorderSections={reorderSections}
+                        onSetSpacing={setSpacing}
+                        onSetLogoScale={setLogoScale}
+                        onSetHeroPhoto={setHeroPhoto}
+                        onSetStripPhotos={setStripPhotos}
+                        onToggleCoverPhotos={toggleCoverPhotos}
+                        showPageBreakGuides={showPageBreakGuides}
+                        onTogglePageBreakGuides={setShowPageBreakGuides}
+                      />
+
+                      {/* Properties Panel - Shows when element selected */}
+                      <div className="p-6">
+                        <PropertiesPanel
+                          config={config}
+                          onSetHeroPhotoPosition={setHeroPhotoPosition}
+                          onSetStripPhotoPosition={setStripPhotoPosition}
+                          onSetPhotoPosition={setPhotoPosition}
+                        />
+
+                        {/* Overflow Warnings */}
+                        <OverflowWarnings
+                          previewRef={previewRef}
+                          totalPages={pageMap.totalPages}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </DndContext>
+
+                {/* Preview Area */}
+                <div
+                  className="flex-1 overflow-y-auto bg-zinc-100/50 p-8 relative flex flex-col items-center"
+                  onScroll={handleScroll}
+                >
+                  <PrintPreview
+                    ref={previewRef}
+                    config={config}
+                    pageMap={pageMap}
+                    reportData={reportData}
+                    projectConfig={projectConfig}
+                    showPageBreakGuides={showPageBreakGuides}
+                  />
+                  <div className="h-20" /> {/* Spacer at bottom */}
+                </div>
+              </div>
+            </ImagePositionProvider>
+          </SelectionProvider>
         </div>
       </Dialog>
     </Transition.Root>
