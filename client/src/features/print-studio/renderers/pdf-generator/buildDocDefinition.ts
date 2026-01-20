@@ -40,14 +40,17 @@ export async function buildDocumentDefinition(
 
         // Add page break if not first page
         if (i > 0) {
-            content.push({ text: '', pageBreak: 'before' });
+            content.push({ text: '', pageBreak: 'before' as const });
         }
+
+        // Create page container stack
+        const pageContent: Content[] = [];
 
         // 1. HEADER / COVER
         if (page.isFirstPage) {
-            content.push(buildCoverHeader(report, config, options));
+            pageContent.push(buildCoverHeader(report, config, options));
         } else {
-            content.push(buildPageHeader(config, report));
+            pageContent.push(buildPageHeader(config, report));
         }
 
         // 2. SECTIONS
@@ -63,19 +66,24 @@ export async function buildDocumentDefinition(
 
             if (sectionContent) {
                 // Add vertical spacing
-                content.push({ text: '', margin: [0, options.spacing.sectionGap / 2, 0, 0] }); 
-                content.push(sectionContent);
+                pageContent.push({ text: '', margin: [0, options.spacing.sectionGap / 2, 0, 0] }); 
+                pageContent.push(sectionContent);
             }
         }
+
+        // Wrap page content in stack for better layout control
+        content.push({
+            stack: pageContent
+        });
     }
 
-    // Determine margins based on density preset
+    // Determine margins based on spacing preset
     const sideMargin = options.spacing.type === 'compact' ? 30 : options.spacing.type === 'relaxed' ? 50 : 40;
 
     return {
         pageSize: 'A4',
-        pageMargins: [sideMargin, 30, sideMargin, 60], 
-        content: content,
+        pageMargins: [sideMargin, 30, sideMargin, 45], 
+        content,
         styles: pdfStyles,
         defaultStyle: {
             font: 'Roboto',
@@ -83,19 +91,20 @@ export async function buildDocumentDefinition(
             color: '#111827'
         },
         footer: (currentPage, pageCount) => {
+            if (!options.showFooter) return null;
             return {
                 margin: [sideMargin, 10, sideMargin, 0],
                 columns: [
                    { 
                        text: `${config.identity.projectName}`, 
                        style: 'footerText', 
-                       alignment: 'left',
+                       alignment: 'left' as const,
                        width: '*'
                    },
                    { 
-                       text: `Page ${currentPage} of ${pageCount}`, 
+                       text: options.showPageNumbers ? `Page ${currentPage} of ${pageCount}` : '', 
                        style: 'footerText', 
-                       alignment: 'right',
+                       alignment: 'right' as const,
                        width: 'auto'
                    }
                 ]

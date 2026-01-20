@@ -2,7 +2,6 @@ import React from 'react';
 import { PrintConfig, ReportData } from '../config/printConfig.types';
 import { FIRST_PAGE } from '../layout-engine/pageConstants';
 import { COLORS } from '../config/styleTokens';
-
 import { ProjectConfig } from '../../../types';
 
 interface CoverSectionProps {
@@ -116,7 +115,7 @@ export function CoverSection({ config, reportData, projectConfig }: CoverSection
             className="grid gap-3 my-6"
             style={{ 
               gridTemplateColumns: `repeat(${stripPhotos.length}, 1fr)`,
-              height: FIRST_PAGE.PHOTO_STRIP_HEIGHT - 24 
+              height: FIRST_PAGE.PHOTO_STRIP_HEIGHT - 40 
             }}
           >
             {stripPhotos.map((photo: any, i: number) => (
@@ -135,7 +134,7 @@ export function CoverSection({ config, reportData, projectConfig }: CoverSection
         )}
 
         {/* Client Info Grid */}
-        <div className="mt-auto mb-2 grid grid-cols-[80px_1fr] gap-y-2 text-sm">
+        <div className="mt-auto mb-8 grid grid-cols-[80px_1fr] gap-y-2 text-sm">
           <div className="font-bold text-zinc-400">Client:</div>
           <div className="font-bold text-zinc-900">
             {projectConfig.personnel?.client?.company || 'Client Name'}
@@ -166,4 +165,3 @@ export function CoverSection({ config, reportData, projectConfig }: CoverSection
     </div>
   );
 }
-

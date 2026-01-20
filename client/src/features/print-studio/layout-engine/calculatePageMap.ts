@@ -6,7 +6,7 @@ import {
   PagePlacement,
   ReportData 
 } from '../config/printConfig.types';
-import { PAGE, FOOTER } from './pageConstants';
+import { PAGE_POINTS, FOOTER_POINTS } from './pageConstants';
 import { measureCover } from './measureCover';
 import { measureSection } from './measureSection';
 
@@ -38,7 +38,7 @@ export function calculatePageMap(
     isFirstPage: true,
     sections: [],
     usedHeight: coverMeasurement.totalHeight,
-    availableHeight: PAGE.USABLE_HEIGHT - coverMeasurement.totalHeight - FOOTER.HEIGHT,
+    availableHeight: PAGE_POINTS.USABLE_HEIGHT - coverMeasurement.totalHeight - FOOTER_POINTS.HEIGHT,
   };
   
   // Process each section
@@ -94,7 +94,7 @@ export function calculatePageMap(
         isFirstPage: false,
         sections: [],
         usedHeight: 0,
-        availableHeight: PAGE.USABLE_HEIGHT - FOOTER.HEIGHT,
+        availableHeight: PAGE_POINTS.USABLE_HEIGHT - FOOTER_POINTS.HEIGHT,
       };
       
       const placement: PagePlacement = {
@@ -172,7 +172,7 @@ function handlePhotosSection(
         isFirstPage: false,
         sections: [],
         usedHeight: 0,
-        availableHeight: PAGE.USABLE_HEIGHT - FOOTER.HEIGHT,
+        availableHeight: PAGE_POINTS.USABLE_HEIGHT - FOOTER_POINTS.HEIGHT,
       };
       
       const placement: PagePlacement = {

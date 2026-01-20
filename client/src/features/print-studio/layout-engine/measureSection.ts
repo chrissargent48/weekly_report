@@ -1,5 +1,5 @@
 import { PrintSection, PrintSpacing, ReportData } from '../config/printConfig.types';
-import { SECTION_BASE_HEIGHTS } from './pageConstants';
+import { SECTION_BASE_HEIGHTS, pxToPoints } from './pageConstants';
 
 interface MeasurementContext {
   section: PrintSection;
@@ -8,7 +8,7 @@ interface MeasurementContext {
 }
 
 /**
- * Estimates the rendered height of a section in pixels.
+ * Estimates the rendered height of a section in points (for PDF).
  * This is an approximation - the actual rendered height may vary slightly,
  * but it should be close enough for page break calculations.
  */
@@ -87,7 +87,10 @@ export function measureSection(ctx: MeasurementContext): number {
   const sectionHeaderHeight = spacing.type === 'compact' ? 40 : 48;
   
   // Apply spacing multiplier and add gaps
-  return Math.ceil((dynamicHeight + sectionHeaderHeight) * spacingMultiplier) + spacing.sectionGap;
+  const pixelHeight = Math.ceil((dynamicHeight + sectionHeaderHeight) * spacingMultiplier) + spacing.sectionGap;
+  
+  // Convert to points for PDF
+  return pxToPoints(pixelHeight);
 }
 
 /**

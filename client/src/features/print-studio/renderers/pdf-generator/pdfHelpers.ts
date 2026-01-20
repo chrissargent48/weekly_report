@@ -53,12 +53,12 @@ export function buildCoverHeader(
                     heroPhoto ? {
                         image: heroPhoto.url,
                         width: 595,
-                        height: 280,
+                        height: 315,
                         absolutePosition: { x: 0, y: 0 },
                     } : {
                         canvas: [{
                             type: 'rect' as const,
-                            x: 0, y: 0, w: 595, h: 280,
+                            x: 0, y: 0, w: 595, h: 315,
                             color: BRAND_COLORS.primaryDark,
                         }],
                         absolutePosition: { x: 0, y: 0 },
@@ -66,7 +66,7 @@ export function buildCoverHeader(
                     {
                         canvas: [{
                             type: 'rect' as const,
-                            x: 0, y: 0, w: 595, h: 280,
+                            x: 0, y: 0, w: 595, h: 315,
                             color: BRAND_COLORS.primary,
                             fillOpacity: 0.85,
                         }],
@@ -80,7 +80,7 @@ export function buildCoverHeader(
                         absolutePosition: { x: 0, y: 0 }, 
                     }
                 ],
-                margin: [0, 0, 0, 240],
+                margin: [0, 0, 0, 280],
             },
 
             // MAIN CONTENT SECTION
@@ -121,8 +121,8 @@ export function buildCoverHeader(
                         columns: stripPhotos.map(photo => ({
                             image: photo.url,
                             width: (515 - (stripPhotos.length - 1) * 12) / stripPhotos.length,
-                            height: 90,
-                            cover: { width: (515 - (stripPhotos.length - 1) * 12) / stripPhotos.length, height: 90 }
+                            height: 180,
+                            cover: { width: (515 - (stripPhotos.length - 1) * 12) / stripPhotos.length, height: 180 }
                         })),
                         columnGap: 12, 
                         margin: [0, 0, 0, 24], 
@@ -761,3 +761,4 @@ export function buildDocumentsSection(report: WeeklyReport): Content {
         margin: [0, 0, 0, 12],
     };
 }
+

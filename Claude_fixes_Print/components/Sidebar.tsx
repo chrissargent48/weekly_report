@@ -112,7 +112,7 @@ export function Sidebar({
                         Hero Image (background)
                      </p>
                      <div className="grid grid-cols-4 gap-2">
-                        {photos.slice(0, 8).map((photo: any, idx: number) => (
+                        {photos.slice(0, 8).map((photo, idx) => (
                            <button
                               key={idx}
                               onClick={() => onSetHeroPhoto(idx)}
@@ -143,7 +143,7 @@ export function Sidebar({
                      <div>
                         <p className="text-xs text-zinc-500 mb-2">Strip Photos (select up to 3)</p>
                         <div className="grid grid-cols-4 gap-2">
-                           {photos.slice(0, 8).map((photo: any, idx: number) => {
+                           {photos.slice(0, 8).map((photo, idx) => {
                               const isHero = heroIndex === idx;
                               const isInStrip = stripIndexes.includes(idx);
                               

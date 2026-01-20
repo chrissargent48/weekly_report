@@ -97,7 +97,7 @@ export function PrintStudioModal({ open, onClose, reportData, projectConfig }: P
                <DndContext sensors={sensors}> 
                   <Sidebar 
                      config={config}
-                     reportData={reportData}
+                     reportData={reportData}  {/* THIS WAS MISSING! Needed for photo thumbnails */}
                      onToggleSection={toggleSection}
                      onReorderSections={reorderSections}
                      onSetSpacing={setSpacing}

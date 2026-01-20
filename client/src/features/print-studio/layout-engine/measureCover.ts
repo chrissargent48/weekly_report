@@ -1,5 +1,5 @@
 import { PrintConfig } from '../config/printConfig.types';
-import { FIRST_PAGE } from './pageConstants';
+import { FIRST_PAGE, pxToPoints } from './pageConstants';
 
 interface CoverMeasurement {
   totalHeight: number;
@@ -11,7 +11,7 @@ interface CoverMeasurement {
 }
 
 /**
- * Calculates the height of the cover/first page elements
+ * Calculates the height of the cover/first page elements in points (for PDF)
  * These are fixed elements that always appear on page 1
  */
 export function measureCover(config: PrintConfig): CoverMeasurement {
@@ -36,12 +36,13 @@ export function measureCover(config: PrintConfig): CoverMeasurement {
     clientInfoHeight + 
     FIRST_PAGE.SAFETY_BANNER_HEIGHT;
   
+  // Convert all measurements to points for PDF
   return {
-    totalHeight,
-    headerImageHeight,
-    titleBlockHeight,
-    photoStripHeight,
-    clientInfoHeight,
-    safetyBannerHeight: FIRST_PAGE.SAFETY_BANNER_HEIGHT,
+    totalHeight: pxToPoints(totalHeight),
+    headerImageHeight: pxToPoints(headerImageHeight),
+    titleBlockHeight: pxToPoints(titleBlockHeight),
+    photoStripHeight: pxToPoints(photoStripHeight),
+    clientInfoHeight: pxToPoints(clientInfoHeight),
+    safetyBannerHeight: pxToPoints(FIRST_PAGE.SAFETY_BANNER_HEIGHT),
   };
 }

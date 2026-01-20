@@ -30,9 +30,9 @@ export const FOOTER = {
 // First page has different constraints due to cover content
 export const FIRST_PAGE = {
   // INCREASED from 280 to 320 for better visual proportions
-  HEADER_IMAGE_HEIGHT: 420,      // The branded header image (approx 40% of page)
+  HEADER_IMAGE_HEIGHT: 320,      // The branded header image (approx 35% of page)
   TITLE_BLOCK_HEIGHT: 140,       // Project name, address, report type
-  PHOTO_STRIP_HEIGHT: 240,       // 3 thumbnail photos + margins (expanded to fill page)
+  PHOTO_STRIP_HEIGHT: 120,       // 3 thumbnail photos + margins (slightly reduced)
   CLIENT_INFO_HEIGHT: 80,        // Client, Address, Job # block (slightly reduced)
   SAFETY_BANNER_HEIGHT: 40,      // "Safety is a core value" banner
   
@@ -70,50 +70,3 @@ export const SECTION_BASE_HEIGHTS = {
   photos: 600,                // 2x3 photo grid per "page" of photos
   documents: 100,            // Link list
 } as const;
-
-// =============================================================================
-// PDF POINT-BASED CONSTANTS (72 DPI for pdfmake compatibility)
-// =============================================================================
-
-export const PAGE_POINTS = {
-  // A4 size in points: 595.28 x 841.89
-  WIDTH: 595.28,
-  HEIGHT: 841.89,
-  
-  // Margins in points
-  MARGIN_TOP: 30,
-  MARGIN_BOTTOM: 45,
-  MARGIN_LEFT: 30,
-  MARGIN_RIGHT: 30,
-  
-  // Calculated usable area
-  get USABLE_WIDTH() {
-    return this.WIDTH - this.MARGIN_LEFT - this.MARGIN_RIGHT;
-  },
-  get USABLE_HEIGHT() {
-    return this.HEIGHT - this.MARGIN_TOP - this.MARGIN_BOTTOM;
-  },
-} as const;
-
-export const FOOTER_POINTS = {
-  HEIGHT: 30,
-  MARGIN_TOP: 12,
-} as const;
-
-// =============================================================================
-// CONVERSION UTILITIES
-// =============================================================================
-
-/**
- * Convert pixels (96 DPI screen) to points (72 DPI PDF)
- */
-export function pxToPoints(px: number): number {
-  return px * (72 / 96);
-}
-
-/**
- * Convert points (72 DPI PDF) to pixels (96 DPI screen)
- */
-export function pointsToPx(points: number): number {
-  return points * (96 / 72);
-}
