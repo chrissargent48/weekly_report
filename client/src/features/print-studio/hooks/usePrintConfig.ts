@@ -18,6 +18,10 @@ interface UsePrintConfigReturn {
   setHeroPhoto: (index: number | null) => void;
   setStripPhotos: (indexes: number[]) => void;
   toggleCoverPhotos: (show: boolean) => void;
+  // Image positions
+  setHeroPhotoPosition: (x: number, y: number) => void;
+  setStripPhotoPosition: (index: number, x: number, y: number) => void;
+  setPhotoPosition: (index: number, x: number, y: number) => void;
   // Misc
   togglePageNumbers: (show: boolean) => void;
   toggleFooter: (show: boolean) => void;
@@ -30,7 +34,10 @@ export function usePrintConfig(initialConfig?: Partial<PrintConfig>): UsePrintCo
     logoScale: 100,
     logoAlign: 'left',
     heroPhotoIndex: 0,
+    heroPhotoPosition: { x: 50, y: 50 }, // Default: center
     stripPhotoIndexes: [1, 2, 3],
+    stripPhotoPositions: {}, // Default: empty (will use center)
+    photoPositions: {}, // Default: empty (will use center)
     showPageNumbers: true,
     showFooter: true,
     showCoverPhotos: true,
@@ -106,7 +113,34 @@ export function usePrintConfig(initialConfig?: Partial<PrintConfig>): UsePrintCo
   const toggleFooter = useCallback((show: boolean) => {
     setConfig(prev => ({ ...prev, showFooter: show }));
   }, []);
-  
+
+  const setHeroPhotoPosition = useCallback((x: number, y: number) => {
+    setConfig(prev => ({
+      ...prev,
+      heroPhotoPosition: { x: Math.min(100, Math.max(0, x)), y: Math.min(100, Math.max(0, y)) },
+    }));
+  }, []);
+
+  const setStripPhotoPosition = useCallback((index: number, x: number, y: number) => {
+    setConfig(prev => ({
+      ...prev,
+      stripPhotoPositions: {
+        ...prev.stripPhotoPositions,
+        [index]: { x: Math.min(100, Math.max(0, x)), y: Math.min(100, Math.max(0, y)) },
+      },
+    }));
+  }, []);
+
+  const setPhotoPosition = useCallback((index: number, x: number, y: number) => {
+    setConfig(prev => ({
+      ...prev,
+      photoPositions: {
+        ...prev.photoPositions,
+        [index]: { x: Math.min(100, Math.max(0, x)), y: Math.min(100, Math.max(0, y)) },
+      },
+    }));
+  }, []);
+
   return {
     config,
     toggleSection,
@@ -118,6 +152,9 @@ export function usePrintConfig(initialConfig?: Partial<PrintConfig>): UsePrintCo
     setHeroPhoto,
     setStripPhotos,
     toggleCoverPhotos,
+    setHeroPhotoPosition,
+    setStripPhotoPosition,
+    setPhotoPosition,
     togglePageNumbers,
     toggleFooter,
   };

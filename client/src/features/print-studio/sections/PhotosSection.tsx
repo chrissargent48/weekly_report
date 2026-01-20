@@ -35,24 +35,35 @@ export function PhotosSection({ config, reportData, placement }: Props) {
        className="h-full flex flex-col"
     >
       <div className="grid grid-cols-2 gap-x-6 gap-y-8 flex-1">
-         {pagePhotos.map((photo: any, i: number) => (
-            <div key={i} className="flex flex-col gap-2 break-inside-avoid">
-               <div className="aspect-[4/3] bg-zinc-100 rounded-lg border border-zinc-200 shadow-sm overflow-hidden relative">
-                  <img src={photo.url} alt={photo.caption} className="w-full h-full object-cover" />
-               </div>
-               <div className="px-1">
-                  <p className="font-bold text-zinc-900 text-sm mb-0.5">
-                     {photo.caption || 'Untitled Photo'}
-                  </p>
-                  {photo.date && (
-                     <p className="text-xs text-zinc-400 font-mono">Taken: {photo.date}</p>
-                  )}
-                  {photo.description && (
-                     <p className="text-xs text-zinc-500 mt-1 line-clamp-2">{photo.description}</p>
-                  )}
-               </div>
-            </div>
-         ))}
+         {pagePhotos.map((photo: any, i: number) => {
+            const photoIndex = startIndex + i;
+            const position = config.photoPositions?.[photoIndex] ?? { x: 50, y: 50 };
+            return (
+              <div key={i} className="flex flex-col gap-2 break-inside-avoid">
+                 <div className="aspect-[4/3] bg-zinc-100 rounded-lg border border-zinc-200 shadow-sm overflow-hidden relative">
+                    <img
+                      src={photo.url}
+                      alt={photo.caption}
+                      className="w-full h-full object-cover"
+                      style={{
+                        objectPosition: `${position.x}% ${position.y}%`
+                      }}
+                    />
+                 </div>
+                 <div className="px-1">
+                    <p className="font-bold text-zinc-900 text-sm mb-0.5">
+                       {photo.caption || 'Untitled Photo'}
+                    </p>
+                    {photo.date && (
+                       <p className="text-xs text-zinc-400 font-mono">Taken: {photo.date}</p>
+                    )}
+                    {photo.description && (
+                       <p className="text-xs text-zinc-500 mt-1 line-clamp-2">{photo.description}</p>
+                    )}
+                 </div>
+              </div>
+            );
+         })}
       </div>
     </SectionWrapper>
   );

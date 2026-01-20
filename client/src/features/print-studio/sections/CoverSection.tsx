@@ -38,10 +38,13 @@ export function CoverSection({ config, reportData, projectConfig }: CoverSection
         {/* Hero Image */}
         {heroPhoto?.url ? (
           <div className="absolute inset-0">
-            <img 
-              src={heroPhoto.url} 
-              alt="Cover Hero" 
+            <img
+              src={heroPhoto.url}
+              alt="Cover Hero"
               className="w-full h-full object-cover"
+              style={{
+                objectPosition: `${config.heroPhotoPosition?.x ?? 50}% ${config.heroPhotoPosition?.y ?? 50}%`
+              }}
             />
             {/* Teal Overlay */}
             <div 
@@ -119,18 +122,24 @@ export function CoverSection({ config, reportData, projectConfig }: CoverSection
               height: FIRST_PAGE.PHOTO_STRIP_HEIGHT - 24 
             }}
           >
-            {stripPhotos.map((photo: any, i: number) => (
-              <div 
-                key={i} 
-                className="rounded overflow-hidden bg-zinc-100 border border-zinc-200 shadow-sm"
-              >
-                <img 
-                  src={photo.url} 
-                  className="w-full h-full object-cover" 
-                  alt={`Strip photo ${i + 1}`} 
-                />
-              </div>
-            ))}
+            {stripPhotos.map((photo: any, i: number) => {
+              const position = config.stripPhotoPositions?.[stripIndexes[i]] ?? { x: 50, y: 50 };
+              return (
+                <div
+                  key={i}
+                  className="rounded overflow-hidden bg-zinc-100 border border-zinc-200 shadow-sm"
+                >
+                  <img
+                    src={photo.url}
+                    className="w-full h-full object-cover"
+                    style={{
+                      objectPosition: `${position.x}% ${position.y}%`
+                    }}
+                    alt={`Strip photo ${i + 1}`}
+                  />
+                </div>
+              );
+            })}
           </div>
         )}
 
