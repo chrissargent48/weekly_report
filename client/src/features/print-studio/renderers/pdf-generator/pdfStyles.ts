@@ -191,11 +191,16 @@ export const pdfStyles: StyleDictionary = {
     // =====================
     // FOOTER
     // =====================
-    
+
     footer: {
         fontSize: 8,
         color: BRAND_COLORS.textLight,
         alignment: 'center',
+    },
+
+    footerText: {
+        fontSize: 8,
+        color: BRAND_COLORS.textMuted,
     },
     
     // =====================

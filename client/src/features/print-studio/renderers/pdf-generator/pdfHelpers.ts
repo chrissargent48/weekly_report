@@ -152,20 +152,24 @@ export function buildCoverHeader(
                 margin: [40, 0, 40, 0] 
             },
 
-            // FOOTER BAR
+            // SAFETY BANNER - Using table for full-width background (no absolute positioning)
             {
-                stack: [
-                    {
-                        canvas: [{ type: 'rect' as const, x: 0, y: 0, w: 595, h: 40, color: BRAND_COLORS.primary }]
-                    },
-                    {
-                        text: 'Safety is a core value',
-                        style: { italics: true, color: 'white', fontSize: 11 },
-                        alignment: 'center',
-                        margin: [0, -28, 0, 0]
-                    }
-                ],
-                absolutePosition: { x: 0, y: 802 }
+                table: {
+                    widths: ['*'],
+                    body: [[
+                        {
+                            text: 'Safety is a core value',
+                            italics: true,
+                            color: 'white',
+                            fontSize: 11,
+                            alignment: 'center',
+                            fillColor: BRAND_COLORS.primary,
+                            margin: [0, 12, 0, 12]
+                        }
+                    ]]
+                },
+                layout: 'noBorders',
+                margin: [-40, 20, -40, 0] // Negative margins to extend to page edges
             }
         ]
     };
@@ -487,6 +491,7 @@ export function buildFinancialsSection(report: WeeklyReport): Content {
     ];
 
     return {
+        unbreakable: true, // Keep financials section together on one page
         stack: [
             {
                 columns: [
@@ -506,6 +511,7 @@ export function buildFinancialsSection(report: WeeklyReport): Content {
 export function buildSafetySection(report: WeeklyReport): Content {
     const stats = report.safety.stats;
     return {
+        unbreakable: true, // Keep safety section together on one page
         stack: [
             { text: 'SAFETY STATS & NARRATIVE', style: 'sectionHeader' },
             {
@@ -548,10 +554,7 @@ export function buildSafetySection(report: WeeklyReport): Content {
 
 export function buildPhotosSection(report: WeeklyReport, options: PrintConfig, placement?: PagePlacement): Content {
     const photos = report.photos;
-    
-    if (placement && placement.sectionId.includes('continued')) {
-        return { text: '' }; // Skip continued blocks
-    }
+    const photosPerPage = 6; // 2 columns x 3 rows
 
     if (photos.length === 0) {
         return {
@@ -563,13 +566,35 @@ export function buildPhotosSection(report: WeeklyReport, options: PrintConfig, p
         };
     }
 
-    // Build 2-column grid
+    // Calculate which photos to show based on placement
+    let startIdx = 0;
+    let isFirstPhotoPage = true;
+
+    if (placement && placement.sectionId.includes('_continued_')) {
+        // Extract continuation index from sectionId like 'photos_continued_1'
+        const match = placement.sectionId.match(/_continued_(\d+)$/);
+        if (match) {
+            const continuationIndex = parseInt(match[1], 10);
+            startIdx = continuationIndex * photosPerPage;
+            isFirstPhotoPage = false;
+        }
+    }
+
+    const endIdx = Math.min(startIdx + photosPerPage, photos.length);
+    const photosForPage = photos.slice(startIdx, endIdx);
+
+    // If no photos for this page, return empty
+    if (photosForPage.length === 0) {
+        return { text: '' };
+    }
+
+    // Build 2-column grid for this page's photos
     const photoRows: Content[] = [];
-    for (let i = 0; i < photos.length; i += 2) {
+    for (let i = 0; i < photosForPage.length; i += 2) {
         const row: Content[] = [];
-        row.push(buildPhotoCell(photos[i]));
-        if (photos[i + 1]) {
-            row.push(buildPhotoCell(photos[i + 1]));
+        row.push(buildPhotoCell(photosForPage[i]));
+        if (photosForPage[i + 1]) {
+            row.push(buildPhotoCell(photosForPage[i + 1]));
         } else {
             row.push({ text: '' });
         }
@@ -581,11 +606,15 @@ export function buildPhotosSection(report: WeeklyReport, options: PrintConfig, p
         });
     }
 
+    // Only show header on first photo page
+    const content: Content[] = [];
+    if (isFirstPhotoPage) {
+        content.push({ text: 'PHOTOGRAPHIC DOCUMENTATION', style: 'sectionHeader' });
+    }
+    content.push(...photoRows);
+
     return {
-        stack: [
-            { text: 'PHOTOGRAPHIC DOCUMENTATION', style: 'sectionHeader' },
-            ...photoRows,
-        ],
+        stack: content,
         margin: [0, 0, 0, 12],
     };
 }
