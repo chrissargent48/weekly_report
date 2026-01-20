@@ -169,8 +169,7 @@ export function buildCoverHeader(
                     ]]
                 },
                 layout: 'noBorders',
-                margin: [-40, 20, -40, 0], // Negative margins to extend to page edges
-                pageBreak: 'after' // Ensure page 2 starts fresh
+                margin: [-40, 20, -40, 0] // Negative margins to extend to page edges
             }
         ]
     };
