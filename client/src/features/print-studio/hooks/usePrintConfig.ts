@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { PrintConfig } from '../config/printConfig.types';
 import { SPACING_PRESETS } from '../config/styleTokens';
 import { DEFAULT_SECTIONS } from '../config/defaultSections';
@@ -25,24 +25,51 @@ interface UsePrintConfigReturn {
   // Misc
   togglePageNumbers: (show: boolean) => void;
   toggleFooter: (show: boolean) => void;
+  clearConfig: () => void;
 }
 
-export function usePrintConfig(initialConfig?: Partial<PrintConfig>): UsePrintConfigReturn {
-  const [config, setConfig] = useState<PrintConfig>(() => ({
-    sections: DEFAULT_SECTIONS.map((s, i) => ({ ...s, order: i })),
-    spacing: SPACING_PRESETS.standard,
-    logoScale: 100,
-    logoAlign: 'left',
-    heroPhotoIndex: 0,
-    heroPhotoPosition: { x: 50, y: 50 }, // Default: center
-    stripPhotoIndexes: [1, 2, 3],
-    stripPhotoPositions: {}, // Default: empty (will use center)
-    photoPositions: {}, // Default: empty (will use center)
-    showPageNumbers: true,
-    showFooter: true,
-    showCoverPhotos: true,
-    ...initialConfig,
-  }));
+const getDefaultConfig = (): PrintConfig => ({
+  sections: DEFAULT_SECTIONS.map((s, i) => ({ ...s, order: i })),
+  spacing: SPACING_PRESETS.standard,
+  logoScale: 100,
+  logoAlign: 'left',
+  heroPhotoIndex: 0,
+  heroPhotoPosition: { x: 50, y: 50 },
+  stripPhotoIndexes: [1, 2, 3],
+  stripPhotoPositions: {},
+  photoPositions: {},
+  showPageNumbers: true,
+  showFooter: true,
+  showCoverPhotos: true,
+});
+
+export function usePrintConfig(projectId: string, initialConfig?: Partial<PrintConfig>): UsePrintConfigReturn {
+  const [config, setConfig] = useState<PrintConfig>(() => {
+    const storageKey = `print-studio-config-${projectId}`;
+    const saved = localStorage.getItem(storageKey);
+    
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        return { ...getDefaultConfig(), ...parsed, ...initialConfig };
+      } catch (error) {
+        console.warn('Failed to parse saved Print Studio config:', error);
+        return { ...getDefaultConfig(), ...initialConfig };
+      }
+    }
+    
+    return { ...getDefaultConfig(), ...initialConfig };
+  });
+  
+  // Auto-save to localStorage whenever config changes
+  useEffect(() => {
+    const storageKey = `print-studio-config-${projectId}`;
+    try {
+      localStorage.setItem(storageKey, JSON.stringify(config));
+    } catch (error) {
+      console.warn('Failed to save Print Studio config:', error);
+    }
+  }, [config, projectId]);
   
   const toggleSection = useCallback((sectionId: string) => {
     setConfig(prev => ({
@@ -141,6 +168,12 @@ export function usePrintConfig(initialConfig?: Partial<PrintConfig>): UsePrintCo
     }));
   }, []);
 
+  const clearConfig = useCallback(() => {
+    const storageKey = `print-studio-config-${projectId}`;
+    localStorage.removeItem(storageKey);
+    setConfig(getDefaultConfig());
+  }, [projectId]);
+
   return {
     config,
     toggleSection,
@@ -157,5 +190,6 @@ export function usePrintConfig(initialConfig?: Partial<PrintConfig>): UsePrintCo
     setPhotoPosition,
     togglePageNumbers,
     toggleFooter,
+    clearConfig,
   };
 }

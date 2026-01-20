@@ -36,7 +36,7 @@ export function PrintStudioModal({ open, onClose, reportData, projectConfig }: P
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
   );
 
-  // 1. Central Config State
+  // 1. Central Config State (with auto-save per project)
   const {
     config,
     toggleSection,
@@ -49,7 +49,7 @@ export function PrintStudioModal({ open, onClose, reportData, projectConfig }: P
     setHeroPhotoPosition,
     setStripPhotoPosition,
     setPhotoPosition,
-  } = usePrintConfig();
+  } = usePrintConfig(projectConfig.identity.jobNumber);
 
   // 2. Calculated Layout
   const pageMap = usePageMap(config, reportData);
