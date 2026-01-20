@@ -63,13 +63,13 @@ export function Sidebar({
   };
 
   return (
-    <div className="w-80 md:w-96 bg-white border-r border-zinc-200 flex flex-col h-full shrink-0 z-10 overflow-hidden">
+    <>
       <div className="p-6 border-b border-zinc-100">
          <h2 className="text-lg font-bold text-zinc-900">Print Settings</h2>
          <p className="text-xs text-zinc-500 mt-1">Configure layout and sections</p>
       </div>
 
-      <div className="flex-1 overflow-y-auto p-6 space-y-8">
+      <div className="p-6 space-y-8">
          {/* 1. SECTIONS LIST */}
          <div>
             <p className="text-xs font-bold uppercase text-zinc-400 mb-4 tracking-wider">Report Sections</p>
@@ -229,8 +229,8 @@ export function Sidebar({
          {/* 5. DEBUG TOOLS */}
          <div className="border-t border-zinc-100 pt-6">
             <label className="flex items-center gap-3 cursor-pointer group">
-               <input 
-                  type="checkbox" 
+               <input
+                  type="checkbox"
                   checked={showPageBreakGuides}
                   onChange={(e) => onTogglePageBreakGuides(e.target.checked)}
                   className="w-4 h-4 rounded border-zinc-300 text-brand-primary focus:ring-brand-primary"
@@ -239,7 +239,7 @@ export function Sidebar({
             </label>
          </div>
       </div>
-    </div>
+    </>
   );
 }
 

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { forwardRef } from 'react';
 import { PrintConfig, PageMap, ReportData } from '../../config/printConfig.types';
 import { PreviewPage } from './PreviewPage';
 
@@ -27,6 +27,7 @@ interface PrintPreviewProps {
   reportData: ReportData;
   projectConfig: ProjectConfig;
   showPageBreakGuides?: boolean;
+  totalPages?: number;
 }
 
 // Map section IDs to their components
@@ -48,22 +49,37 @@ const SECTION_COMPONENTS: Record<string, React.ComponentType<any>> = {
 
 /**
  * Main preview component that renders all pages based on the page map.
+ * Uses forwardRef to allow parent to capture the container for PDF generation.
  */
-export function PrintPreview({
-  config,
-  pageMap,
-  reportData,
-  projectConfig,
-  showPageBreakGuides = false,
-}: PrintPreviewProps) {
+export const PrintPreview = forwardRef<HTMLDivElement, PrintPreviewProps>(function PrintPreview(
+  {
+    config,
+    pageMap,
+    reportData,
+    projectConfig,
+    showPageBreakGuides = false,
+  },
+  ref
+) {
+  const totalPages = pageMap.pages.length;
+
   return (
-    <div className="print-preview-container flex flex-col items-center py-8 bg-zinc-100/50 min-h-full">
-      {pageMap.pages.map((page) => (
+    <div
+      ref={ref}
+      className="print-preview-container flex flex-col items-center bg-zinc-100/50 min-h-full"
+      style={{
+        // Remove padding for PDF capture - each page handles its own margins
+        padding: 0,
+      }}
+    >
+      {pageMap.pages.map((page, index) => (
         <PreviewPage
           key={page.pageNumber}
           page={page}
           showPageBreakGuide={showPageBreakGuides}
           footerText={projectConfig.identity.projectName}
+          totalPages={totalPages}
+          isLastPage={index === pageMap.pages.length - 1}
         >
           {/* First page includes cover section */}
           {page.isFirstPage && (
@@ -73,19 +89,19 @@ export function PrintPreview({
               projectConfig={projectConfig}
             />
           )}
-          
+
           {/* Render sections assigned to this page */}
           {page.sections.map((placement) => {
             // Handle continued sections (like photos spanning pages)
             // e.g. 'photos_continued_1' -> 'photos'
             const baseId = placement.sectionId.split('_continued_')[0];
             const SectionComponent = SECTION_COMPONENTS[baseId];
-            
+
             if (!SectionComponent) {
               // Graceful fallback for unknown sections
               return null;
             }
-            
+
             return (
               <SectionComponent
                 key={placement.sectionId}
@@ -99,4 +115,4 @@ export function PrintPreview({
       ))}
     </div>
   );
-}
+});

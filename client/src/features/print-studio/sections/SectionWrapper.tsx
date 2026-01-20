@@ -9,21 +9,22 @@ interface SectionWrapperProps {
   noPadding?: boolean;
 }
 
-export function SectionWrapper({ 
-  children, 
-  config, 
-  title, 
+export function SectionWrapper({
+  children,
+  config,
+  title,
   className = '',
-  noPadding = false 
+  noPadding = false
 }: SectionWrapperProps) {
   // Determine padding based on spacing setting
-  const paddingY = config.spacing.type === 'compact' ? 'py-4' : config.spacing.type === 'relaxed' ? 'py-8' : 'py-6';
-  const paddingX = 'px-10'; // Standard horizontal padding for print
-  
+  // Reduced horizontal padding from px-10 (40px) to px-2 (8px) - page margins already provide spacing
+  const paddingY = config.spacing.type === 'compact' ? 'py-3' : config.spacing.type === 'relaxed' ? 'py-6' : 'py-4';
+  const paddingX = 'px-2';
+
   return (
     <div className={`section-wrapper ${!noPadding ? `${paddingY} ${paddingX}` : ''} ${className}`}>
       {title && (
-        <h3 className="section-title text-sm font-bold text-zinc-400 uppercase tracking-wider mb-4 border-b border-zinc-100 pb-2">
+        <h3 className="section-title text-xs font-bold text-cyan-600 uppercase tracking-wider mb-3 border-b border-zinc-100 pb-2">
           {title}
         </h3>
       )}

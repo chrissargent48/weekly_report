@@ -2,6 +2,7 @@ import React from 'react';
 import { PrintConfig, ReportData } from '../config/printConfig.types';
 import { FIRST_PAGE } from '../layout-engine/pageConstants';
 import { COLORS } from '../config/styleTokens';
+import { DraggableImage } from '../components/DraggableImage';
 
 import { ProjectConfig } from '../../../types';
 
@@ -15,7 +16,7 @@ export function CoverSection({ config, reportData, projectConfig }: CoverSection
   // Photos logic
   const heroIndex = config.heroPhotoIndex ?? 0;
   const heroPhoto = reportData.photos?.[heroIndex];
-  
+
   const stripIndexes = config.stripPhotoIndexes || [1, 2, 3];
   const stripPhotos = stripIndexes
     .map(idx => reportData.photos?.[idx])
@@ -31,46 +32,47 @@ export function CoverSection({ config, reportData, projectConfig }: CoverSection
   return (
     <div className="flex flex-col h-full relative">
       {/* 1. HEADER SECTION (Hero + Logo) */}
-      <div 
+      <div
         className="relative w-full"
         style={{ height: FIRST_PAGE.HEADER_IMAGE_HEIGHT }}
       >
-        {/* Hero Image */}
+        {/* Hero Image - Now Draggable */}
         {heroPhoto?.url ? (
           <div className="absolute inset-0">
-            <img 
-              src={heroPhoto.url} 
-              alt="Cover Hero" 
-              className="w-full h-full object-cover"
+            <DraggableImage
+              id="hero-image"
+              src={heroPhoto.url}
+              alt="Cover Hero"
+              containerClassName="w-full h-full"
             />
-            {/* Teal Overlay */}
-            <div 
-              className="absolute inset-0"
-              style={{ 
-                background: `linear-gradient(to bottom, ${COLORS.primary}CC, ${COLORS.primary}99, ${COLORS.primary}E6)` 
+            {/* Teal Overlay - sits on top of the image */}
+            <div
+              className="absolute inset-0 pointer-events-none"
+              style={{
+                background: `linear-gradient(to bottom, ${COLORS.primary}CC, ${COLORS.primary}99, ${COLORS.primary}E6)`
               }}
             />
           </div>
         ) : (
-          <div 
-            className="absolute inset-0" 
-            style={{ 
-              background: `linear-gradient(135deg, ${COLORS.primary} 0%, ${COLORS.primaryDark || '#0d7377'} 100%)` 
+          <div
+            className="absolute inset-0"
+            style={{
+              background: `linear-gradient(135deg, ${COLORS.primary} 0%, ${COLORS.primaryDark || '#0d7377'} 100%)`
             }}
           />
         )}
 
         {/* Logo Overlay - NOW USES ACTUAL LOGO! */}
-        <div 
+        <div
           className="absolute top-8 left-8 z-10 drop-shadow-lg"
-          style={{ 
-            transform: `scale(${logoScale})`, 
-            transformOrigin: 'top left' 
+          style={{
+            transform: `scale(${logoScale})`,
+            transformOrigin: 'top left'
           }}
         >
           {hasLogo ? (
-            <img 
-              src={logoUrl} 
+            <img
+              src={logoUrl}
               alt="Company Logo"
               className="h-16 w-auto object-contain"
               style={{ maxWidth: '200px' }}
@@ -101,35 +103,32 @@ export function CoverSection({ config, reportData, projectConfig }: CoverSection
             {projectConfig.identity.location || projectConfig.identity.companyAddress}
           </div>
           <div className="w-32 h-1 bg-[#D4A84B] mb-4" />
-          
+
           <h2 className="text-lg font-bold text-zinc-900 uppercase tracking-wide mb-1">
             Weekly Progress Report
           </h2>
           <div className="text-cyan-600 font-bold">
-             Week Ending: {reportData.weekEnding || 'YYYY-MM-DD'}
+            Week Ending: {reportData.weekEnding || 'YYYY-MM-DD'}
           </div>
         </div>
 
-        {/* Photo Strip */}
+        {/* Photo Strip - Now with Draggable Images */}
         {showStrip && (
-          <div 
+          <div
             className="grid gap-3 my-6"
-            style={{ 
+            style={{
               gridTemplateColumns: `repeat(${stripPhotos.length}, 1fr)`,
-              height: FIRST_PAGE.PHOTO_STRIP_HEIGHT - 24 
+              height: FIRST_PAGE.PHOTO_STRIP_HEIGHT - 24
             }}
           >
             {stripPhotos.map((photo: any, i: number) => (
-              <div 
-                key={i} 
-                className="rounded overflow-hidden bg-zinc-100 border border-zinc-200 shadow-sm"
-              >
-                <img 
-                  src={photo.url} 
-                  className="w-full h-full object-cover" 
-                  alt={`Strip photo ${i + 1}`} 
-                />
-              </div>
+              <DraggableImage
+                key={i}
+                id={`strip-photo-${stripIndexes[i]}`}
+                src={photo.url}
+                alt={`Strip photo ${i + 1}`}
+                containerClassName="rounded bg-zinc-100 border border-zinc-200 shadow-sm h-full"
+              />
             ))}
           </div>
         )}
@@ -140,12 +139,12 @@ export function CoverSection({ config, reportData, projectConfig }: CoverSection
           <div className="font-bold text-zinc-900">
             {projectConfig.personnel?.client?.company || 'Client Name'}
           </div>
-          
+
           <div className="font-bold text-zinc-400">Address:</div>
           <div className="text-zinc-600">
             {projectConfig.identity.location || projectConfig.personnel?.client?.address || 'Project Address'}
           </div>
-          
+
           <div className="font-bold text-zinc-400">Job #:</div>
           <div className="text-zinc-600">
             {projectConfig.identity.jobNumber || '00-00000'}
@@ -154,9 +153,9 @@ export function CoverSection({ config, reportData, projectConfig }: CoverSection
       </div>
 
       {/* 3. SAFETY BOTTOM BANNER */}
-      <div 
+      <div
         className="w-full flex items-center justify-center text-white italic font-medium"
-        style={{ 
+        style={{
           height: FIRST_PAGE.SAFETY_BANNER_HEIGHT,
           backgroundColor: COLORS.primary,
         }}
@@ -166,4 +165,3 @@ export function CoverSection({ config, reportData, projectConfig }: CoverSection
     </div>
   );
 }
-
