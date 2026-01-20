@@ -70,6 +70,7 @@ export function PrintPreview({
             <CoverSection
               config={config}
               reportData={reportData}
+              projectConfig={projectConfig}
             />
           )}
           

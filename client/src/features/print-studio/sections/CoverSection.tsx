@@ -3,12 +3,15 @@ import { PrintConfig, ReportData } from '../config/printConfig.types';
 import { FIRST_PAGE } from '../layout-engine/pageConstants';
 import { COLORS } from '../config/styleTokens';
 
+import { ProjectConfig } from '../../../types';
+
 interface CoverSectionProps {
   config: PrintConfig;
   reportData: ReportData;
+  projectConfig: ProjectConfig;
 }
 
-export function CoverSection({ config, reportData }: CoverSectionProps) {
+export function CoverSection({ config, reportData, projectConfig }: CoverSectionProps) {
   // Photos logic
   const heroIndex = config.heroPhotoIndex ?? 0;
   const heroPhoto = reportData.photos?.[heroIndex];
@@ -57,10 +60,10 @@ export function CoverSection({ config, reportData }: CoverSectionProps) {
         {/* Title Block */}
         <div style={{ minHeight: FIRST_PAGE.TITLE_BLOCK_HEIGHT - 20 }}>
           <h1 className="text-3xl font-extrabold text-zinc-900 mb-1 tracking-tight leading-tight">
-            {reportData.projectName || 'Project Name'}
+            {projectConfig.identity.projectName}
           </h1>
           <div className="text-lg font-medium text-cyan-600 mb-4">
-            {reportData.projectAddress || reportData.projectLocation || 'Location, State'}
+            {projectConfig.identity.location || projectConfig.identity.companyAddress}
           </div>
           <div className="w-32 h-1 bg-[#D4A84B] mb-4" />
           
@@ -89,13 +92,13 @@ export function CoverSection({ config, reportData }: CoverSectionProps) {
         {/* Client Info Grid */}
         <div className="mt-auto mb-8 grid grid-cols-[80px_1fr] gap-y-2 text-sm">
           <div className="font-bold text-zinc-400">Client:</div>
-          <div className="font-bold text-zinc-900">{reportData.client || 'Client Name'}</div>
+          <div className="font-bold text-zinc-900">{projectConfig.personnel.client.company || 'Client Name'}</div>
           
           <div className="font-bold text-zinc-400">Address:</div>
-          <div className="text-zinc-600">{reportData.clientAddress || 'Client Address'}</div>
+          <div className="text-zinc-600">{projectConfig.personnel.client.address || 'Client Address'}</div>
           
           <div className="font-bold text-zinc-400">Job #:</div>
-          <div className="text-zinc-600">{reportData.jobNumber || '00-00000'}</div>
+          <div className="text-zinc-600">{projectConfig.identity.jobNumber || '00-00000'}</div>
         </div>
       </div>
 

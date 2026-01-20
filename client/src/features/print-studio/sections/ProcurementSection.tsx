@@ -10,7 +10,7 @@ interface Props {
 }
 
 export function ProcurementSection({ config, reportData }: Props) {
-  const items = reportData.procurement || [];
+  const items = reportData.resources?.procurement || reportData.procurement || []; // Fallback
   if (items.length === 0) return null;
 
   return (

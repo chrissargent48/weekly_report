@@ -25,38 +25,43 @@ export function measureSection(ctx: MeasurementContext): number {
   switch (section.id) {
     case 'overview': // Executive Summary
       // Estimate based on text length
-      const summaryLength = reportData.executiveSummary?.narrative?.length || 0;
+      const summaryLength = reportData.overview?.executiveSummary?.length || 0;
       dynamicHeight = baseHeight + Math.floor(summaryLength / 100) * 16;
       break;
       
     case 'weather':
       // 7 days * row height + header
-      const weatherRows = reportData.weather?.length || 7;
+      const weatherRows = reportData.overview?.weather?.length || 7;
       dynamicHeight = 60 + (weatherRows * 36);
       break;
       
     case 'lookahead':
-      const lookAheadRows = reportData.lookAhead?.length || 10;
+      // Look Ahead is in progress.lookAheadItems
+      const lookAheadRows = reportData.progress?.lookAheadItems?.length || 10;
       dynamicHeight = 60 + (lookAheadRows * 36);
       break;
       
     case 'manpower':
-      const manpowerRows = reportData.manpower?.length || 8;
+      // Manpower is in resources.manpower
+      const manpowerRows = reportData.resources?.manpower?.length || 8;
       dynamicHeight = 60 + (manpowerRows * 32);
       break;
       
     case 'equipment':
-      const equipmentRows = reportData.equipment?.length || 6;
+      // Equipment is in resources.equipment.onSite
+      const equipmentRows = reportData.resources?.equipment?.onSite?.length || 6;
       dynamicHeight = 60 + (equipmentRows * 32);
       break;
       
     case 'materials':
-      const materialRows = reportData.materials?.length || 3;
+      // Materials is in resources.materials
+      const materialRows = reportData.resources?.materials?.length || 3;
       dynamicHeight = 60 + (materialRows * 32);
       break;
       
     case 'procurement':
-      const procurementRows = reportData.procurement?.length || 5;
+      // Procurement is in resources.procurement
+      const procurementRows = reportData.resources?.procurement?.length || 5;
       dynamicHeight = 60 + (procurementRows * 36);
       break;
       

@@ -8,16 +8,18 @@ interface Props {
 }
 
 export function ProgressSection({ config, reportData }: Props) {
-  // Assuming progress can be either narrative or bullet list in data
-  // Adapting to existing data structure where it might be `weeklyProgress`
-  const progress = reportData.weeklyProgress || reportData.progress; 
-  if (!progress) return null;
+  // WeeklyReport structure: progress contains { activitiesThisWeek: string[] }
+  const activities = reportData.progress?.activitiesThisWeek || [];
+  
+  if (activities.length === 0) return null;
 
   return (
     <SectionWrapper config={config} title="Work Completed This Week">
-       <div className="text-sm text-zinc-700 leading-relaxed whitespace-pre-wrap">
-          {progress}
-        </div>
+       <ul className="list-disc pl-5 text-sm text-zinc-700 leading-relaxed space-y-1">
+          {activities.map((activity: string, i: number) => (
+             <li key={i}>{activity}</li>
+          ))}
+       </ul>
     </SectionWrapper>
   );
 }

@@ -8,7 +8,7 @@ interface Props {
 }
 
 export function EquipmentSection({ config, reportData }: Props) {
-  const items = reportData.equipment || [];
+  const items = reportData.resources?.equipment?.onSite || reportData.equipment || []; // Fallback
   if (items.length === 0) return null;
 
   return (
@@ -29,19 +29,25 @@ export function EquipmentSection({ config, reportData }: Props) {
             </tr>
           </thead>
           <tbody className="divide-y divide-zinc-100">
-            {items.map((item: any, i: number) => (
-              <tr key={i} className={i % 2 === 0 ? 'bg-white' : 'bg-zinc-50/50'}>
-                <td className="px-4 py-2 font-medium text-zinc-900 border-r border-zinc-100">{item.name}</td>
-                 {['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'].map(day => (
-                    <td key={day} className="px-4 py-2 text-center text-zinc-600">
-                       {item[day] || '-'}
+            {items.map((item: any, i: number) => {
+               const dailyHours = item.dailyHours || {};
+               const total = Object.values(dailyHours).reduce((sum: number, h: any) => sum + (Number(h) || 0), 0);
+               const name = item.type || item.name || 'Unknown';
+               
+               return (
+                  <tr key={i} className={i % 2 === 0 ? 'bg-white' : 'bg-zinc-50/50'}>
+                    <td className="px-4 py-2 font-medium text-zinc-900 border-r border-zinc-100">{name}</td>
+                    {['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'].map(day => (
+                        <td key={day} className="px-4 py-2 text-center text-zinc-600">
+                          {dailyHours[day] || '-'}
+                        </td>
+                    ))}
+                    <td className="px-4 py-2 text-center font-bold text-cyan-700 bg-cyan-50 border-l border-zinc-200">
+                        {total > 0 ? total : '-'}
                     </td>
-                 ))}
-                 <td className="px-4 py-2 text-center font-bold text-cyan-700 bg-cyan-50 border-l border-zinc-200">
-                    {item.total}
-                 </td>
-              </tr>
-            ))}
+                  </tr>
+               );
+            })}
           </tbody>
         </table>
       </div>

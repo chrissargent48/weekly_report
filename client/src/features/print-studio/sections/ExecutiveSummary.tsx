@@ -8,8 +8,9 @@ interface Props {
 }
 
 export function ExecutiveSummary({ config, reportData }: Props) {
-  const summary = reportData.executiveSummary;
-  if (!summary) return null;
+  // Use WeeklyReport structure
+  const overview = reportData.overview;
+  if (!overview) return null;
 
   return (
     <SectionWrapper config={config} title="Executive Summary">
@@ -18,17 +19,17 @@ export function ExecutiveSummary({ config, reportData }: Props) {
         <div className="grid grid-cols-2 gap-4">
           <div className="bg-zinc-50 p-3 rounded border border-zinc-100">
             <div className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest mb-1">Total Hours</div>
-            <div className="text-2xl font-bold text-cyan-700">{summary.totalHours || 0}</div>
+            <div className="text-2xl font-bold text-cyan-700">{overview.kpis?.manHoursTotal || 0}</div>
           </div>
           <div className="bg-zinc-50 p-3 rounded border border-zinc-100">
             <div className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest mb-1">Days Lost</div>
-            <div className="text-2xl font-bold text-red-600">{summary.daysLost || 0}</div>
+            <div className="text-2xl font-bold text-red-600">{overview.kpis?.weatherDaysLost || 0}</div>
           </div>
         </div>
         
         {/* Narrative */}
         <div className="text-sm text-zinc-700 leading-relaxed whitespace-pre-wrap">
-          {summary.narrative || 'No summary provided.'}
+          {overview.executiveSummary || 'No summary provided.'}
         </div>
       </div>
     </SectionWrapper>

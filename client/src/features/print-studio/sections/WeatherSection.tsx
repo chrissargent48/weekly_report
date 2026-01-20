@@ -9,7 +9,7 @@ interface Props {
 }
 
 export function WeatherSection({ config, reportData }: Props) {
-  const weather = reportData.weather || [];
+  const weather = reportData.overview?.weather || reportData.weather || [];
   if (weather.length === 0) return null;
 
   const getWeatherIcon = (condition: string) => {

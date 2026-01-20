@@ -10,12 +10,13 @@ interface Props {
 
 export function FinancialsSection({ config, reportData }: Props) {
   const data = reportData.financials;
-  // If no financials data at all, skip
   if (!data) return null;
-  // If invoices is array and empty, stick to showing summaries if available, or skip if completely empty
-  const hasInvoices = data.invoices && data.invoices.length > 0;
+
+  const summary = data.summary || {};
+  const invoices = data.invoices || [];
   
-  if (!hasInvoices && !data.contractValue) return null;
+  // If no financials data at all, skip
+  if ((!invoices || invoices.length === 0) && !summary.remainingContractValue) return null;
 
   return (
     <SectionWrapper config={config} title="Financial Overview">
@@ -23,30 +24,30 @@ export function FinancialsSection({ config, reportData }: Props) {
           {/* Top Cards */}
           <div className="grid grid-cols-3 gap-4">
              <div className="bg-zinc-50 p-4 rounded border border-zinc-100 flex flex-col justify-between">
-                <div className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest mb-2">Contract Value</div>
+                <div className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest mb-2">Earned To Date</div>
                 <div className="text-xl font-bold text-zinc-900 flex items-center gap-1">
                    <DollarSign size={16} className="text-zinc-400" />
-                   {data.contractValue || '0.00'}
+                   {summary.earnedToDate?.toLocaleString() || '0.00'}
                 </div>
              </div>
              <div className="bg-zinc-50 p-4 rounded border border-zinc-100 flex flex-col justify-between">
                 <div className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest mb-2">Billed to Date</div>
                 <div className="text-xl font-bold text-cyan-700 flex items-center gap-1">
                    <DollarSign size={16} className="text-cyan-400" />
-                   {data.billedToDate || '0.00'}
+                   {summary.totalBilled?.toLocaleString() || '0.00'}
                 </div>
              </div>
              <div className="bg-zinc-50 p-4 rounded border border-zinc-100 flex flex-col justify-between">
                 <div className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest mb-2">Remaining</div>
                 <div className="text-xl font-bold text-zinc-900 flex items-center gap-1">
                    <DollarSign size={16} className="text-zinc-400" />
-                   {data.remainingValue || '0.00'}
+                   {summary.remainingContractValue?.toLocaleString() || '0.00'}
                 </div>
              </div>
           </div>
 
           {/* Invoices Table */}
-          {hasInvoices && (
+          {invoices.length > 0 && (
              <div className="overflow-hidden rounded border border-zinc-200">
                 <table className="w-full text-sm">
                    <thead className="bg-zinc-50 border-b border-zinc-200">

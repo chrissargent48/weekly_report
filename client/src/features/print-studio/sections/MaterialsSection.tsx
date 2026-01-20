@@ -9,7 +9,7 @@ interface Props {
 }
 
 export function MaterialsSection({ config, reportData }: Props) {
-  const items = reportData.materials || [];
+  const items = reportData.resources?.materials || reportData.materials || [];
   if (items.length === 0) return null;
 
   return (

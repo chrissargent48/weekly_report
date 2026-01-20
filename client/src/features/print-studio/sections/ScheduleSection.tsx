@@ -9,7 +9,7 @@ interface Props {
 }
 
 export function ScheduleSection({ config, reportData }: Props) {
-  const milestones = reportData.schedule || [];
+  const milestones = reportData.schedule?.milestones || [];
   if (milestones.length === 0) return null;
 
   return (
