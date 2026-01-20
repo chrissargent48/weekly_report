@@ -1,0 +1,9 @@
+
+> weekly-report-client@0.0.0 build
+> tsc && vite build
+
+src/features/print-studio/components/Sidebar.tsx(6,37): error TS2305: Module '"lucide-react"' has no exported member 'XMark'.
+src/features/print-studio/sections/CoverSection.tsx(17,50): error TS7006: Parameter '_' implicitly has an 'any' type.
+src/features/print-studio/sections/CoverSection.tsx(17,53): error TS7006: Parameter 'i' implicitly has an 'any' type.
+src/features/print-studio/sections/CoverSection.tsx(81,31): error TS7006: Parameter 'photo' implicitly has an 'any' type.
+src/features/print-studio/sections/CoverSection.tsx(81,38): error TS7006: Parameter 'i' implicitly has an 'any' type.

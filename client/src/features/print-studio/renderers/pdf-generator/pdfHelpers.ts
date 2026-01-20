@@ -1,368 +1,132 @@
-/**
- * PDF Generator for Weekly Reports using pdfmake
- * 
- * This module generates professional PDF documents from WeeklyReport data.
- * It replaces the Puppeteer-based approach with pure client-side generation.
- */
+import { Content, ContentTable, ContentColumns } from 'pdfmake/interfaces';
+import { ProjectConfig } from '../../../../types';
+import { PrintConfig, PagePlacement } from '../../config/printConfig.types';
+import { WeeklyReport } from '../../../../types';
+import { BRAND_COLORS, tableLayouts } from './pdfStyles';
+import { buildLogoContent } from './pdfAssets';
 
-import pdfMake from 'pdfmake/build/pdfmake';
-import pdfFonts from 'pdfmake/build/vfs_fonts';
-import { TDocumentDefinitions, Content } from 'pdfmake/interfaces';
-import { WeeklyReport, ProjectConfig, PrintOptions, PrintSectionConfig } from '../types';
-import { pdfStyles, BRAND_COLORS, tableLayouts, PAGE_MARGINS } from './pdfStyles';
-
-// Use 'any' for table cells to avoid strict type checking issues with pdfmake
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type TableRow = any[];
 
-
-// Initialize pdfmake with fonts
-pdfMake.vfs = pdfFonts.vfs;
-
 // =====================================================
-// MAIN EXPORT FUNCTION
+// UTILITY FUNCTIONS
 // =====================================================
 
-/**
- * Generate and download a PDF for the given weekly report
- * 
- * @param report - The weekly report data
- * @param config - Project configuration (personnel, identity, etc.)
- * @param options - Print options (which sections to include, logo settings)
- */
-export async function generateReportPDF(
-    report: WeeklyReport,
-    config: ProjectConfig,
-    options: PrintOptions
-): Promise<void> {
-    // PRE-PROCESSING: Ensure all photos are base64 encoded
-    // pdfmake in the browser works best with data URIs
-    const safeReport = await ensureReportImagesAreSafe(report);
-
-    // Build the document definition
-    const docDefinition = await buildDocumentDefinition(safeReport, config, options);
-    
-    // Generate filename
-    const filename = `WeeklyReport_${config.identity.jobNumber}_${report.weekEnding}.pdf`;
-    
-    // Create and download
-    pdfMake.createPdf(docDefinition).download(filename);
-}
-
-/**
- * Open PDF in new browser tab (useful for preview)
- */
-export async function openReportPDF(
-    report: WeeklyReport,
-    config: ProjectConfig,
-    options: PrintOptions
-): Promise<void> {
-    const safeReport = await ensureReportImagesAreSafe(report);
-    const docDefinition = await buildDocumentDefinition(safeReport, config, options);
-    pdfMake.createPdf(docDefinition).open();
-}
-
-// --- IMAGE HELPERS ---
-
-async function ensureReportImagesAreSafe(report: WeeklyReport): Promise<WeeklyReport> {
-    // Deep clone to avoid mutating original
-    const safeReport = JSON.parse(JSON.stringify(report)) as WeeklyReport;
-    
-    // Process all photos in the photos array
-    if (safeReport.photos && safeReport.photos.length > 0) {
-        safeReport.photos = await Promise.all(safeReport.photos.map(async (photo) => {
-            if (photo.url && !photo.url.startsWith('data:')) {
-                try {
-                    const base64 = await imgUrlToBase64(photo.url);
-                    return { ...photo, url: base64 };
-                } catch (e) {
-                    console.error(`Failed to convert image ${photo.url} to base64:`, e);
-                    return photo; // Return original on failure (pdfmake might fail or ignore)
-                }
-            }
-            return photo;
-        }));
-    }
-    
-    return safeReport;
-}
-
-async function imgUrlToBase64(url: string): Promise<string> {
-    console.log(`[PDF] Converting image: ${url}`);
+export function formatDate(dateStr: string): string {
+    if (!dateStr) return '';
     try {
-        // Create an image element to load the image
-        const img = new Image();
-        img.crossOrigin = 'Anonymous';  // Allow cross-origin if needed
-        img.src = url;
-
-        await new Promise((resolve, reject) => {
-            img.onload = resolve;
-            img.onerror = (e) => reject(new Error(`Image load failed for ${url}`));
-        });
-
-        // Resize config
-        const MAX_WIDTH = 1024;
-        const MAX_HEIGHT = 1024;
-        let width = img.width;
-        let height = img.height;
-
-        // Calculate new dimensions
-        if (width > height) {
-            if (width > MAX_WIDTH) {
-                height *= MAX_WIDTH / width;
-                width = MAX_WIDTH;
-            }
-        } else {
-            if (height > MAX_HEIGHT) {
-                width *= MAX_HEIGHT / height;
-                height = MAX_HEIGHT;
-            }
-        }
-
-        // Draw to canvas
-        const canvas = document.createElement('canvas');
-        canvas.width = width;
-        canvas.height = height;
-        const ctx = canvas.getContext('2d');
-        if (!ctx) throw new Error('Could not get canvas context');
-        
-        ctx.drawImage(img, 0, 0, width, height);
-        
-        // Export to base64 (JPEG 0.8 quality to save space)
-        const dataUrl = canvas.toDataURL('image/jpeg', 0.8);
-        console.log(`[PDF] Resized to ${width}x${height}, size: ${dataUrl.length}`);
-        return dataUrl;
-
-    } catch (e) {
-        console.error(`[PDF] Conversion failed for ${url}:`, e);
-        // Fallback to original fetch method if canvas fails (e.g. strict CORS)
-        try {
-            console.warn(`[PDF] Fallback to direct blob fetch for ${url}`);
-            const response = await fetch(url);
-            const blob = await response.blob();
-            return new Promise((resolve, reject) => {
-                const reader = new FileReader();
-                reader.onloadend = () => resolve(reader.result as string);
-                reader.onerror = reject;
-                reader.readAsDataURL(blob);
-            });
-        } catch (err2) {
-             console.error(`[PDF] Fallback also failed:`, err2);
-             throw err2;
-        }
+        const date = new Date(dateStr);
+        return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    } catch {
+        return dateStr;
     }
 }
 
 // =====================================================
-// DOCUMENT BUILDER
+// COVER HEADER
 // =====================================================
 
-async function buildDocumentDefinition(
+export function buildCoverHeader(
     report: WeeklyReport,
     config: ProjectConfig,
-    options: PrintOptions
-): Promise<TDocumentDefinitions> {
-    // Build content based on included sections
-    const content: Content[] = [];
-    
-    // Always add cover page first
-    content.push(buildCoverPage(report, config, options));
-    
-    // Add page break after cover
-    content.push({ text: '', pageBreak: 'after' });
-    
-    // Add content page header (repeated on each page via header function)
-    // Then add each included section
-    const includedSections = options.sections.filter(s => s.included);
-    
-    for (const section of includedSections) {
-        const sectionContent = buildSection(section, report, config);
-        if (sectionContent) {
-            content.push(sectionContent);
-        }
-    }
-
-    // Determine margins based on spacing option
-    let pageMargins: [number, number, number, number] = PAGE_MARGINS;
-    if (options.spacing === 'compact') {
-        pageMargins = [30, 40, 30, 40];
-    } else if (options.spacing === 'relaxed') {
-        pageMargins = [50, 60, 50, 60];
-    }
-    
-    return {
-        pageSize: 'A4',
-        pageMargins: pageMargins,
-        
-        // Dynamic header for content pages (skips cover)
-        header: (currentPage: number) => {
-            if (currentPage === 1) return null; // Skip on cover page
-            return buildPageHeader(config, report);
-        },
-        
-        // Page footer with page numbers
-        footer: (currentPage: number, pageCount: number) => {
-            if (currentPage === 1) return null; // Skip on cover page
-            return {
-                text: `Page ${currentPage} of ${pageCount}`,
-                style: 'footer',
-                margin: [0, 20, 0, 0],
-            };
-        },
-        
-        content,
-        styles: pdfStyles,
-        defaultStyle: {
-            font: 'Roboto', // pdfmake default font
-            fontSize: 9,
-        },
-    };
-}
-
-// =====================================================
-// COVER PAGE - Option 2: Teal Header + Photo Strip Design
-// =====================================================
-
-// =====================================================
-// COVER PAGE - Option 2 (Polished): Teal Header + Photo Strip
-// =====================================================
-
-function buildCoverPage(
-    report: WeeklyReport,
-    config: ProjectConfig,
-    options: PrintOptions
+    options: PrintConfig
 ): Content {
     // 1. Resolve Hero Photo
     const heroIndex = options.heroPhotoIndex ?? 0;
     const heroPhotoCandidate = report.photos[heroIndex];
-    // Use the candidate directly as pre-processing handles format
     const heroPhoto = (heroPhotoCandidate?.url) 
         ? heroPhotoCandidate 
-        : report.photos.find(p => p.url); // Fallback to first valid
+        : report.photos.find(p => p.url);
 
     // 2. Resolve Strip Photos
     const stripIndexes = options.stripPhotoIndexes ?? [1, 2, 3];
     const stripPhotos = stripIndexes
         .map(idx => report.photos[idx])
         .filter(p => p?.url)
-        .slice(0, 3); // Max 3
+        .slice(0, 3);
 
     return {
         stack: [
-            // ========================================
             // HEADER SECTION (Hero + Logo)
-            // ========================================
             {
                 stack: [
-                    // A) Hero Image or Solid Background
                     heroPhoto ? {
                         image: heroPhoto.url,
-                        width: 595, // Full A4 width
-                        height: 280, // Reduced further to 280
+                        width: 595,
+                        height: 280,
                         absolutePosition: { x: 0, y: 0 },
                     } : {
                         canvas: [{
                             type: 'rect' as const,
-                            x: 0, 
-                            y: 0,
-                            w: 595,
-                            h: 280,
+                            x: 0, y: 0, w: 595, h: 280,
                             color: BRAND_COLORS.primaryDark,
                         }],
                         absolutePosition: { x: 0, y: 0 },
                     },
-
-                    // B) Teal Gradient Overlay
                     {
                         canvas: [{
                             type: 'rect' as const,
-                            x: 0,
-                            y: 0,
-                            w: 595,
-                            h: 280,
+                            x: 0, y: 0, w: 595, h: 280,
                             color: BRAND_COLORS.primary,
                             fillOpacity: 0.85,
                         }],
                         absolutePosition: { x: 0, y: 0 },
                     },
-
-                    // C) Logo Overlay (Top Left)
                     {
                         stack: [
                             buildLogoContent(config, { ...options, logoAlign: 'left' })
                         ],
-                        margin: [40, 30, 0, 0], // Reduced top padding
+                        margin: [40, 30, 0, 0], 
                         absolutePosition: { x: 0, y: 0 }, 
                     }
                 ],
-                // Reserve space for the header content
-                margin: [0, 0, 0, 240], // Reduced from 260
+                margin: [0, 0, 0, 240],
             },
 
-            // ========================================
             // MAIN CONTENT SECTION
-            // ========================================
             {
                 stack: [
-                    // Project Name
                     {
                         text: config.identity.projectName,
-                        fontSize: 26, // Reduced from 28
+                        fontSize: 26,
                         bold: true,
                         color: BRAND_COLORS.dark,
                         margin: [0, 15, 0, 5],
                     },
-                    
-                    // Subtitle / Location
                     {
                         text: config.identity.subtitle || config.identity.location,
                         fontSize: 14,
                         color: BRAND_COLORS.primary,
                         margin: [0, 0, 0, 15],
                     },
-                    
-                    // Golden Divider
                     {
                         canvas: [{
                             type: 'line',
-                            x1: 0, y1: 0,
-                            x2: 150, y2: 0,
-                            lineWidth: 4,
-                            lineColor: BRAND_COLORS.golden,
+                            x1: 0, y1: 0, x2: 150, y2: 0,
+                            lineWidth: 4, lineColor: BRAND_COLORS.golden,
                         }],
                         margin: [0, 0, 0, 20],
                     },
-                    
-                    // Report Title & Date
                     {
                         text: 'WEEKLY PROGRESS REPORT',
-                        fontSize: 13,
-                        bold: true,
-                        characterSpacing: 1,
-                        color: BRAND_COLORS.dark,
-                        margin: [0, 0, 0, 4],
+                        fontSize: 13, bold: true, characterSpacing: 1,
+                        color: BRAND_COLORS.dark, margin: [0, 0, 0, 4],
                     },
                     {
                         text: `Week Ending: ${formatDate(report.weekEnding)}`,
-                        fontSize: 12,
-                        bold: true,
-                        color: BRAND_COLORS.primary,
+                        fontSize: 12, bold: true, color: BRAND_COLORS.primary,
                         margin: [0, 0, 0, 20], 
                     },
-                    
-                    // Photo Strip
                     (stripPhotos.length > 0) ? {
                         columns: stripPhotos.map(photo => ({
                             image: photo.url,
                             width: (515 - (stripPhotos.length - 1) * 12) / stripPhotos.length,
-                            height: 90, // Reduced from 100
+                            height: 90,
                             cover: { width: (515 - (stripPhotos.length - 1) * 12) / stripPhotos.length, height: 90 }
                         })),
                         columnGap: 12, 
-                        margin: [0, 0, 0, 24], // Reduced from 32
+                        margin: [0, 0, 0, 24], 
                     } : { text: '', margin: [0, 0, 0, 24] },
-                    
-                    // Client / Project Details Table
                     {
                         table: {
                             widths: [60, '*'],
@@ -385,12 +149,10 @@ function buildCoverPage(
                         margin: [0, 0, 0, 0],
                     }
                 ],
-                margin: [40, 0, 40, 0] // Content margins
+                margin: [40, 0, 40, 0] 
             },
 
-            // ========================================
             // FOOTER BAR
-            // ========================================
             {
                 stack: [
                     {
@@ -400,7 +162,7 @@ function buildCoverPage(
                         text: 'Safety is a core value',
                         style: { italics: true, color: 'white', fontSize: 11 },
                         alignment: 'center',
-                        margin: [0, -28, 0, 0] // Pull up into rect
+                        margin: [0, -28, 0, 0]
                     }
                 ],
                 absolutePosition: { x: 0, y: 802 }
@@ -409,111 +171,11 @@ function buildCoverPage(
     };
 }
 
-
-
-function buildLogoContent(config: ProjectConfig, options: PrintOptions): Content {
-    // For now, return placeholder if no logo or if we can't embed
-    // Note: Logo embedding requires the image to be base64 encoded
-    if (config.identity.logoUrl && config.identity.logoUrl.startsWith('data:')) {
-        const scale = (options.logoScale || 100) / 100;
-        const width = 150 * scale;
-        
-        return {
-            image: config.identity.logoUrl,
-            width,
-            alignment: options.logoAlign || 'center',
-            margin: [0, 0, 0, 20],
-        };
-    }
-    
-    // If logo is a URL path (not base64), we'd need to fetch and convert it
-    // For now, show placeholder text
-    return {
-        text: config.identity.projectName.charAt(0),
-        fontSize: 40,
-        bold: true,
-        color: BRAND_COLORS.primary,
-        alignment: 'center',
-        margin: [0, 20, 0, 20],
-    };
-}
-
-function buildPersonnelBox(config: ProjectConfig): Content {
-    return {
-        table: {
-            widths: ['50%', '50%'],
-            body: [
-                // Client & Engineer Row
-                [
-                    {
-                        stack: [
-                            { text: 'CLIENT', style: 'subHeader' },
-                            { text: config.personnel.client.company || 'Client', style: 'bold', fontSize: 10 },
-                            { text: config.personnel.client.address || '', style: 'small', margin: [0, 2, 0, 4] },
-                            ...config.personnel.client.representatives.slice(0, 2).map(rep => ({
-                                stack: [
-                                    { text: rep.name, style: 'bold', fontSize: 8 },
-                                    { text: rep.role, style: 'small' },
-                                ],
-                                margin: [0, 2, 0, 2] as [number, number, number, number],
-                            })),
-                        ],
-                        margin: [8, 8, 8, 8] as [number, number, number, number],
-                    },
-                    {
-                        stack: [
-                            { text: 'ENGINEER / CM', style: 'subHeader' },
-                            { text: config.personnel.engineer.company || 'Engineer', style: 'bold', fontSize: 10 },
-                            { text: config.personnel.engineer.address || '', style: 'small', margin: [0, 2, 0, 4] },
-                            ...config.personnel.engineer.representatives.slice(0, 2).map(rep => ({
-                                stack: [
-                                    { text: rep.name, style: 'bold', fontSize: 8 },
-                                    { text: rep.role, style: 'small' },
-                                ],
-                                margin: [0, 2, 0, 2] as [number, number, number, number],
-                            })),
-                        ],
-                        margin: [8, 8, 8, 8] as [number, number, number, number],
-                    },
-                ],
-                // Contractor Row (full width)
-                [
-                    {
-                        colSpan: 2,
-                        stack: [
-                            { text: 'CONTRACTOR (RECON)', style: 'subHeader' },
-                            {
-                                columns: config.personnel.recon.slice(0, 3).map(person => ({
-                                    stack: [
-                                        { text: person.name, style: 'bold', fontSize: 8 },
-                                        { text: person.role, style: 'primary', fontSize: 7, bold: true },
-                                        { text: person.email || person.phone || '', style: 'tiny' },
-                                    ],
-                                    width: 'auto',
-                                })),
-                                columnGap: 20,
-                            },
-                        ],
-                        margin: [8, 8, 8, 8] as [number, number, number, number],
-                    },
-                    {},
-                ],
-            ],
-        },
-        layout: {
-            hLineWidth: () => 0.5,
-            vLineWidth: () => 0.5,
-            hLineColor: () => BRAND_COLORS.border,
-            vLineColor: () => BRAND_COLORS.border,
-        },
-    };
-}
-
 // =====================================================
-// PAGE HEADER (for content pages)
+// PAGE HEADER
 // =====================================================
 
-function buildPageHeader(config: ProjectConfig, report: WeeklyReport): Content {
+export function buildPageHeader(config: ProjectConfig, report: WeeklyReport): Content {
     return {
         columns: [
             {
@@ -539,49 +201,7 @@ function buildPageHeader(config: ProjectConfig, report: WeeklyReport): Content {
 // SECTION BUILDERS
 // =====================================================
 
-function buildSection(
-    section: PrintSectionConfig,
-    report: WeeklyReport,
-    config: ProjectConfig
-): Content | null {
-    switch (section.id) {
-        case 'overview':
-            return buildOverviewSection(report);
-        case 'weather':
-            return buildWeatherSection(report);
-        case 'manpower':
-            return buildManpowerSection(report);
-        case 'equipment':
-            return buildEquipmentSection(report);
-        case 'materials':
-            return buildMaterialsSection(report);
-        case 'lookahead':
-            return buildLookAheadSection(report);
-        case 'financials':
-            return buildFinancialsSection(report);
-        case 'safety':
-            return buildSafetySection(report);
-        case 'photos':
-            return buildPhotosSection(report);
-        case 'issues':
-            return buildIssuesSection(report);
-        case 'schedule':
-            return buildScheduleSection(report);
-        case 'procurement':
-            return buildProcurementSection(report);
-        case 'documents':
-            return buildDocumentsSection(report);
-        case 'progress':
-            return null; // Progress is part of overview KPIs
-        default:
-            return null;
-    }
-}
-
-// --- OVERVIEW SECTION ---
-
-function buildOverviewSection(report: WeeklyReport): Content {
-    // Calculate man hours from manpower entries
+export function buildOverviewSection(report: WeeklyReport): Content {
     const totalManHours = report.resources.manpower.reduce((sum, m) => {
         const dh = m.dailyHours || { mon: 0, tue: 0, wed: 0, thu: 0, fri: 0, sat: 0, sun: 0 };
         return sum + dh.mon + dh.tue + dh.wed + dh.thu + dh.fri + dh.sat + dh.sun;
@@ -589,17 +209,12 @@ function buildOverviewSection(report: WeeklyReport): Content {
 
     return {
         stack: [
-            // Section Header
             { text: 'EXECUTIVE SUMMARY', style: 'sectionHeader' },
-            
-            // Summary text box
             {
                 text: report.overview.executiveSummary || 'No summary provided.',
                 style: 'body',
                 margin: [0, 0, 0, 12],
             },
-            
-            // KPI Grid
             {
                 columns: [
                     buildKpiBox('% Complete', `${report.overview.kpis.percentComplete}%`),
@@ -610,17 +225,10 @@ function buildOverviewSection(report: WeeklyReport): Content {
                 columnGap: 10,
                 margin: [0, 0, 0, 12],
             },
-            
-            // Schedule Analysis (if weather days lost)
             ...(report.schedule.analysis ? [{
                 stack: [
                     { text: 'Schedule Analysis', style: 'sectionHeader' },
-                    {
-                        text: `"${report.schedule.analysis}"`,
-                        italics: true,
-                        style: 'body',
-                        color: BRAND_COLORS.textMuted,
-                    },
+                    { text: `"${report.schedule.analysis}"`, italics: true, style: 'body', color: BRAND_COLORS.textMuted },
                 ],
                 margin: [0, 0, 0, 12] as [number, number, number, number],
             }] : []),
@@ -634,19 +242,33 @@ function buildKpiBox(label: string, value: string, highlight = false): Content {
             { text: value, style: 'statValue', color: highlight ? BRAND_COLORS.accent : BRAND_COLORS.dark },
             { text: label, style: 'statLabel' },
         ],
-        fillColor: highlight ? '#fef3c7' : BRAND_COLORS.bgLight, // amber-100 or zinc-50
+        fillColor: highlight ? '#fef3c7' : BRAND_COLORS.bgLight,
         margin: [8, 8, 8, 8],
     };
 }
 
-// --- WEATHER SECTION ---
+export function buildProgressSection(report: WeeklyReport): Content {
+    const text = report.progress.activitiesThisWeek?.length > 0 
+        ? report.progress.activitiesThisWeek.join('\n') 
+        : 'No progress narrative provided.';
+        
+    return {
+        stack: [
+            { text: 'PROGRESS NARRATIVE', style: 'sectionHeader' },
+            {
+                text: text,
+                style: 'body',
+                margin: [0, 0, 0, 12],
+            }
+        ]
+    };
+}
 
-function buildWeatherSection(report: WeeklyReport): Content | null {
+export function buildWeatherSection(report: WeeklyReport): Content | null {
     const weather = report.overview.weather;
     if (!weather || weather.length === 0) return null;
 
     const body: TableRow[] = [
-        // Header row
         [
             { text: 'Date', style: 'tableHeader' },
             { text: 'Condition', style: 'tableHeader' },
@@ -655,7 +277,6 @@ function buildWeatherSection(report: WeeklyReport): Content | null {
             { text: 'Lost', style: 'tableHeader', alignment: 'right' },
             { text: 'Notes', style: 'tableHeader' },
         ],
-        // Data rows
         ...weather.map(w => [
             { text: formatDate(w.date), style: 'tableCell' },
             { text: w.condition, style: 'tableCell' },
@@ -671,9 +292,7 @@ function buildWeatherSection(report: WeeklyReport): Content | null {
             { text: 'WEATHER LOG', style: 'sectionHeader' },
             {
                 table: {
-                    headerRows: 1,
-                    widths: [70, '*', 50, 50, 45, '*'],
-                    body,
+                    headerRows: 1, widths: [70, '*', 50, 50, 45, '*'], body,
                 },
                 layout: tableLayouts.standardTable,
             },
@@ -682,34 +301,26 @@ function buildWeatherSection(report: WeeklyReport): Content | null {
     };
 }
 
-// --- MANPOWER SECTION ---
-
-function buildManpowerSection(report: WeeklyReport): Content {
+export function buildManpowerSection(report: WeeklyReport): Content {
     const manpower = report.resources.manpower;
-    
     const body: TableRow[] = [
-        // Header row
         [
             { text: 'Name/Company', style: 'tableHeader' },
             { text: 'Role', style: 'tableHeader' },
             { text: 'Total Hrs', style: 'tableHeader', alignment: 'right' },
         ],
-        // Data rows
         ...manpower.map(m => {
             const dh = m.dailyHours || { mon: 0, tue: 0, wed: 0, thu: 0, fri: 0, sat: 0, sun: 0 };
             const total = dh.mon + dh.tue + dh.wed + dh.thu + dh.fri + dh.sat + dh.sun;
             const displayName = m.type === 'subcontractor' ? (m.company || m.name || 'Subcontractor') : (m.name || 'RECON');
-            
             return [
                 { text: displayName, style: 'tableCell' },
                 { text: m.role, style: 'tableCell' },
                 { text: String(total), style: 'tableCellRight' },
             ];
         }),
-        // Total row
         [
-            { text: 'Total:', style: 'tableTotal', colSpan: 2, alignment: 'right' },
-            {},
+            { text: 'Total:', style: 'tableTotal', colSpan: 2, alignment: 'right' }, {},
             { text: String(manpower.reduce((sum, m) => {
                 const dh = m.dailyHours || { mon: 0, tue: 0, wed: 0, thu: 0, fri: 0, sat: 0, sun: 0 };
                 return sum + dh.mon + dh.tue + dh.wed + dh.thu + dh.fri + dh.sat + dh.sun;
@@ -721,11 +332,7 @@ function buildManpowerSection(report: WeeklyReport): Content {
         stack: [
             { text: 'MANPOWER LOG', style: 'sectionHeader' },
             {
-                table: {
-                    headerRows: 1,
-                    widths: ['*', '*', 60],
-                    body,
-                },
+                table: { headerRows: 1, widths: ['*', '*', 60], body },
                 layout: tableLayouts.standardTable,
             },
         ],
@@ -733,9 +340,7 @@ function buildManpowerSection(report: WeeklyReport): Content {
     };
 }
 
-// --- EQUIPMENT SECTION ---
-
-function buildEquipmentSection(report: WeeklyReport): Content {
+export function buildEquipmentSection(report: WeeklyReport): Content {
     const equipment = report.resources.equipment.onSite;
     if (equipment.length === 0) return { text: '' };
 
@@ -755,7 +360,6 @@ function buildEquipmentSection(report: WeeklyReport): Content {
         ...equipment.map(e => {
             const dh = e.dailyHours || { mon: 0, tue: 0, wed: 0, thu: 0, fri: 0, sat: 0, sun: 0 };
             const total = dh.mon + dh.tue + dh.wed + dh.thu + dh.fri + dh.sat + dh.sun;
-            
             return [
                 { text: e.type, style: 'tableCellBold' },
                 { text: e.status, style: 'tableCell', alignment: 'center', color: e.status === 'Active' ? BRAND_COLORS.success : BRAND_COLORS.textMuted },
@@ -775,11 +379,7 @@ function buildEquipmentSection(report: WeeklyReport): Content {
         stack: [
             { text: 'EQUIPMENT USAGE', style: 'sectionHeader' },
             {
-                table: {
-                    headerRows: 1,
-                    widths: ['*', 50, 22, 22, 22, 22, 22, 22, 22, 30],
-                    body,
-                },
+                table: { headerRows: 1, widths: ['*', 50, 22, 22, 22, 22, 22, 22, 22, 30], body },
                 layout: tableLayouts.lightGrid,
             },
         ],
@@ -787,9 +387,7 @@ function buildEquipmentSection(report: WeeklyReport): Content {
     };
 }
 
-// --- MATERIALS SECTION ---
-
-function buildMaterialsSection(report: WeeklyReport): Content | null {
+export function buildMaterialsSection(report: WeeklyReport): Content | null {
     const materials = report.resources.materials;
     if (!materials || materials.length === 0) return null;
 
@@ -816,11 +414,7 @@ function buildMaterialsSection(report: WeeklyReport): Content | null {
         stack: [
             { text: 'MATERIAL DELIVERIES', style: 'sectionHeader' },
             {
-                table: {
-                    headerRows: 1,
-                    widths: [60, '*', 60, 40, 35, '*'],
-                    body,
-                },
+                table: { headerRows: 1, widths: [60, '*', 60, 40, 35, '*'], body },
                 layout: tableLayouts.standardTable,
             },
         ],
@@ -828,11 +422,8 @@ function buildMaterialsSection(report: WeeklyReport): Content | null {
     };
 }
 
-// --- LOOK AHEAD SECTION ---
-
-function buildLookAheadSection(report: WeeklyReport): Content {
+export function buildLookAheadSection(report: WeeklyReport): Content {
     const items = report.progress.lookAheadItems?.filter(i => i.included) || [];
-    
     if (items.length === 0 && (!report.progress.lookAheadThreeWeek || report.progress.lookAheadThreeWeek.length === 0)) {
         return {
             stack: [
@@ -864,11 +455,7 @@ function buildLookAheadSection(report: WeeklyReport): Content {
         stack: [
             { text: '3-WEEK LOOK AHEAD', style: 'sectionHeader' },
             {
-                table: {
-                    headerRows: 1,
-                    widths: ['*', 65, 65, 50, '*'],
-                    body,
-                },
+                table: { headerRows: 1, widths: ['*', 65, 65, 50, '*'], body },
                 layout: tableLayouts.standardTable,
             },
         ],
@@ -876,11 +463,8 @@ function buildLookAheadSection(report: WeeklyReport): Content {
     };
 }
 
-// --- FINANCIALS SECTION ---
-
-function buildFinancialsSection(report: WeeklyReport): Content {
+export function buildFinancialsSection(report: WeeklyReport): Content {
     const invoices = report.financials.invoices || [];
-
     const body: TableRow[] = [
         [
             { text: 'Invoice #', style: 'tableHeader' },
@@ -911,11 +495,7 @@ function buildFinancialsSection(report: WeeklyReport): Content {
                 ],
             },
             {
-                table: {
-                    headerRows: 1,
-                    widths: [70, '*', 70, 60, 70, 60],
-                    body,
-                },
+                table: { headerRows: 1, widths: [70, '*', 70, 60, 70, 60], body },
                 layout: tableLayouts.standardTable,
             },
         ],
@@ -923,27 +503,19 @@ function buildFinancialsSection(report: WeeklyReport): Content {
     };
 }
 
-// --- SAFETY SECTION ---
-
-function buildSafetySection(report: WeeklyReport): Content {
+export function buildSafetySection(report: WeeklyReport): Content {
     const stats = report.safety.stats;
-
     return {
         stack: [
             { text: 'SAFETY STATS & NARRATIVE', style: 'sectionHeader' },
-            
-            // Narrative
             {
                 text: report.safety.narrative || 'No safety narrative provided.',
                 style: 'body',
                 margin: [0, 0, 0, 8],
             },
-            
-            // Stats table
             {
                 table: {
-                    headerRows: 1,
-                    widths: ['*', 60, 60],
+                    headerRows: 1, widths: ['*', 60, 60],
                     body: [
                         [
                             { text: 'Metric', style: 'tableHeader' },
@@ -974,11 +546,13 @@ function buildSafetySection(report: WeeklyReport): Content {
     };
 }
 
-// --- PHOTOS SECTION ---
-
-function buildPhotosSection(report: WeeklyReport): Content {
+export function buildPhotosSection(report: WeeklyReport, options: PrintConfig, placement?: PagePlacement): Content {
     const photos = report.photos;
     
+    if (placement && placement.sectionId.includes('continued')) {
+        return { text: '' }; // Skip continued blocks
+    }
+
     if (photos.length === 0) {
         return {
             stack: [
@@ -989,25 +563,21 @@ function buildPhotosSection(report: WeeklyReport): Content {
         };
     }
 
-    // Build 2-column grid of photos
+    // Build 2-column grid
     const photoRows: Content[] = [];
     for (let i = 0; i < photos.length; i += 2) {
         const row: Content[] = [];
-        
-        // First photo
         row.push(buildPhotoCell(photos[i]));
-        
-        // Second photo (if exists)
         if (photos[i + 1]) {
             row.push(buildPhotoCell(photos[i + 1]));
         } else {
-            row.push({ text: '' }); // Empty cell
+            row.push({ text: '' });
         }
-        
         photoRows.push({
             columns: row,
             columnGap: 10,
             margin: [0, 0, 0, 10],
+            unbreakable: true // Keep rows together
         });
     }
 
@@ -1021,7 +591,6 @@ function buildPhotosSection(report: WeeklyReport): Content {
 }
 
 function buildPhotoCell(photo: { url: string; caption: string; directionLooking: string }): Content {
-    // Use the URL directly (pre-processing handles conversion to base64)
     if (photo.url) {
         return {
             stack: [
@@ -1036,26 +605,16 @@ function buildPhotoCell(photo: { url: string; caption: string; directionLooking:
             ],
         };
     }
-    
-    // Placeholder for non-base64 URLs
     return {
         stack: [
-            {
-                text: '[Image]',
-                alignment: 'center',
-                fontSize: 20,
-                color: BRAND_COLORS.textLight,
-                margin: [0, 60, 0, 60],
-            },
+            { text: '[Image]', alignment: 'center', fontSize: 20, color: BRAND_COLORS.textLight, margin: [0, 60, 0, 60] },
             { text: photo.caption, style: 'bold', fontSize: 8 },
             { text: `Looking: ${photo.directionLooking}`, style: 'tiny' },
         ],
     };
 }
 
-// --- ISSUES SECTION ---
-
-function buildIssuesSection(report: WeeklyReport): Content | null {
+export function buildIssuesSection(report: WeeklyReport): Content | null {
     const issues = report.issues;
     if (!issues || issues.length === 0) return null;
 
@@ -1078,11 +637,7 @@ function buildIssuesSection(report: WeeklyReport): Content | null {
         stack: [
             { text: 'ISSUES, RISKS & LAYOUT ITEMS', style: 'sectionHeader' },
             {
-                table: {
-                    headerRows: 1,
-                    widths: ['*', 80, 70, 60],
-                    body,
-                },
+                table: { headerRows: 1, widths: ['*', 80, 70, 60], body },
                 layout: tableLayouts.standardTable,
             },
         ],
@@ -1090,12 +645,9 @@ function buildIssuesSection(report: WeeklyReport): Content | null {
     };
 }
 
-// --- SCHEDULE SECTION ---
-
-function buildScheduleSection(report: WeeklyReport): Content | null {
+export function buildScheduleSection(report: WeeklyReport): Content | null {
     const milestones = report.schedule.milestones;
     if (!milestones || milestones.length === 0) return null;
-
     const body: TableRow[] = [
         [
             { text: 'Milestone', style: 'tableHeader' },
@@ -1107,11 +659,7 @@ function buildScheduleSection(report: WeeklyReport): Content | null {
             { text: ms.milestone, style: 'tableCellBold' },
             { text: ms.startDate, style: 'tableCell' },
             { text: ms.finishDate, style: 'tableCell' },
-            { 
-                text: ms.status, 
-                style: ms.status === 'Complete' ? 'badgeSuccess' : ms.status === 'In Progress' ? 'badgeNeutral' : 'badgeNeutral',
-                alignment: 'center',
-            },
+            { text: ms.status, style: ms.status === 'Complete' ? 'badgeSuccess' : ms.status === 'In Progress' ? 'badgeNeutral' : 'badgeNeutral', alignment: 'center' },
         ]),
     ];
 
@@ -1119,11 +667,7 @@ function buildScheduleSection(report: WeeklyReport): Content | null {
         stack: [
             { text: 'KEY SCHEDULE MILESTONES', style: 'sectionHeader' },
             {
-                table: {
-                    headerRows: 1,
-                    widths: ['*', 70, 70, 70],
-                    body,
-                },
+                table: { headerRows: 1, widths: ['*', 70, 70, 70], body },
                 layout: tableLayouts.standardTable,
             },
         ],
@@ -1131,9 +675,7 @@ function buildScheduleSection(report: WeeklyReport): Content | null {
     };
 }
 
-// --- PROCUREMENT SECTION ---
-
-function buildProcurementSection(report: WeeklyReport): Content | null {
+export function buildProcurementSection(report: WeeklyReport): Content | null {
     const procurement = report.resources.procurement;
     if (!procurement || procurement.length === 0) return null;
 
@@ -1147,11 +689,7 @@ function buildProcurementSection(report: WeeklyReport): Content | null {
             { text: 'Notes', style: 'tableHeader' },
         ],
         ...procurement.map(item => {
-            const statusStyle = item.status === 'Delivered' ? 'badgeSuccess' 
-                : item.status === 'Delayed' ? 'badgeDanger' 
-                : item.status === 'Shipped' ? 'badgeNeutral' 
-                : 'badgeNeutral';
-            
+            const statusStyle = item.status === 'Delivered' ? 'badgeSuccess' : item.status === 'Delayed' ? 'badgeDanger' : item.status === 'Shipped' ? 'badgeNeutral' : 'badgeNeutral';
             return [
                 { text: item.item, style: 'tableCellBold' },
                 { text: item.vendor || '', style: 'tableCell' },
@@ -1167,11 +705,7 @@ function buildProcurementSection(report: WeeklyReport): Content | null {
         stack: [
             { text: 'PROCUREMENT LOG (LONG LEAD ITEMS)', style: 'sectionHeader' },
             {
-                table: {
-                    headerRows: 1,
-                    widths: ['*', 80, 60, 60, 60, '*'],
-                    body,
-                },
+                table: { headerRows: 1, widths: ['*', 80, 60, 60, 60, '*'], body },
                 layout: tableLayouts.standardTable,
             },
         ],
@@ -1179,9 +713,7 @@ function buildProcurementSection(report: WeeklyReport): Content | null {
     };
 }
 
-// --- DOCUMENTS SECTION ---
-
-function buildDocumentsSection(report: WeeklyReport): Content {
+export function buildDocumentsSection(report: WeeklyReport): Content {
     const rfis = report.rfis || [];
     const submittals = report.submittals || [];
 
@@ -1190,25 +722,15 @@ function buildDocumentsSection(report: WeeklyReport): Content {
             { text: 'PROJECT DOCUMENTS', style: 'sectionHeader' },
             {
                 columns: [
-                    // RFIs
                     {
                         stack: [
                             { text: 'RFIs', style: 'subHeader' },
                             rfis.length > 0 ? {
                                 table: {
-                                    headerRows: 1,
-                                    widths: [40, '*', 50],
+                                    headerRows: 1, widths: [40, '*', 50],
                                     body: [
-                                        [
-                                            { text: '#', style: 'tableHeader' },
-                                            { text: 'Subject', style: 'tableHeader' },
-                                            { text: 'Status', style: 'tableHeader', alignment: 'center' },
-                                        ],
-                                        ...rfis.map(r => [
-                                            { text: r.rfiNumber, style: 'tableCell' },
-                                            { text: r.subject, style: 'tableCell' },
-                                            { text: String(r.status), style: 'tableCell', alignment: 'center' as const },
-                                        ]),
+                                        [ { text: '#', style: 'tableHeader' }, { text: 'Subject', style: 'tableHeader' }, { text: 'Status', style: 'tableHeader', alignment: 'center' } ],
+                                        ...rfis.map(r => [ { text: r.rfiNumber, style: 'tableCell' }, { text: r.subject, style: 'tableCell' }, { text: String(r.status), style: 'tableCell', alignment: 'center' as const } ]),
                                     ],
                                 },
                                 layout: tableLayouts.standardTable,
@@ -1216,25 +738,15 @@ function buildDocumentsSection(report: WeeklyReport): Content {
                         ],
                         width: '48%',
                     },
-                    // Submittals
                     {
                         stack: [
                             { text: 'Submittals', style: 'subHeader' },
                             submittals.length > 0 ? {
                                 table: {
-                                    headerRows: 1,
-                                    widths: [40, '*', 50],
+                                    headerRows: 1, widths: [40, '*', 50],
                                     body: [
-                                        [
-                                            { text: '#', style: 'tableHeader' },
-                                            { text: 'Description', style: 'tableHeader' },
-                                            { text: 'Status', style: 'tableHeader', alignment: 'center' },
-                                        ],
-                                        ...submittals.map(s => [
-                                            { text: s.submittalNumber, style: 'tableCell' },
-                                            { text: s.description, style: 'tableCell' },
-                                            { text: String(s.status), style: 'tableCell', alignment: 'center' as const },
-                                        ]),
+                                        [ { text: '#', style: 'tableHeader' }, { text: 'Description', style: 'tableHeader' }, { text: 'Status', style: 'tableHeader', alignment: 'center' } ],
+                                        ...submittals.map(s => [ { text: s.submittalNumber, style: 'tableCell' }, { text: s.description, style: 'tableCell' }, { text: String(s.status), style: 'tableCell', alignment: 'center' as const } ]),
                                     ],
                                 },
                                 layout: tableLayouts.standardTable,
@@ -1248,26 +760,4 @@ function buildDocumentsSection(report: WeeklyReport): Content {
         ],
         margin: [0, 0, 0, 12],
     };
-}
-
-// =====================================================
-// UTILITY FUNCTIONS
-// =====================================================
-
-/**
- * Format a date string for display
- * Converts YYYY-MM-DD to a more readable format
- */
-function formatDate(dateStr: string): string {
-    if (!dateStr) return '';
-    try {
-        const date = new Date(dateStr);
-        return date.toLocaleDateString('en-US', { 
-            month: 'short', 
-            day: 'numeric', 
-            year: 'numeric' 
-        });
-    } catch {
-        return dateStr;
-    }
 }

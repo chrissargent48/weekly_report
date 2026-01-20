@@ -3,7 +3,8 @@ import { WeeklyReport, ProjectConfig, ManpowerEntry, EquipmentEntry, ProjectBase
 import { Save, ArrowLeft, Plus, Trash2, Camera, AlertTriangle, CloudRain, Clock, HardHat, RefreshCw, Layers, Truck, Box, DollarSign, Printer } from 'lucide-react';
 import { DocumentArrowDownIcon } from '@heroicons/react/24/outline';
 import { api } from '../api';
-import { PrintPreviewModal } from './PrintPreviewModal';
+// import { PrintPreviewModal } from './PrintPreviewModal'; 
+import { PrintStudioModal } from '../features/print-studio/components/PrintStudioModal';
 import { ManpowerTable } from './ManpowerTable';
 import { EquipmentTable } from './EquipmentTable';
 import { MaterialTable } from './MaterialTable';
@@ -668,15 +669,12 @@ export function ReportEditor({ report, projectConfig, onUpdate, onSave, onClose,
           </div>
       </div>
       {/* Print Preview Modal */}
-      <PrintPreviewModal 
+      {/* Print Studio Modal (New Layered Architecture) */}
+      <PrintStudioModal 
           open={showPrintModal} 
           onClose={() => setShowPrintModal(false)}
-          report={report}
+          reportData={report}
           projectConfig={projectConfig}
-          onExport={async (options) => {
-              await onSave();
-              await api.downloadPDF(projectId, report.weekEnding, options);
-          }}
       />
     </div>
   );
