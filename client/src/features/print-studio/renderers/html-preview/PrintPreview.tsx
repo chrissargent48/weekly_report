@@ -66,7 +66,7 @@ export const PrintPreview = forwardRef<HTMLDivElement, PrintPreviewProps>(functi
   return (
     <div
       ref={ref}
-      className="print-preview-container flex flex-col items-center bg-zinc-100/50 min-h-full"
+      className="print-preview-container flex flex-col items-center min-h-full gap-8"
       style={{
         // Remove padding for PDF capture - each page handles its own margins
         padding: 0,

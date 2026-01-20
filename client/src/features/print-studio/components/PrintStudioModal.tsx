@@ -11,7 +11,7 @@ import { OverflowWarnings } from './OverflowWarnings';
 import { SelectionProvider } from '../context/SelectionContext';
 import { ImagePositionProvider } from '../context/ImagePositionContext';
 import { ReportData } from '../config/printConfig.types';
-import { XMarkIcon, PrinterIcon } from '@heroicons/react/24/outline';
+import { XMarkIcon, PrinterIcon, MagnifyingGlassMinusIcon, MagnifyingGlassPlusIcon } from '@heroicons/react/24/outline';
 import { DndContext, KeyboardSensor, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
 import { sortableKeyboardCoordinates } from '@dnd-kit/sortable';
 import { ProjectConfig } from '../../../types';
@@ -27,6 +27,7 @@ interface Props {
 export function PrintStudioModal({ open, onClose, reportData, projectConfig }: Props) {
   const [showPageBreakGuides, setShowPageBreakGuides] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
+  const [previewScale, setPreviewScale] = useState(0.7); // Default 70% scale
   const previewRef = useRef<HTMLDivElement>(null);
 
   // Custom sensors for drag and drop to preventing scrolling while dragging
@@ -105,6 +106,27 @@ export function PrintStudioModal({ open, onClose, reportData, projectConfig }: P
             </div>
 
             <div className="flex items-center gap-4">
+              {/* Zoom Controls */}
+              <div className="flex items-center gap-2 bg-zinc-800 rounded-lg px-2 py-1">
+                <button
+                  onClick={() => setPreviewScale(Math.max(0.3, previewScale - 0.1))}
+                  className="p-1 hover:bg-white/10 rounded text-zinc-400 hover:text-white transition"
+                  title="Zoom out"
+                >
+                  <MagnifyingGlassMinusIcon className="w-4 h-4" />
+                </button>
+                <span className="text-xs text-zinc-400 w-10 text-center">
+                  {Math.round(previewScale * 100)}%
+                </span>
+                <button
+                  onClick={() => setPreviewScale(Math.min(1.5, previewScale + 0.1))}
+                  className="p-1 hover:bg-white/10 rounded text-zinc-400 hover:text-white transition"
+                  title="Zoom in"
+                >
+                  <MagnifyingGlassPlusIcon className="w-4 h-4" />
+                </button>
+              </div>
+
               {error && <span className="text-red-400 text-sm">{error}</span>}
               <button
                 onClick={handleDownload}
@@ -178,18 +200,32 @@ export function PrintStudioModal({ open, onClose, reportData, projectConfig }: P
 
                 {/* Preview Area */}
                 <div
-                  className="flex-1 overflow-y-auto bg-zinc-100/50 p-8 relative flex flex-col items-center"
+                  className="flex-1 overflow-auto bg-zinc-200 relative"
                   onScroll={handleScroll}
+                  style={{
+                    // Create visual depth with inset shadow
+                    boxShadow: 'inset 0 2px 8px rgba(0,0,0,0.1)',
+                  }}
                 >
-                  <PrintPreview
-                    ref={previewRef}
-                    config={config}
-                    pageMap={pageMap}
-                    reportData={reportData}
-                    projectConfig={projectConfig}
-                    showPageBreakGuides={showPageBreakGuides}
-                  />
-                  <div className="h-20" /> {/* Spacer at bottom */}
+                  <div
+                    className="flex flex-col items-center py-8"
+                    style={{
+                      transform: `scale(${previewScale})`,
+                      transformOrigin: 'top center',
+                      // Adjust container width to prevent horizontal scroll at small scales
+                      minWidth: `calc(100% / ${previewScale})`,
+                    }}
+                  >
+                    <PrintPreview
+                      ref={previewRef}
+                      config={config}
+                      pageMap={pageMap}
+                      reportData={reportData}
+                      projectConfig={projectConfig}
+                      showPageBreakGuides={showPageBreakGuides}
+                    />
+                    <div className="h-20" /> {/* Spacer at bottom */}
+                  </div>
                 </div>
               </div>
             </ImagePositionProvider>

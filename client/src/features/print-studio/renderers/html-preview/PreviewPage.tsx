@@ -28,13 +28,13 @@ export function PreviewPage({
 }: PreviewPageProps) {
   return (
     <div
-      className={`preview-page bg-white shadow-lg mx-auto relative overflow-hidden print:shadow-none print:m-0 ${
+      className={`preview-page bg-white shadow-xl ring-1 ring-zinc-200 mx-auto relative overflow-hidden print:shadow-none print:ring-0 print:m-0 ${
         !isLastPage ? 'page-break-after' : ''
       }`}
       style={{
         width: PAGE.WIDTH,
         height: PAGE.HEIGHT, // Fixed height - critical for PDF page sizing
-        marginBottom: isLastPage ? 0 : 24, // No margin after last page for PDF
+        flexShrink: 0, // Prevent pages from shrinking in flex container
         boxSizing: 'border-box',
         // Padding simulates the print margins
         padding: `${PAGE.MARGIN_TOP}px ${PAGE.MARGIN_RIGHT}px ${PAGE.MARGIN_BOTTOM}px ${PAGE.MARGIN_LEFT}px`,
