@@ -30,6 +30,15 @@ export interface ImagePosition {
  */
 export type PhotoPositions = Record<number, ImagePosition>;
 
+/**
+ * Manual page break inserted by user within a section (between rows)
+ */
+export interface ManualPageBreak {
+  sectionId: string;      // e.g., "progress", "safety", "materials"
+  afterRowIndex: number;  // Break after row at this index (0-based)
+  afterRowId?: string;    // Optional: row ID for more stable reference
+}
+
 export interface PrintConfig {
   sections: PrintSection[];
   spacing: PrintSpacing;
@@ -43,6 +52,8 @@ export interface PrintConfig {
   showPageNumbers: boolean;
   showFooter: boolean;
   showCoverPhotos: boolean;
+  /** Manual page breaks inserted within sections (session-only by default) */
+  manualBreaks?: ManualPageBreak[];
 }
 
 export interface PagePlacement {

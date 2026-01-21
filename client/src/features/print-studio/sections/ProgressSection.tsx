@@ -2,6 +2,7 @@ import React, { useMemo } from 'react';
 import { PrintConfig, ReportData, PagePlacement } from '../config/printConfig.types';
 import { ProjectConfig, MasterBidItem, WeeklyBidEntry, ProjectBaselines } from '../../../types';
 import { SectionWrapper } from './SectionWrapper';
+import { RowBreakDivider, useHasBreakAtRow } from '../components/RowBreakDivider';
 
 interface Props {
   config: PrintConfig;
@@ -9,6 +10,7 @@ interface Props {
   projectConfig: ProjectConfig;
   baselines?: ProjectBaselines | null;
   placement: PagePlacement;
+  onToggleRowBreak?: (sectionId: string, afterRowIndex: number, afterRowId?: string) => void;
 }
 
 // ... helper functions remain same ...
@@ -71,7 +73,7 @@ const CircularProgress = ({ percentage }: { percentage: number }) => {
   );
 };
 
-export function ProgressSection({ config, reportData, projectConfig, baselines, placement }: Props) {
+export function ProgressSection({ config, reportData, projectConfig, baselines, placement, onToggleRowBreak }: Props) {
   // Combine Master Items with Weekly Progress
   const { tableData, totals } = useMemo(() => {
     // USE BASELINES FOR MASTER ITEMS
@@ -192,21 +194,39 @@ export function ProgressSection({ config, reportData, projectConfig, baselines, 
             </tr>
           </thead>
           <tbody className="divide-y divide-zinc-100">
-            {visibleItems.map((item, i) => (
-              <tr key={item.id} className="group odd:bg-white even:bg-zinc-50/50 hover:bg-blue-50/30 transition-colors">
-                <td className="py-2 pl-3 font-mono text-xs text-zinc-500">{item.itemNumber}</td>
-                <td className="py-2 pl-2 font-semibold text-zinc-800 text-xs">{item.description}</td>
-                <td className="py-2 px-2 text-center text-[10px] text-zinc-500 uppercase">{item.unit}</td>
-                <td className="py-2 px-2 text-center font-mono text-xs text-zinc-600">{formatNumber(item.contractQty)}</td>
-                <td className="py-2 px-2 text-center font-mono text-xs text-zinc-400">{formatNumber(item.prevQty)}</td>
-                <td className="py-2 px-2 text-center font-mono text-xs font-bold text-brand-primary">{formatNumber(item.thisWeekQty)}</td>
-                <td className="py-2 px-2 text-center font-mono text-xs font-bold text-zinc-900 bg-zinc-50">{formatNumber(item.toDateQty)}</td>
-                <td className="py-2 px-2 text-center font-mono text-xs text-zinc-500">{formatNumber(item.remainingQty)}</td>
-                <td className="py-1 px-2 flex justify-center">
-                  <CircularProgress percentage={item.percentComplete} />
-                </td>
-              </tr>
-            ))}
+            {visibleItems.map((item, i) => {
+              // Calculate the actual row index in the full dataset
+              const startIdx = placement.dataRange?.start ?? 0;
+              const actualRowIndex = startIdx + i;
+              const isLastRow = i === visibleItems.length - 1;
+              const hasBreak = useHasBreakAtRow(config.manualBreaks, 'progress', actualRowIndex);
+
+              return (
+                <React.Fragment key={item.id}>
+                  <tr className="group odd:bg-white even:bg-zinc-50/50 hover:bg-blue-50/30 transition-colors">
+                    <td className="py-2 pl-3 font-mono text-xs text-zinc-500">{item.itemNumber}</td>
+                    <td className="py-2 pl-2 font-semibold text-zinc-800 text-xs">{item.description}</td>
+                    <td className="py-2 px-2 text-center text-[10px] text-zinc-500 uppercase">{item.unit}</td>
+                    <td className="py-2 px-2 text-center font-mono text-xs text-zinc-600">{formatNumber(item.contractQty)}</td>
+                    <td className="py-2 px-2 text-center font-mono text-xs text-zinc-400">{formatNumber(item.prevQty)}</td>
+                    <td className="py-2 px-2 text-center font-mono text-xs font-bold text-brand-primary">{formatNumber(item.thisWeekQty)}</td>
+                    <td className="py-2 px-2 text-center font-mono text-xs font-bold text-zinc-900 bg-zinc-50">{formatNumber(item.toDateQty)}</td>
+                    <td className="py-2 px-2 text-center font-mono text-xs text-zinc-500">{formatNumber(item.remainingQty)}</td>
+                    <td className="py-1 px-2 flex justify-center">
+                      <CircularProgress percentage={item.percentComplete} />
+                    </td>
+                  </tr>
+                  {/* Row break divider - show after each row except the last */}
+                  {!isLastRow && onToggleRowBreak && (
+                    <RowBreakDivider
+                      hasBreak={hasBreak}
+                      onToggleBreak={() => onToggleRowBreak('progress', actualRowIndex, item.id)}
+                      compact
+                    />
+                  )}
+                </React.Fragment>
+              );
+            })}
           </tbody>
           {/* Footer Totals */}
           <tfoot className="bg-zinc-50 border-t border-zinc-200">

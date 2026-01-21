@@ -3,6 +3,7 @@ import { PrintConfig, ReportData } from '../config/printConfig.types';
 import { SectionWrapper } from './SectionWrapper';
 import { Package } from 'lucide-react';
 import { COLORS } from '../config/styleTokens';
+import { RowBreakDivider, useHasBreakAtRow } from '../components/RowBreakDivider';
 
 import { PagePlacement } from '../config/printConfig.types';
 
@@ -10,9 +11,10 @@ interface Props {
   config: PrintConfig;
   reportData: ReportData;
   placement?: PagePlacement;
+  onToggleRowBreak?: (sectionId: string, afterRowIndex: number, afterRowId?: string) => void;
 }
 
-export function ProcurementSection({ config, reportData, placement }: Props) {
+export function ProcurementSection({ config, reportData, placement, onToggleRowBreak }: Props) {
   const allItems = reportData.resources?.procurement || [];
   
   // Handle pagination slicing
@@ -41,27 +43,40 @@ export function ProcurementSection({ config, reportData, placement }: Props) {
           </thead>
           <tbody className="divide-y divide-zinc-100">
             {items.map((item: any, i: number) => {
-               const statusColor = 
+               const actualRowIndex = startIdx + i;
+               const isLastRow = i === items.length - 1;
+               const hasBreak = useHasBreakAtRow(config.manualBreaks, 'procurement', actualRowIndex);
+               const statusColor =
                   item.status === 'Delivered' ? 'bg-emerald-100 text-emerald-700' :
                   item.status === 'Delayed' ? 'bg-red-100 text-red-700' :
                   'bg-blue-100 text-blue-700';
 
                return (
-                <tr key={i} className={i % 2 === 0 ? 'bg-white' : 'bg-zinc-50/50'}>
-                  <td className="px-4 py-2 font-medium text-zinc-900">
-                     <div className="flex items-center gap-2">
-                        <Package size={14} className="text-zinc-400" />
-                        {item.item}
-                     </div>
-                  </td>
-                  <td className="px-4 py-2 text-center">
-                     <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-bold uppercase tracking-wider ${statusColor}`}>
-                        {item.status}
-                     </span>
-                  </td>
-                  <td className="px-4 py-2 text-center text-zinc-600 font-mono text-xs">{item.eta}</td>
-                  <td className="px-4 py-2 text-center text-zinc-500 text-xs italic">{item.notes || '-'}</td>
-                </tr>
+                <React.Fragment key={i}>
+                  <tr className={i % 2 === 0 ? 'bg-white' : 'bg-zinc-50/50'}>
+                    <td className="px-4 py-2 font-medium text-zinc-900">
+                       <div className="flex items-center gap-2">
+                          <Package size={14} className="text-zinc-400" />
+                          {item.item}
+                       </div>
+                    </td>
+                    <td className="px-4 py-2 text-center">
+                       <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-bold uppercase tracking-wider ${statusColor}`}>
+                          {item.status}
+                       </span>
+                    </td>
+                    <td className="px-4 py-2 text-center text-zinc-600 font-mono text-xs">{item.eta}</td>
+                    <td className="px-4 py-2 text-center text-zinc-500 text-xs italic">{item.notes || '-'}</td>
+                  </tr>
+                  {/* Row break divider */}
+                  {!isLastRow && onToggleRowBreak && (
+                    <RowBreakDivider
+                      hasBreak={hasBreak}
+                      onToggleBreak={() => onToggleRowBreak('procurement', actualRowIndex)}
+                      compact
+                    />
+                  )}
+                </React.Fragment>
                )
             })}
           </tbody>

@@ -2,14 +2,16 @@ import React from 'react';
 import { PrintConfig, ReportData, PagePlacement } from '../config/printConfig.types';
 import { SectionWrapper } from './SectionWrapper';
 import { Calendar } from 'lucide-react';
+import { RowBreakDivider, useHasBreakAtRow } from '../components/RowBreakDivider';
 
 interface Props {
   config: PrintConfig;
   reportData: ReportData;
   placement?: PagePlacement;
+  onToggleRowBreak?: (sectionId: string, afterRowIndex: number, afterRowId?: string) => void;
 }
 
-export function ScheduleSection({ config, reportData, placement }: Props) {
+export function ScheduleSection({ config, reportData, placement, onToggleRowBreak }: Props) {
   const allMilestones = reportData.schedule?.milestones || [];
 
   // Handle pagination slicing
@@ -38,29 +40,42 @@ export function ScheduleSection({ config, reportData, placement }: Props) {
           </thead>
           <tbody className="divide-y divide-zinc-100">
             {milestones.map((ms: any, i: number) => {
+               const actualRowIndex = startIdx + i;
+               const isLastRow = i === milestones.length - 1;
+               const hasBreak = useHasBreakAtRow(config.manualBreaks, 'schedule', actualRowIndex);
                const isComplete = ms.status === 'Complete';
                const isLate = !isComplete && new Date(ms.targetDate) < new Date(); // Simple check, ideally use actual dates
-               
+
                return (
-                  <tr key={i} className={i % 2 === 0 ? 'bg-white' : 'bg-zinc-50/50'}>
-                     <td className="px-4 py-2 font-medium text-zinc-900 border-l-4 border-l-transparent pl-3">
-                        {ms.milestone}
-                     </td>
-                     <td className="px-4 py-2 text-center font-mono text-zinc-600 text-xs">
-                        {ms.finishDate}
-                     </td>
-                     <td className="px-4 py-2 text-center font-mono text-zinc-600 text-xs">
-                        {ms.status === 'Complete' ? ms.finishDate : '-'}
-                     </td>
-                     <td className="px-4 py-2 text-center">
-                        <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-bold uppercase tracking-wider
-                           ${isComplete ? 'bg-emerald-100 text-emerald-700' : 
-                             isLate ? 'bg-red-100 text-red-700' : 'bg-blue-100 text-blue-700'}
-                        `}>
-                           {ms.status}
-                        </span>
-                     </td>
-                  </tr>
+                  <React.Fragment key={i}>
+                    <tr className={i % 2 === 0 ? 'bg-white' : 'bg-zinc-50/50'}>
+                       <td className="px-4 py-2 font-medium text-zinc-900 border-l-4 border-l-transparent pl-3">
+                          {ms.milestone}
+                       </td>
+                       <td className="px-4 py-2 text-center font-mono text-zinc-600 text-xs">
+                          {ms.finishDate}
+                       </td>
+                       <td className="px-4 py-2 text-center font-mono text-zinc-600 text-xs">
+                          {ms.status === 'Complete' ? ms.finishDate : '-'}
+                       </td>
+                       <td className="px-4 py-2 text-center">
+                          <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-bold uppercase tracking-wider
+                             ${isComplete ? 'bg-emerald-100 text-emerald-700' :
+                               isLate ? 'bg-red-100 text-red-700' : 'bg-blue-100 text-blue-700'}
+                          `}>
+                             {ms.status}
+                          </span>
+                       </td>
+                    </tr>
+                    {/* Row break divider */}
+                    {!isLastRow && onToggleRowBreak && (
+                      <RowBreakDivider
+                        hasBreak={hasBreak}
+                        onToggleBreak={() => onToggleRowBreak('schedule', actualRowIndex, ms.id)}
+                        compact
+                      />
+                    )}
+                  </React.Fragment>
                );
             })}
           </tbody>

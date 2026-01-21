@@ -3,12 +3,14 @@ import { PrintConfig, ReportData, PagePlacement } from '../config/printConfig.ty
 import { SafetyObservation } from '../../../types';
 import { SectionWrapper } from './SectionWrapper';
 import { Shield, AlertTriangle, CheckCircle, Info } from 'lucide-react';
+import { RowBreakDivider, useHasBreakAtRow } from '../components/RowBreakDivider';
 
 interface Props {
   config: PrintConfig;
   reportData: ReportData;
   placement?: PagePlacement;
   onUpdateReport?: (data: ReportData) => void;
+  onToggleRowBreak?: (sectionId: string, afterRowIndex: number, afterRowId?: string) => void;
 }
 
 // Auto-resize textarea helper
@@ -45,7 +47,7 @@ const AutoResizeTextarea = ({
   );
 };
 
-export function SafetySection({ config, reportData, placement, onUpdateReport }: Props) {
+export function SafetySection({ config, reportData, placement, onUpdateReport, onToggleRowBreak }: Props) {
   const safety = reportData.safety;
   if (!safety) return null;
 
@@ -179,22 +181,38 @@ export function SafetySection({ config, reportData, placement, onUpdateReport }:
                        </tr>
                     </thead>
                     <tbody className="divide-y divide-zinc-100">
-                       {visibleObservations.map((obs: SafetyObservation) => (
-                          <tr key={obs.id} className="hover:bg-zinc-50">
-                             <td className="py-2 pl-4 text-xs font-mono text-zinc-500">{obs.date}</td>
-                             <td className="py-2 px-2">
-                                <span className={`text-[10px] font-bold uppercase px-2 py-0.5 rounded-full ${
-                                   obs.type === 'Positive' ? 'bg-green-100 text-green-700' :
-                                   obs.type === 'Corrective' ? 'bg-amber-100 text-amber-700' :
-                                   'bg-red-100 text-red-700'
-                                }`}>
-                                   {obs.type}
-                                </span>
-                             </td>
-                             <td className="py-2 px-2 text-xs text-zinc-800">{obs.description}</td>
-                             <td className="py-2 px-2 text-xs text-zinc-600 italic">{obs.actionTaken}</td>
-                          </tr>
-                       ))}
+                       {visibleObservations.map((obs: SafetyObservation, i: number) => {
+                          const actualRowIndex = startIdx + i;
+                          const isLastRow = i === visibleObservations.length - 1;
+                          const hasBreak = useHasBreakAtRow(config.manualBreaks, 'safety', actualRowIndex);
+
+                          return (
+                            <React.Fragment key={obs.id}>
+                              <tr className="hover:bg-zinc-50">
+                                 <td className="py-2 pl-4 text-xs font-mono text-zinc-500">{obs.date}</td>
+                                 <td className="py-2 px-2">
+                                    <span className={`text-[10px] font-bold uppercase px-2 py-0.5 rounded-full ${
+                                       obs.type === 'Positive' ? 'bg-green-100 text-green-700' :
+                                       obs.type === 'Corrective' ? 'bg-amber-100 text-amber-700' :
+                                       'bg-red-100 text-red-700'
+                                    }`}>
+                                       {obs.type}
+                                    </span>
+                                 </td>
+                                 <td className="py-2 px-2 text-xs text-zinc-800">{obs.description}</td>
+                                 <td className="py-2 px-2 text-xs text-zinc-600 italic">{obs.actionTaken}</td>
+                              </tr>
+                              {/* Row break divider */}
+                              {!isLastRow && onToggleRowBreak && (
+                                <RowBreakDivider
+                                  hasBreak={hasBreak}
+                                  onToggleBreak={() => onToggleRowBreak('safety', actualRowIndex, obs.id)}
+                                  compact
+                                />
+                              )}
+                            </React.Fragment>
+                          );
+                       })}
                     </tbody>
                 </table>
              </div>

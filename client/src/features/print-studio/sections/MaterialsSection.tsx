@@ -2,6 +2,7 @@ import React from 'react';
 import { PrintConfig, ReportData } from '../config/printConfig.types';
 import { SectionWrapper } from './SectionWrapper';
 import { Truck } from 'lucide-react';
+import { RowBreakDivider, useHasBreakAtRow } from '../components/RowBreakDivider';
 
 import { PagePlacement } from '../config/printConfig.types';
 
@@ -9,9 +10,10 @@ interface Props {
   config: PrintConfig;
   reportData: ReportData;
   placement?: PagePlacement;
+  onToggleRowBreak?: (sectionId: string, afterRowIndex: number, afterRowId?: string) => void;
 }
 
-export function MaterialsSection({ config, reportData, placement }: Props) {
+export function MaterialsSection({ config, reportData, placement, onToggleRowBreak }: Props) {
   const allItems = reportData.resources?.materials || [];
   
   // Handle pagination slicing
@@ -39,19 +41,36 @@ export function MaterialsSection({ config, reportData, placement }: Props) {
             </tr>
           </thead>
           <tbody className="divide-y divide-zinc-100">
-            {items.map((item: any, i: number) => (
-              <tr key={i} className={i % 2 === 0 ? 'bg-white' : 'bg-zinc-50/50'}>
-                <td className="px-4 py-2 text-zinc-600 font-mono text-xs">{item.date}</td>
-                <td className="px-4 py-2 font-medium text-zinc-900">
-                   <div className="flex items-center gap-2">
-                      <Truck size={14} className="text-zinc-400" />
-                      {item.description}
-                   </div>
-                </td>
-                <td className="px-4 py-2 text-zinc-600 font-mono text-xs">{item.ticketNumber}</td>
-                <td className="px-4 py-2 text-right font-bold text-zinc-700">{item.quantity} {item.uom}</td>
-              </tr>
-            ))}
+            {items.map((item: any, i: number) => {
+              // Calculate the actual row index in the full dataset
+              const actualRowIndex = startIdx + i;
+              const isLastRow = i === items.length - 1;
+              const hasBreak = useHasBreakAtRow(config.manualBreaks, 'materials', actualRowIndex);
+
+              return (
+                <React.Fragment key={i}>
+                  <tr className={i % 2 === 0 ? 'bg-white' : 'bg-zinc-50/50'}>
+                    <td className="px-4 py-2 text-zinc-600 font-mono text-xs">{item.date}</td>
+                    <td className="px-4 py-2 font-medium text-zinc-900">
+                       <div className="flex items-center gap-2">
+                          <Truck size={14} className="text-zinc-400" />
+                          {item.description}
+                       </div>
+                    </td>
+                    <td className="px-4 py-2 text-zinc-600 font-mono text-xs">{item.ticketNumber}</td>
+                    <td className="px-4 py-2 text-right font-bold text-zinc-700">{item.quantity} {item.uom}</td>
+                  </tr>
+                  {/* Row break divider - show after each row except the last */}
+                  {!isLastRow && onToggleRowBreak && (
+                    <RowBreakDivider
+                      hasBreak={hasBreak}
+                      onToggleBreak={() => onToggleRowBreak('materials', actualRowIndex)}
+                      compact
+                    />
+                  )}
+                </React.Fragment>
+              );
+            })}
           </tbody>
         </table>
       </div>
