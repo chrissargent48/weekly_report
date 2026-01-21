@@ -26,22 +26,28 @@ body {
 }
 
 @media print {
-  @page { 
-    margin: 0; 
-    size: auto; 
+  @page {
+    margin: 0;
+    size: A4;
   }
-  
-  body { 
-    margin: 0; 
-    padding: 0; 
-    background-color: white !important; 
-    -webkit-print-color-adjust: exact !important; 
+
+  body {
+    margin: 0;
+    padding: 0;
+    background-color: white !important;
+    -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
   }
 
   /* Hide sidebar, navigation, and other UI elements */
-  .no-print, nav, aside, header.sticky, .sidebar, button, .border-dashed { 
-    display: none !important; 
+  .no-print, nav, aside, header.sticky, .sidebar, button {
+    display: none !important;
+  }
+
+  /* Hide row break dividers in print (they're only for the preview UI) */
+  .break-divider-hover,
+  .break-divider-active {
+    display: none !important;
   }
 
   /* Ensure print container takes full width/height */
@@ -51,25 +57,84 @@ body {
     padding: 0;
   }
 
-  .print-page { 
-    page-break-after: always; 
-    break-after: page; 
-    width: 210mm; /* A4 width */
-    height: 297mm; /* A4 height */
-    position: relative; 
-    margin: 0 auto; 
-    padding: 0; 
-    overflow: hidden; /* Prevent spillover */
+  /* Preview page styling for print */
+  .preview-page {
+    page-break-after: always;
+    break-after: page;
+    width: 210mm !important;
+    min-height: 297mm !important;
+    height: auto !important; /* Allow content to flow */
+    position: relative;
+    margin: 0 auto;
+    padding: 15mm 15mm 20mm 15mm !important;
+    box-shadow: none !important;
+    overflow: visible !important; /* Allow content to show */
   }
 
-  .print-page:last-child { 
-    page-break-after: auto; 
-    break-after: auto; 
+  .preview-page:last-child {
+    page-break-after: auto;
+    break-after: auto;
   }
 
-  /* Reset text colors for print */
-  * {
+  /* Allow page content to overflow for proper printing */
+  .preview-page-content {
+    overflow: visible !important;
+    height: auto !important;
+  }
+
+  .print-page {
+    page-break-after: always;
+    break-after: page;
+    width: 210mm;
+    height: 297mm;
+    position: relative;
+    margin: 0 auto;
+    padding: 0;
+    overflow: hidden;
+  }
+
+  .print-page:last-child {
+    page-break-after: auto;
+    break-after: auto;
+  }
+
+  /* Ensure backgrounds and colors print correctly */
+  *,
+  *::before,
+  *::after {
     print-color-adjust: exact !important;
     -webkit-print-color-adjust: exact !important;
+    color-adjust: exact !important;
+  }
+
+  /* Force backgrounds to print */
+  .bg-brand-primary,
+  .bg-green-50,
+  .bg-blue-50,
+  .bg-red-50,
+  .bg-amber-50,
+  .bg-zinc-50,
+  .bg-white,
+  .bg-emerald-100,
+  .bg-red-100,
+  .bg-blue-100,
+  .bg-green-100,
+  .bg-amber-100 {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* Ensure table headers print with background */
+  thead,
+  thead tr,
+  thead th {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* Ensure border colors print */
+  [class*="border-"] {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
   }
 }
