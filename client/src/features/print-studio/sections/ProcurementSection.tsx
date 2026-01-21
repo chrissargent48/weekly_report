@@ -59,7 +59,7 @@ export function ProcurementSection({ config, reportData, placement }: Props) {
                         {item.status}
                      </span>
                   </td>
-                  <td className="px-4 py-2 text-center text-zinc-600 font-mono text-xs">{item.expectedDate}</td>
+                  <td className="px-4 py-2 text-center text-zinc-600 font-mono text-xs">{item.eta}</td>
                   <td className="px-4 py-2 text-center text-zinc-500 text-xs italic">{item.notes || '-'}</td>
                 </tr>
                )

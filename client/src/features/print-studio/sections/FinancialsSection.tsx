@@ -77,10 +77,10 @@ export function FinancialsSection({ config, reportData, placement }: Props) {
                    <tbody className="divide-y divide-zinc-100">
                       {invoices.map((inv: any, i: number) => (
                          <tr key={i} className={i % 2 === 0 ? 'bg-white' : 'bg-zinc-50/50'}>
-                            <td className="px-4 py-2 text-zinc-600 font-mono text-xs">{inv.date}</td>
+                            <td className="px-4 py-2 text-zinc-600 font-mono text-xs">{inv.datePaid}</td>
                             <td className="px-4 py-2 font-medium text-zinc-900 flex items-center gap-2">
                                <FileText size={14} className="text-zinc-400" />
-                               {inv.number}
+                               {inv.invoiceNumber}
                             </td>
                             <td className="px-4 py-2 text-zinc-600 text-xs">{inv.period}</td>
                             <td className="px-4 py-2 text-right font-bold text-zinc-900">${inv.amount}</td>

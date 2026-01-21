@@ -50,7 +50,15 @@ export interface PagePlacement {
   continuesFromPrevious: boolean;
   dataRange?: { start: number; end: number }; // For split sections like Progress
   renderConfig?: {
-    [key: string]: boolean;
+    showHeader?: boolean;
+    showFooter?: boolean;
+    showContinuedHeader?: boolean;  // Show minimal header for continuation pages
+    [key: string]: boolean | undefined;
+  };
+  /** CSS-based layout hints for page break control */
+  cssHints?: {
+    pageBreakBefore?: boolean;   // Force page break before this section
+    avoidBreakInside?: boolean;  // Try to keep section together
   };
 }
 

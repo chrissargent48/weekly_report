@@ -30,6 +30,47 @@ export const FOOTER = {
 // Safety margin to prevent edge-case overflows (e.g. slight browser font rendering differences)
 export const SAFETY_MARGIN = 20; 
 
+// =============================================================================
+// ORPHAN & WIDOW PREVENTION CONSTANTS
+// =============================================================================
+
+/**
+ * If a section header would be placed within this threshold of the page bottom,
+ * force a page break before the section to prevent orphaned headers.
+ */
+export const ORPHAN_THRESHOLD = 100;
+
+/**
+ * Minimum content height that must fit after a section header.
+ * If there's not enough room for the header + this minimum, start a new page.
+ */
+export const MIN_CONTENT_AFTER_HEADER = 80;
+
+/**
+ * Minimum number of table rows to place on a page to avoid orphaned rows.
+ * Ensures we don't leave a lonely 1-2 rows at the top/bottom of a page.
+ */
+export const MIN_ROWS_PER_PAGE = 3;
+
+/**
+ * Layout density multipliers for Standard/Compact/Relaxed modes.
+ * These affect line-heights and bounding boxes across sections.
+ */
+export const DENSITY_MULTIPLIERS = {
+  compact: 0.92,   // Tighter spacing, smaller fonts
+  standard: 1.0,   // Default layout
+  relaxed: 1.08,   // More breathing room
+} as const;
+
+export type DensityType = keyof typeof DENSITY_MULTIPLIERS;
+
+/**
+ * Apply density multiplier to a pixel height based on spacing type
+ */
+export function applyDensityMultiplier(height: number, densityType: DensityType): number {
+  return Math.ceil(height * DENSITY_MULTIPLIERS[densityType]);
+} 
+
 // First page has different constraints due to cover content
 export const FIRST_PAGE = {
   // INCREASED from 280 to 320 for better visual proportions

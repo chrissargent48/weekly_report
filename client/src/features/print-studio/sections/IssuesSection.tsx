@@ -67,7 +67,7 @@ export function IssuesSection({ config, reportData, placement }: Props) {
                   
                   <div className="flex items-center gap-4 text-xs">
                      <div className="font-medium text-zinc-500">
-                        Owner: <span className="text-zinc-900">{issue.owner || 'Unassigned'}</span>
+                        Owner: <span className="text-zinc-900">{issue.assignedTo || 'Unassigned'}</span>
                      </div>
                      <div className="font-medium text-zinc-500">
                         Due: <span className="text-zinc-900">{issue.dueDate || 'No Date'}</span>

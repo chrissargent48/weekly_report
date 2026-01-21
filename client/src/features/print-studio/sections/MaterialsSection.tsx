@@ -45,11 +45,11 @@ export function MaterialsSection({ config, reportData, placement }: Props) {
                 <td className="px-4 py-2 font-medium text-zinc-900">
                    <div className="flex items-center gap-2">
                       <Truck size={14} className="text-zinc-400" />
-                      {item.material}
+                      {item.description}
                    </div>
                 </td>
                 <td className="px-4 py-2 text-zinc-600 font-mono text-xs">{item.ticketNumber}</td>
-                <td className="px-4 py-2 text-right font-bold text-zinc-700">{item.quantity} {item.unit}</td>
+                <td className="px-4 py-2 text-right font-bold text-zinc-700">{item.quantity} {item.uom}</td>
               </tr>
             ))}
           </tbody>

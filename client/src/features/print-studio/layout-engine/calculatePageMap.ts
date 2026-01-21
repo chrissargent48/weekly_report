@@ -6,7 +6,7 @@ import {
   PagePlacement,
   ReportData 
 } from '../config/printConfig.types';
-import { PAGE_POINTS, FOOTER_POINTS, SAFETY_MARGIN } from './pageConstants';
+import { PAGE_POINTS, FOOTER_POINTS, SAFETY_MARGIN, ORPHAN_THRESHOLD, MIN_CONTENT_AFTER_HEADER, MIN_ROWS_PER_PAGE } from './pageConstants';
 import { measureCover } from './measureCover';
 import { measureSection, getSectionMetrics, SectionMetrics } from './measureSection';
 
@@ -97,8 +97,11 @@ export function calculatePageMap(
       baselines,
     });
 
-    if (sectionHeight <= currentPage.availableHeight) {
-      // Fits
+    // ORPHAN PREVENTION: Check if header would be orphaned at page bottom
+    const forcePageBreak = shouldForcePageBreak(currentPage.availableHeight, metrics);
+    
+    if (!forcePageBreak && sectionHeight <= currentPage.availableHeight) {
+      // Fits on current page
       const placement: PagePlacement = {
         sectionId: section.id,
         startsOnPage: currentPage.pageNumber,
@@ -112,16 +115,19 @@ export function calculatePageMap(
       sectionPlacements.set(section.id, placement);
       
     } else {
-      // Doesn't fit -> New Page
-      pages.push(currentPage);
-      
-      currentPage = createNewPage(pages.length + 1);
+      // Force new page (either orphan prevention or doesn't fit)
+      if (currentPage.sections.length > 0) {
+        pages.push(currentPage);
+        currentPage = createNewPage(pages.length + 1);
+      }
       
       const placement: PagePlacement = {
         sectionId: section.id,
         startsOnPage: currentPage.pageNumber,
         estimatedHeight: sectionHeight,
         continuesFromPrevious: false,
+        // Add CSS hint for forced page break
+        cssHints: forcePageBreak ? { pageBreakBefore: true } : undefined,
       };
       
       currentPage.sections.push(placement);
@@ -154,6 +160,32 @@ function createNewPage(pageNumber: number): PageContent {
         usedHeight: 0,
         availableHeight: PAGE_POINTS.USABLE_HEIGHT - FOOTER_POINTS.HEIGHT,
     };
+}
+
+/**
+ * ORPHAN PREVENTION CHECK
+ * 
+ * Determines if we should force a page break before placing a section.
+ * Returns true if:
+ * 1. Section has orphan risk AND available space is below threshold
+ * 2. There's not enough room for header + minimum content
+ */
+function shouldForcePageBreak(
+  availableHeight: number,
+  metrics: SectionMetrics
+): boolean {
+  // If section has internal headers (KPI cards, topic boxes) and would start 
+  // within ORPHAN_THRESHOLD of page bottom, force page break
+  if (metrics.hasOrphanRisk && availableHeight < ORPHAN_THRESHOLD) {
+    return true;
+  }
+  
+  // If section can't fit header + minimum content, start a new page
+  if (availableHeight < metrics.headerHeight + MIN_CONTENT_AFTER_HEADER) {
+    return true;
+  }
+  
+  return false;
 }
 
 /**
@@ -205,29 +237,28 @@ function handleSplittableList(
     while (processedItems < totalItems) {
         const isFirstSectionPage = pageIndex === 0;
         
-        // Determine header requirement for THIS page chunk
-        // If it's the very first page of the section, we need the full header.
-        // If it's a continuation page, we might imply a smaller header or just the table header, 
-        // but for now we assume the generic splitter repeats the table header logic inside the component 
-        // if we flag it as 'continued'. 
-        // Simplified: The metric 'headerHeight' from getSectionMetrics is usually the "Start of Section" header.
-        // We need a way to know "Continued Header Height" (e.g. just table column headers).
-        // For simplicity, we'll assume continuation pages just have a smaller buffer or standard table header (approx 40px).
+        // Use the enhanced metrics for header height:
+        // - First page gets full section header (title, KPI cards, etc.)
+        // - Continuation pages get just the table header
+        const currentHeaderHeight = isFirstSectionPage 
+            ? headerHeight 
+            : metrics.continuedHeaderHeight;
         
-        const currentHeaderHeight = isFirstSectionPage ? headerHeight : 45; // 45px guess for table header only
         const remainingItemsInList = totalItems - processedItems;
         
         // Calculate how many items fit on current page
-        // Available space = Page - Header - (Maybe Footer if we can fit it?)
-        
+        // Available space = Page - Header - Safety margin
         let availableForRows = workingPage.availableHeight - currentHeaderHeight - SAFETY_MARGIN;
         
-        // Check if we should even start here?
-        // Minimum viable height: Header + 1 Row
-        if (availableForRows < rowHeight) {
-            // Not enough space for even one row. Push to next page.
-            pages.push(workingPage);
-            workingPage = createNewPage(pages.length + 1);
+        // ORPHAN PREVENTION: Ensure we can fit at least minItemsPerPage rows
+        // If not enough space for minimum rows, start a new page
+        const minRowsNeeded = Math.min(metrics.minItemsPerPage, remainingItemsInList);
+        if (availableForRows < rowHeight * minRowsNeeded) {
+            // Not enough space for minimum viable content. Push to next page.
+            if (workingPage.sections.length > 0) {
+                pages.push(workingPage);
+                workingPage = createNewPage(pages.length + 1);
+            }
             availableForRows = workingPage.availableHeight - currentHeaderHeight - SAFETY_MARGIN;
         }
 
@@ -252,7 +283,12 @@ function handleSplittableList(
                     estimatedHeight: heightNeeded,
                     continuesFromPrevious: !isFirstSectionPage,
                     dataRange: { start: processedItems, end: processedItems + itemsToTake },
-                    renderConfig: { showHeader: isFirstSectionPage, showFooter: true } // Show footer!
+                    // Show full header on first page, continued header on subsequent pages
+                    renderConfig: { 
+                        showHeader: isFirstSectionPage, 
+                        showContinuedHeader: !isFirstSectionPage,
+                        showFooter: true 
+                    }
                 };
                 
                 workingPage.sections.push(placement);
@@ -275,7 +311,11 @@ function handleSplittableList(
                     estimatedHeight: heightWithoutFooter,
                     continuesFromPrevious: !isFirstSectionPage,
                     dataRange: { start: processedItems, end: processedItems + itemsToTake },
-                    renderConfig: { showHeader: isFirstSectionPage, showFooter: false } // Hide footer
+                    renderConfig: { 
+                        showHeader: isFirstSectionPage, 
+                        showContinuedHeader: !isFirstSectionPage,
+                        showFooter: false 
+                    }
                 };
                 workingPage.sections.push(placement);
                 workingPage.usedHeight += heightWithoutFooter;
@@ -319,7 +359,11 @@ function handleSplittableList(
                 estimatedHeight: height,
                 continuesFromPrevious: !isFirstSectionPage,
                 dataRange: { start: processedItems, end: processedItems + rowsTaking },
-                renderConfig: { showHeader: isFirstSectionPage, showFooter: false }
+                renderConfig: { 
+                    showHeader: isFirstSectionPage, 
+                    showContinuedHeader: !isFirstSectionPage,
+                    showFooter: false 
+                }
             };
             
             workingPage.sections.push(placement);

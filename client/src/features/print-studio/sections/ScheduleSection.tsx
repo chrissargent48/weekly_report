@@ -32,13 +32,13 @@ export function ScheduleSection({ config, reportData }: Props) {
                return (
                   <tr key={i} className={i % 2 === 0 ? 'bg-white' : 'bg-zinc-50/50'}>
                      <td className="px-4 py-2 font-medium text-zinc-900 border-l-4 border-l-transparent pl-3">
-                        {ms.description}
+                        {ms.milestone}
                      </td>
                      <td className="px-4 py-2 text-center font-mono text-zinc-600 text-xs">
-                        {ms.targetDate}
+                        {ms.finishDate}
                      </td>
                      <td className="px-4 py-2 text-center font-mono text-zinc-600 text-xs">
-                        {ms.actualDate || '-'}
+                        {ms.status === 'Complete' ? ms.finishDate : '-'}
                      </td>
                      <td className="px-4 py-2 text-center">
                         <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-bold uppercase tracking-wider

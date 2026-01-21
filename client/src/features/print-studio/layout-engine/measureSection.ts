@@ -24,6 +24,14 @@ export interface SectionMetrics {
   rowHeight: number;
   footerHeight: number;
   itemCount: number;
+  
+  // NEW FIELDS for enhanced pagination:
+  /** Minimum rows to place on a page to avoid orphaned rows */
+  minItemsPerPage: number;
+  /** Height of header for continuation pages (typically just table header, not full section header) */
+  continuedHeaderHeight: number;
+  /** True if section has internal headers that could become orphaned */
+  hasOrphanRisk: boolean;
 }
 
 /**
@@ -177,13 +185,29 @@ export function getSectionMetrics(ctx: MeasurementContext): SectionMetrics {
       totalHeight += SAFETY_MARGIN;
   }
 
+  // Calculate new fields for enhanced pagination:
+  
+  // Minimum rows to avoid orphaned content (at least 3 rows per page chunk)
+  const minItemsPerPage = Math.min(3, itemCount);
+  
+  // Continued header height: typically just the table header row (40-45px)
+  // This is smaller than the full headerHeight which includes section title + decorations
+  const continuedHeaderHeight = isSplittable ? 45 : 0;
+  
+  // Sections with internal headers (title boxes, KPI cards) have orphan risk
+  // Safety and Progress have complex headers that shouldn't be orphaned
+  const hasOrphanRisk = ['safety', 'progress', 'overview', 'financials'].includes(section.id);
+
   return {
     totalHeight,
     isSplittable,
     headerHeight,
     rowHeight,
     footerHeight,
-    itemCount
+    itemCount,
+    minItemsPerPage,
+    continuedHeaderHeight,
+    hasOrphanRisk
   };
 }
 

@@ -225,6 +225,8 @@ export interface PhotoEntry {
   url: string; // Local path or data URL
   caption: string;
   directionLooking: string; // "North", "SW", etc.
+  date?: string;            // Optional date photo was taken
+  description?: string;     // Optional detailed description
 }
 
 export interface ManpowerEntry {
@@ -367,6 +369,9 @@ export interface IssueEntry {
   assignedTo: string;
   dueDate: string;
   status: 'Open' | 'Closed' | 'Blocked';
+  priority?: 'High' | 'Medium' | 'Low';  // Priority level for the issue
+  impact?: string;                        // Description of potential impact
+  actionPlan?: string;                    // Planned actions to resolve the issue
 }
 
 export interface RfiEntry {
