@@ -54,7 +54,13 @@ export function calculatePageMap(
         projectConfig,
         baselines
     });
-    
+
+    // MANUAL PAGE BREAK: If user has set forcePageBreakBefore, start a new page
+    if (section.forcePageBreakBefore && currentPage.sections.length > 0) {
+      pages.push(currentPage);
+      currentPage = createNewPage(pages.length + 1);
+    }
+
     // 1. Handle Photos (Grid Layout - Special Case)
     if (section.id === 'photos') {
       const photosPlacements = handlePhotosSection(

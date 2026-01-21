@@ -7,6 +7,7 @@ interface UsePrintConfigReturn {
   config: PrintConfig;
   // Section management
   toggleSection: (sectionId: string) => void;
+  togglePageBreak: (sectionId: string) => void;
   reorderSections: (fromIndex: number, toIndex: number) => void;
   resetSections: () => void;
   // Spacing
@@ -99,7 +100,16 @@ export function usePrintConfig(projectId: string, initialConfig?: Partial<PrintC
       ),
     }));
   }, []);
-  
+
+  const togglePageBreak = useCallback((sectionId: string) => {
+    setConfig(prev => ({
+      ...prev,
+      sections: prev.sections.map(s =>
+        s.id === sectionId ? { ...s, forcePageBreakBefore: !s.forcePageBreakBefore } : s
+      ),
+    }));
+  }, []);
+
   const reorderSections = useCallback((fromIndex: number, toIndex: number) => {
     setConfig(prev => {
       const newSections = [...prev.sections];
@@ -197,6 +207,7 @@ export function usePrintConfig(projectId: string, initialConfig?: Partial<PrintC
   return {
     config,
     toggleSection,
+    togglePageBreak,
     reorderSections,
     resetSections,
     setSpacing,
