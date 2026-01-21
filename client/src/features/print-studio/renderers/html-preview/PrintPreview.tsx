@@ -30,6 +30,7 @@ interface PrintPreviewProps {
   showPageBreakGuides?: boolean;
   totalPages?: number;
   onUpdateReport?: (data: ReportData) => void;
+  onToggleRowBreak?: (sectionId: string, afterRowIndex: number, afterRowId?: string) => void;
 }
 
 // Map section IDs to their components
@@ -67,6 +68,7 @@ export const PrintPreview = forwardRef<HTMLDivElement, PrintPreviewProps>(functi
     baselines,
     showPageBreakGuides = false,
     onUpdateReport,
+    onToggleRowBreak,
   },
   ref
 ) {
@@ -122,6 +124,7 @@ export const PrintPreview = forwardRef<HTMLDivElement, PrintPreviewProps>(functi
                 baselines={baselines}
                 placement={placement}
                 onUpdateReport={onUpdateReport}
+                onToggleRowBreak={onToggleRowBreak}
               />
             );
           })}

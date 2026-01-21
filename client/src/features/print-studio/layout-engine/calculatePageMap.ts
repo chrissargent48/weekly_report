@@ -1,10 +1,11 @@
-import { 
-  PrintConfig, 
-  PrintSection, 
-  PageMap, 
-  PageContent, 
+import {
+  PrintConfig,
+  PrintSection,
+  PageMap,
+  PageContent,
   PagePlacement,
-  ReportData 
+  ReportData,
+  ManualPageBreak
 } from '../config/printConfig.types';
 import { PAGE_POINTS, FOOTER_POINTS, SAFETY_MARGIN, ORPHAN_THRESHOLD, MIN_CONTENT_AFTER_HEADER, MIN_ROWS_PER_PAGE } from './pageConstants';
 import { measureCover } from './measureCover';
@@ -79,11 +80,17 @@ export function calculatePageMap(
 
     // 2. Handle Splittable Lists (Tables, Observations, etc.)
     if (metrics.isSplittable) {
+       // Get manual breaks for this section
+       const sectionBreaks = (config.manualBreaks || []).filter(
+         b => b.sectionId === section.id
+       );
+
        const listPlacements = handleSplittableList(
            section,
            metrics,
            currentPage,
-           pages
+           pages,
+           sectionBreaks
        );
 
        currentPage = listPlacements.currentPage;
@@ -197,12 +204,14 @@ function shouldForcePageBreak(
 /**
  * GENERIC SPLITTING LOGIC
  * Handles any section that consists of a list of items (rows) + optional header/footer.
+ * Respects manual page breaks inserted by the user.
  */
 function handleSplittableList(
     section: PrintSection,
     metrics: SectionMetrics,
     currentPage: PageContent,
-    pages: PageContent[]
+    pages: PageContent[],
+    manualBreaks: ManualPageBreak[] = []
 ): { currentPage: PageContent; placements: PagePlacement[] } {
     const placements: PagePlacement[] = [];
     let workingPage = currentPage;
@@ -270,12 +279,30 @@ function handleSplittableList(
 
         // Potential rows that fit
         const maxRowsThatFit = Math.floor(availableForRows / rowHeight);
-        
+
         // How many should we take?
-        const itemsToTake = Math.min(remainingItemsInList, maxRowsThatFit);
-        
+        let itemsToTake = Math.min(remainingItemsInList, maxRowsThatFit);
+
+        // CHECK FOR MANUAL PAGE BREAKS
+        // Find the first manual break within the range [processedItems, processedItems + itemsToTake)
+        // A break at index N means "break AFTER row N", so we include row N in current page
+        const firstBreakInRange = manualBreaks
+            .filter(b => b.afterRowIndex >= processedItems && b.afterRowIndex < processedItems + itemsToTake)
+            .sort((a, b) => a.afterRowIndex - b.afterRowIndex)[0];
+
+        let forcePageBreakAfter = false;
+        if (firstBreakInRange) {
+            // Truncate to include only rows up to and including the break point
+            // afterRowIndex is 0-based, so if break is after row 2, we take rows 0,1,2 (3 items from start)
+            const rowsToBreakPoint = firstBreakInRange.afterRowIndex - processedItems + 1;
+            if (rowsToBreakPoint < itemsToTake) {
+                itemsToTake = rowsToBreakPoint;
+                forcePageBreakAfter = true;
+            }
+        }
+
         // IF we took ALL remaining items, can we ALSO fit the footer?
-        const canFinishHere = itemsToTake === remainingItemsInList;
+        const canFinishHere = itemsToTake === remainingItemsInList && !forcePageBreakAfter;
         
         if (canFinishHere) {
             // Check footer space
@@ -352,34 +379,36 @@ function handleSplittableList(
                 placements.push(footerPlacement);
             }
         } else {
-            // Cannot finish here, populate page and continue
+            // Cannot finish here (either not enough space OR manual break forces split)
             // Ensure we take at least 1 row if we forced a new page, otherwise we loop forever
             // (The check `availableForRows < rowHeight` above handles this usually)
-            
+
             const rowsTaking = Math.max(1, itemsToTake); // Force progress
             const height = currentHeaderHeight + (rowsTaking * rowHeight) + SAFETY_MARGIN;
-            
+
              const placement: PagePlacement = {
                 sectionId: isFirstSectionPage ? section.id : `${section.id}_continued_${pageIndex}`,
                 startsOnPage: workingPage.pageNumber,
                 estimatedHeight: height,
                 continuesFromPrevious: !isFirstSectionPage,
                 dataRange: { start: processedItems, end: processedItems + rowsTaking },
-                renderConfig: { 
-                    showHeader: isFirstSectionPage, 
+                renderConfig: {
+                    showHeader: isFirstSectionPage,
                     showContinuedHeader: !isFirstSectionPage,
-                    showFooter: false 
-                }
+                    showFooter: false
+                },
+                // Add CSS hint for manual breaks
+                cssHints: forcePageBreakAfter ? { pageBreakBefore: true } : undefined,
             };
-            
+
             workingPage.sections.push(placement);
             workingPage.usedHeight += height;
             workingPage.availableHeight -= height;
             placements.push(placement);
-            
+
             processedItems += rowsTaking;
-            
-            // Force new page for next chunk
+
+            // Force new page for next chunk (natural split or manual break)
             pages.push(workingPage);
             workingPage = createNewPage(pages.length + 1);
         }

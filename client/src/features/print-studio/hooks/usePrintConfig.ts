@@ -10,6 +10,9 @@ interface UsePrintConfigReturn {
   togglePageBreak: (sectionId: string) => void;
   reorderSections: (fromIndex: number, toIndex: number) => void;
   resetSections: () => void;
+  // Manual row-level breaks
+  toggleRowBreak: (sectionId: string, afterRowIndex: number, afterRowId?: string) => void;
+  clearRowBreaks: (sectionId?: string) => void;
   // Spacing
   setSpacing: (type: 'compact' | 'standard' | 'relaxed') => void;
   // Logo
@@ -42,6 +45,7 @@ const getDefaultConfig = (): PrintConfig => ({
   showPageNumbers: true,
   showFooter: true,
   showCoverPhotos: true,
+  manualBreaks: [],
 });
 
 export function usePrintConfig(projectId: string, initialConfig?: Partial<PrintConfig>): UsePrintConfigReturn {
@@ -107,6 +111,40 @@ export function usePrintConfig(projectId: string, initialConfig?: Partial<PrintC
       sections: prev.sections.map(s =>
         s.id === sectionId ? { ...s, forcePageBreakBefore: !s.forcePageBreakBefore } : s
       ),
+    }));
+  }, []);
+
+  const toggleRowBreak = useCallback((sectionId: string, afterRowIndex: number, afterRowId?: string) => {
+    setConfig(prev => {
+      const existingBreaks = prev.manualBreaks || [];
+      const breakExists = existingBreaks.some(
+        b => b.sectionId === sectionId && b.afterRowIndex === afterRowIndex
+      );
+
+      if (breakExists) {
+        // Remove the break
+        return {
+          ...prev,
+          manualBreaks: existingBreaks.filter(
+            b => !(b.sectionId === sectionId && b.afterRowIndex === afterRowIndex)
+          ),
+        };
+      } else {
+        // Add the break
+        return {
+          ...prev,
+          manualBreaks: [...existingBreaks, { sectionId, afterRowIndex, afterRowId }],
+        };
+      }
+    });
+  }, []);
+
+  const clearRowBreaks = useCallback((sectionId?: string) => {
+    setConfig(prev => ({
+      ...prev,
+      manualBreaks: sectionId
+        ? (prev.manualBreaks || []).filter(b => b.sectionId !== sectionId)
+        : [],
     }));
   }, []);
 
@@ -208,6 +246,8 @@ export function usePrintConfig(projectId: string, initialConfig?: Partial<PrintC
     config,
     toggleSection,
     togglePageBreak,
+    toggleRowBreak,
+    clearRowBreaks,
     reorderSections,
     resetSections,
     setSpacing,

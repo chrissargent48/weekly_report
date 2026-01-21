@@ -43,6 +43,8 @@ export function PrintStudioModal({ open, onClose, reportData, projectConfig, bas
     config,
     toggleSection,
     togglePageBreak,
+    toggleRowBreak,
+    clearRowBreaks,
     reorderSections,
     setSpacing,
     setLogoScale,
@@ -229,6 +231,7 @@ export function PrintStudioModal({ open, onClose, reportData, projectConfig, bas
                       baselines={baselines}
                       showPageBreakGuides={showPageBreakGuides}
                       onUpdateReport={onUpdateReport}
+                      onToggleRowBreak={toggleRowBreak}
                     />
                     <div className="h-20" /> {/* Spacer at bottom */}
                   </div>
