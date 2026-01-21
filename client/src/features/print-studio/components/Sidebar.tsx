@@ -3,7 +3,7 @@ import { PrintConfig, PrintSection, ReportData } from '../config/printConfig.typ
 import { DndContext, closestCenter, DragEndEvent } from '@dnd-kit/core';
 import { SortableContext, verticalListSortingStrategy, useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { GripVertical, Eye, EyeOff, Check, ImageIcon } from 'lucide-react';
+import { GripVertical, Eye, EyeOff, Check, ImageIcon, SplitSquareHorizontal } from 'lucide-react';
 
 interface SidebarProps {
   config: PrintConfig;
@@ -15,7 +15,8 @@ interface SidebarProps {
   onSetHeroPhoto: (index: number | null) => void;
   onSetStripPhotos: (indexes: number[]) => void;
   onToggleCoverPhotos: (show: boolean) => void;
-  
+  onTogglePageBreak: (id: string) => void;
+
   // Debug
   showPageBreakGuides: boolean;
   onTogglePageBreakGuides: (show: boolean) => void;
@@ -31,6 +32,7 @@ export function Sidebar({
   onSetHeroPhoto,
   onSetStripPhotos,
   onToggleCoverPhotos,
+  onTogglePageBreak,
   showPageBreakGuides,
   onTogglePageBreakGuides,
 }: SidebarProps) {
@@ -77,10 +79,11 @@ export function Sidebar({
                <SortableContext items={config.sections.map(s => s.id)} strategy={verticalListSortingStrategy}>
                   <ul className="space-y-2">
                      {config.sections.map(section => (
-                        <SortableSectionItem 
-                           key={section.id} 
-                           section={section} 
-                           onToggle={() => onToggleSection(section.id)} 
+                        <SortableSectionItem
+                           key={section.id}
+                           section={section}
+                           onToggle={() => onToggleSection(section.id)}
+                           onTogglePageBreak={() => onTogglePageBreak(section.id)}
                         />
                      ))}
                   </ul>
@@ -243,9 +246,17 @@ export function Sidebar({
   );
 }
 
-function SortableSectionItem({ section, onToggle }: { section: PrintSection, onToggle: () => void }) {
+function SortableSectionItem({
+   section,
+   onToggle,
+   onTogglePageBreak
+}: {
+   section: PrintSection;
+   onToggle: () => void;
+   onTogglePageBreak: () => void;
+}) {
    const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id: section.id });
-   
+
    const style = {
       transform: CSS.Transform.toString(transform),
       transition,
@@ -253,24 +264,51 @@ function SortableSectionItem({ section, onToggle }: { section: PrintSection, onT
       filter: section.included ? 'none' : 'grayscale(1)',
    };
 
+   const hasPageBreak = section.forcePageBreakBefore ?? false;
+
    return (
-      <li ref={setNodeRef} style={style} className="group bg-white border border-zinc-200 rounded-lg p-3 flex items-center justify-between shadow-sm hover:border-zinc-300 transition">
-         <div className="flex items-center gap-3 flex-1">
-            <button {...attributes} {...listeners} className="text-zinc-300 hover:text-zinc-500 cursor-grab active:cursor-grabbing">
-               <GripVertical size={16} />
-            </button>
-            <span className={`text-sm font-medium ${section.included ? 'text-zinc-900' : 'text-zinc-400'}`}>
-               {section.label}
-            </span>
+      <li ref={setNodeRef} style={style} className="group bg-white border border-zinc-200 rounded-lg p-3 shadow-sm hover:border-zinc-300 transition">
+         <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3 flex-1">
+               <button {...attributes} {...listeners} className="text-zinc-300 hover:text-zinc-500 cursor-grab active:cursor-grabbing">
+                  <GripVertical size={16} />
+               </button>
+               <span className={`text-sm font-medium ${section.included ? 'text-zinc-900' : 'text-zinc-400'}`}>
+                  {section.label}
+               </span>
+            </div>
+            <div className="flex items-center gap-1">
+               {/* Page Break Toggle */}
+               <button
+                  onClick={onTogglePageBreak}
+                  title={hasPageBreak ? 'Remove page break before' : 'Add page break before'}
+                  className={`p-1.5 rounded-md transition ${
+                     hasPageBreak
+                        ? 'text-cyan-600 bg-cyan-50 hover:bg-cyan-100'
+                        : 'text-zinc-300 hover:text-zinc-500 hover:bg-zinc-100 opacity-0 group-hover:opacity-100'
+                  }`}
+               >
+                  <SplitSquareHorizontal size={16} />
+               </button>
+               {/* Visibility Toggle */}
+               <button
+                  onClick={onToggle}
+                  className={`p-1.5 rounded-md transition ${
+                     section.included ? 'text-zinc-400 hover:text-zinc-600 hover:bg-zinc-100' : 'text-zinc-300 hover:text-zinc-500'
+                  }`}
+               >
+                  {section.included ? <Eye size={16} /> : <EyeOff size={16} />}
+               </button>
+            </div>
          </div>
-         <button 
-            onClick={onToggle}
-            className={`p-1.5 rounded-md transition ${
-               section.included ? 'text-zinc-400 hover:text-zinc-600 hover:bg-zinc-100' : 'text-zinc-300 hover:text-zinc-500'
-            }`}
-         >
-            {section.included ? <Eye size={16} /> : <EyeOff size={16} />}
-         </button>
+         {/* Page Break Indicator */}
+         {hasPageBreak && (
+            <div className="mt-2 -mb-1 flex items-center gap-2 text-[10px] text-cyan-600 font-medium">
+               <div className="flex-1 border-t border-dashed border-cyan-300"></div>
+               <span>PAGE BREAK</span>
+               <div className="flex-1 border-t border-dashed border-cyan-300"></div>
+            </div>
+         )}
       </li>
    );
 }

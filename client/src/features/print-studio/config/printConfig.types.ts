@@ -3,6 +3,8 @@ export interface PrintSection {
   label: string;
   included: boolean;
   order: number;
+  /** When true, forces a page break before this section regardless of available space */
+  forcePageBreakBefore?: boolean;
 }
 
 export interface PrintSpacing {

@@ -151,7 +151,14 @@ export function getSectionMetrics(ctx: MeasurementContext): SectionMetrics {
       rowHeight = ROW_HEIGHTS.issue;
       itemCount = reportData.issues?.length || 0;
       break;
-      
+
+    case 'schedule':
+      isSplittable = true;
+      headerHeight = HEADER_HEIGHTS.standard;
+      rowHeight = ROW_HEIGHTS.milestone;
+      itemCount = reportData.schedule?.milestones?.length || 0;
+      break;
+
     case 'photos':
       // Photos handled specially by calculatePageMap due to grid layout
       isSplittable = false;

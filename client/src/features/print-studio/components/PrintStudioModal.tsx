@@ -42,6 +42,7 @@ export function PrintStudioModal({ open, onClose, reportData, projectConfig, bas
   const {
     config,
     toggleSection,
+    togglePageBreak,
     reorderSections,
     setSpacing,
     setLogoScale,
@@ -177,6 +178,7 @@ export function PrintStudioModal({ open, onClose, reportData, projectConfig, bas
                         onSetHeroPhoto={setHeroPhoto}
                         onSetStripPhotos={setStripPhotos}
                         onToggleCoverPhotos={toggleCoverPhotos}
+                        onTogglePageBreak={togglePageBreak}
                         showPageBreakGuides={showPageBreakGuides}
                         onTogglePageBreakGuides={setShowPageBreakGuides}
                       />
