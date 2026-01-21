@@ -388,7 +388,7 @@ export interface SubmittalEntry {
 }
 
 export interface PrintSectionConfig {
-    id: 'overview' | 'weather' | 'progress' | 'lookahead' | 'manpower' | 'equipment' | 'materials' | 'safety' | 'financials' | 'photos' | 'procurement' | 'issues' | 'schedule' | 'documents';
+    id: 'overview' | 'weather' | 'progress' | 'lookahead' | 'manpower' | 'equipment' | 'materials' | 'safety' | 'financials' | 'photos' | 'procurement' | 'issues' | 'schedule' | 'documents' | 'key_personnel';
     label: string;
     included: boolean;
 }

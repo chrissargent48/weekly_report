@@ -48,6 +48,10 @@ export interface PagePlacement {
   startsOnPage: number;
   estimatedHeight: number;
   continuesFromPrevious: boolean;
+  dataRange?: { start: number; end: number }; // For split sections like Progress
+  renderConfig?: {
+    [key: string]: boolean;
+  };
 }
 
 export interface PageContent {
@@ -64,9 +68,6 @@ export interface PageMap {
   sectionPlacements: Map<string, PagePlacement>;
 }
 
-// We can augment this as we migrate more types, for now it matches existing
-export interface ReportData {
-  // Your existing report data structure
-  // For strict typing, we'd import the main WeeklyReport type here
-  [key: string]: any;
-}
+import { WeeklyReport } from '../../../types';
+
+export type ReportData = WeeklyReport;

@@ -8,7 +8,7 @@ interface Props {
 }
 
 export function EquipmentSection({ config, reportData }: Props) {
-  const items = reportData.resources?.equipment?.onSite || reportData.equipment || []; // Fallback
+  const items = reportData.resources?.equipment?.onSite || [];
   if (items.length === 0) return null;
 
   return (

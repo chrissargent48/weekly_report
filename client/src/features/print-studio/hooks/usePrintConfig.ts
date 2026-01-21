@@ -51,7 +51,27 @@ export function usePrintConfig(projectId: string, initialConfig?: Partial<PrintC
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
-        return { ...getDefaultConfig(), ...parsed, ...initialConfig };
+        
+        // Merge saved sections with defaults to ensure new sections appear
+        // 1. Get all saved section IDs
+        const savedSectionIds = new Set(parsed.sections?.map((s: any) => s.id));
+        
+        // 2. Find any new default sections that aren't in saved config
+        const newSections = DEFAULT_SECTIONS.filter(ds => !savedSectionIds.has(ds.id));
+        
+        // 3. Combine saved sections + new sections
+        // (We put new sections at the start or end based on their 'order' but for simplicity here appended)
+        const combinedSections = [
+          ...(parsed.sections || []),
+          ...newSections
+        ].sort((a, b) => a.order - b.order);
+
+        return { 
+            ...getDefaultConfig(), 
+            ...parsed, 
+            sections: combinedSections,
+            ...initialConfig 
+        };
       } catch (error) {
         console.warn('Failed to parse saved Print Studio config:', error);
         return { ...getDefaultConfig(), ...initialConfig };

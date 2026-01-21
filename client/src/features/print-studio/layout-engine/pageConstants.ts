@@ -69,6 +69,7 @@ export const SECTION_BASE_HEIGHTS = {
   issues: 250,               // Issues list
   photos: 600,                // 2x3 photo grid per "page" of photos
   documents: 100,            // Link list
+  key_personnel: 240,        // 3 columns of personnel info
 } as const;
 
 // =============================================================================

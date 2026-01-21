@@ -14,7 +14,7 @@ import { ReportData } from '../config/printConfig.types';
 import { XMarkIcon, PrinterIcon, MagnifyingGlassMinusIcon, MagnifyingGlassPlusIcon } from '@heroicons/react/24/outline';
 import { DndContext, KeyboardSensor, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
 import { sortableKeyboardCoordinates } from '@dnd-kit/sortable';
-import { ProjectConfig } from '../../../types';
+import { ProjectConfig, ProjectBaselines } from '../../../types';
 import { usePagedPDFGeneration } from '../hooks/usePagedPDFGeneration';
 
 interface Props {
@@ -22,9 +22,11 @@ interface Props {
   onClose: () => void;
   reportData: ReportData;
   projectConfig: ProjectConfig;
+  baselines?: ProjectBaselines | null;
+  onUpdateReport: (data: ReportData) => void;
 }
 
-export function PrintStudioModal({ open, onClose, reportData, projectConfig }: Props) {
+export function PrintStudioModal({ open, onClose, reportData, projectConfig, baselines, onUpdateReport }: Props) {
   const [showPageBreakGuides, setShowPageBreakGuides] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [previewScale, setPreviewScale] = useState(0.7); // Default 70% scale
@@ -52,7 +54,7 @@ export function PrintStudioModal({ open, onClose, reportData, projectConfig }: P
   } = usePrintConfig(projectConfig.identity.jobNumber);
 
   // 2. Calculated Layout
-  const pageMap = usePageMap(config, reportData);
+  const pageMap = usePageMap(config, reportData, projectConfig, baselines);
 
   // 3. PDF Generation - Using Paged.js for accurate CSS Paged Media
   const { generatePDF, isGenerating, error } = usePagedPDFGeneration();
@@ -222,7 +224,9 @@ export function PrintStudioModal({ open, onClose, reportData, projectConfig }: P
                       pageMap={pageMap}
                       reportData={reportData}
                       projectConfig={projectConfig}
+                      baselines={baselines}
                       showPageBreakGuides={showPageBreakGuides}
+                      onUpdateReport={onUpdateReport}
                     />
                     <div className="h-20" /> {/* Spacer at bottom */}
                   </div>

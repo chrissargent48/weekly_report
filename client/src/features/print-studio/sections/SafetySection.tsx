@@ -1,45 +1,195 @@
 import React from 'react';
-import { PrintConfig, ReportData } from '../config/printConfig.types';
+import { PrintConfig, ReportData, PagePlacement } from '../config/printConfig.types';
+import { SafetyObservation } from '../../../types';
 import { SectionWrapper } from './SectionWrapper';
+import { Shield, AlertTriangle, CheckCircle, Info } from 'lucide-react';
 
 interface Props {
   config: PrintConfig;
   reportData: ReportData;
+  placement?: PagePlacement;
+  onUpdateReport?: (data: ReportData) => void;
 }
 
-export function SafetySection({ config, reportData }: Props) {
+export function SafetySection({ config, reportData, placement, onUpdateReport }: Props) {
   const safety = reportData.safety;
   if (!safety) return null;
 
-  const stats = safety.stats || {};
+  // Render Control Flags
+  const showHeader = placement?.renderConfig?.showHeader ?? true;
+  const showFooter = placement?.renderConfig?.showFooter ?? true;
+  const isContinued = placement?.continuesFromPrevious ?? false;
+  
+  // Data Slicing for Observations
+  const allObservations = reportData.safety.observations || [];
+  const startIdx = placement?.dataRange?.start ?? 0;
+  const endIdx = placement?.dataRange?.end ?? allObservations.length;
+  const visibleObservations = allObservations.slice(startIdx, endIdx);
+
+  const stats = safety.stats || {
+    nearMisses: { week: 0, ytd: 0 },
+    firstAids: { week: 0, ytd: 0 },
+    recordables: { week: 0, ytd: 0 },
+    lostTime: { week: 0, ytd: 0 },
+    stopWorks: { week: 0, ytd: 0 },
+    hofs: { week: 0, ytd: 0 },
+    safetyAudits: { week: 0, ytd: 0 }
+  };
+
+  const statRows: { key: keyof typeof stats; label: string }[] = [
+    { key: 'nearMisses', label: 'Near Misses' },
+    { key: 'firstAids', label: 'First Aids' },
+    { key: 'recordables', label: 'Recordable Incidents' },
+    { key: 'lostTime', label: 'Lost Time / Restricted Duty' },
+    { key: 'stopWorks', label: 'Stop Works' },
+    { key: 'hofs', label: "HOF's" },
+    { key: 'safetyAudits', label: 'Safety Audits' }
+  ];
+
+  const handleUpdate = (field: keyof typeof safety, value: any) => {
+    if (!onUpdateReport) return;
+    onUpdateReport({
+      ...reportData,
+      safety: {
+        ...safety,
+        [field]: value
+      }
+    });
+  };
 
   return (
-    <SectionWrapper config={config} title="Safety Report">
-       <div className="flex flex-col gap-4">
-          {/* Safety Stats */}
-          <div className="grid grid-cols-4 gap-4">
-             {[
-                { label: 'Incidents', value: stats.recordables?.week || 0, good: true },
-                { label: 'Near Misses', value: stats.nearMisses?.week || 0, good: true },
-                { label: 'Stop Works', value: stats.stopWorks?.week || 0, good: false },
-                { label: 'Safety Audits', value: stats.safetyAudits?.week || 0, good: true },
-             ].map((stat, i) => (
-                <div key={i} className="bg-zinc-50 p-3 rounded border border-zinc-100 text-center">
-                   <div className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest mb-1">{stat.label}</div>
-                   <div className={`text-xl font-bold ${stat.good && stat.value === 0 ? 'text-emerald-600' : 'text-zinc-900'}`}>
-                      {stat.value}
-                   </div>
-                </div>
-             ))}
-          </div>
+    <SectionWrapper config={config} title={isContinued ? "Safety Management (Continued)" : "Safety Management"}>
+       <div className="space-y-6">
+          
+          {/* 1. Top: Weekly Safety Topic (HEADER) */}
+          {showHeader && (
+              <>
+                  <div className="bg-white rounded-lg border border-zinc-200 overflow-hidden shadow-sm flex flex-col group/topic">
+                      <div className="bg-green-50 border-b border-green-100 px-4 py-2 flex items-center gap-2">
+                           <Shield className="w-4 h-4 text-green-700" />
+                           <span className="text-xs font-bold uppercase text-green-800 tracking-wider">Weekly Safety Topic</span>
+                      </div>
+                      <div className="p-4 flex-1 flex flex-col min-h-[120px]">
+                          {onUpdateReport ? (
+                              <input 
+                                className="font-bold text-zinc-900 mb-2 w-full bg-transparent border-none p-0 focus:ring-0 placeholder:text-zinc-300"
+                                value={safety.weeklyTopic || ''}
+                                onChange={e => handleUpdate('weeklyTopic', e.target.value)}
+                                placeholder="Enter Topic Title..."
+                              />
+                          ) : (
+                              <div className="font-bold text-zinc-900 mb-2">{safety.weeklyTopic || 'No Topic Selected'}</div>
+                          )}
+                          
+                          {onUpdateReport ? (
+                              <textarea
+                                className="text-xs text-zinc-600 leading-relaxed whitespace-pre-wrap w-full flex-1 bg-transparent border-none p-0 focus:ring-0 resize-none placeholder:text-zinc-300"
+                                value={safety.weeklyTopicNotes || ''}
+                                onChange={e => handleUpdate('weeklyTopicNotes', e.target.value)}
+                                placeholder="Enter detailed notes about the weekly safety topic..."
+                              />
+                          ) : (
+                              <div className="text-xs text-zinc-600 leading-relaxed whitespace-pre-wrap">
+                                  {safety.weeklyTopicNotes || 'No notes available.'}
+                              </div>
+                          )}
+                      </div>
+                  </div>
 
-          {/* Narrative */}
-          {safety.narrative && (
-             <div className="text-sm text-zinc-700 leading-relaxed whitespace-pre-wrap bg-blue-50/50 p-4 rounded border border-blue-100">
-                <span className="font-bold text-blue-800 block mb-1 text-xs uppercase tracking-wide">Safety Action Items / Narrative</span>
-                {safety.narrative}
+                  {/* 2. Middle: Safety Stats Table (HEADER) */}
+                  <div className="border border-zinc-200 rounded-lg overflow-hidden">
+                     <table className="w-full text-sm">
+                        <thead className="bg-brand-primary text-white">
+                           <tr>
+                              <th className="py-2 pl-4 text-left font-bold text-[10px] uppercase tracking-wider">Key Performance Indicator</th>
+                              <th className="py-2 px-4 text-center font-bold text-[10px] uppercase tracking-wider w-32 border-l border-white/20">Current Week</th>
+                              <th className="py-2 px-4 text-center font-bold text-[10px] uppercase tracking-wider w-32 border-l border-white/20">Year to Date</th>
+                           </tr>
+                        </thead>
+                        <tbody className="divide-y divide-zinc-100">
+                           {statRows.map((row, i) => (
+                              <tr key={row.key as string} className={i % 2 === 0 ? 'bg-white' : 'bg-zinc-50'}>
+                                 <td className="py-2 pl-4 text-zinc-700 font-medium">{row.label}</td>
+                                 <td className="py-2 px-4 text-center font-bold text-zinc-900 border-l border-zinc-100">
+                                    {stats[row.key]?.week || 0}
+                                 </td>
+                                 <td className="py-2 px-4 text-center text-zinc-600 border-l border-zinc-100">
+                                    {stats[row.key]?.ytd || 0}
+                                 </td>
+                              </tr>
+                           ))}
+                        </tbody>
+                     </table>
+                  </div>
+              </>
+          )}
+
+          {/* 3. Observations Log (Conditional Slicing) */}
+          {visibleObservations.length > 0 && (
+             <div className="border border-zinc-200 rounded-lg overflow-hidden">
+                <div className="bg-zinc-50 border-b border-zinc-200 px-4 py-2">
+                   <span className="text-xs font-bold uppercase text-zinc-500 tracking-wider">
+                       Safety Observations
+                       {visibleObservations.length !== allObservations.length && 
+                          ` (${startIdx + 1}-${endIdx} of ${allObservations.length})`
+                       }
+                   </span>
+                </div>
+                <table className="w-full text-sm">
+                    <thead className="bg-white border-b border-zinc-200">
+                       <tr className="text-xs text-zinc-500">
+                          <th className="py-2 pl-4 text-left font-bold w-24">Date</th>
+                          <th className="py-2 px-2 text-left font-bold w-24">Type</th>
+                          <th className="py-2 px-2 text-left font-bold">Description</th>
+                          <th className="py-2 px-2 text-left font-bold w-1/3">Action Taken</th>
+                       </tr>
+                    </thead>
+                    <tbody className="divide-y divide-zinc-100">
+                       {visibleObservations.map((obs: SafetyObservation) => (
+                          <tr key={obs.id} className="hover:bg-zinc-50">
+                             <td className="py-2 pl-4 text-xs font-mono text-zinc-500">{obs.date}</td>
+                             <td className="py-2 px-2">
+                                <span className={`text-[10px] font-bold uppercase px-2 py-0.5 rounded-full ${
+                                   obs.type === 'Positive' ? 'bg-green-100 text-green-700' :
+                                   obs.type === 'Corrective' ? 'bg-amber-100 text-amber-700' :
+                                   'bg-red-100 text-red-700'
+                                }`}>
+                                   {obs.type}
+                                </span>
+                             </td>
+                             <td className="py-2 px-2 text-xs text-zinc-800">{obs.description}</td>
+                             <td className="py-2 px-2 text-xs text-zinc-600 italic">{obs.actionTaken}</td>
+                          </tr>
+                       ))}
+                    </tbody>
+                </table>
              </div>
           )}
+
+          {/* 4. Bottom: Narrative (FOOTER) */}
+          {showFooter && (
+              <div className="bg-white rounded-lg border border-zinc-200 overflow-hidden shadow-sm flex flex-col group/narrative">
+                  <div className="bg-blue-50 border-b border-blue-100 px-4 py-2 flex items-center gap-2">
+                       <Info className="w-4 h-4 text-blue-700" />
+                       <span className="text-xs font-bold uppercase text-blue-800 tracking-wider">Safety Narrative</span>
+                  </div>
+                  <div className="p-4 flex-1 flex flex-col min-h-[100px]">
+                      {onUpdateReport ? (
+                          <textarea
+                            className="text-xs text-zinc-600 leading-relaxed whitespace-pre-wrap w-full flex-1 bg-transparent border-none p-0 focus:ring-0 resize-none placeholder:text-zinc-300"
+                            value={safety.narrative || ''}
+                            onChange={e => handleUpdate('narrative', e.target.value)}
+                            placeholder="Enter safety narrative..."
+                          />
+                      ) : (
+                          <div className="text-xs text-zinc-600 leading-relaxed whitespace-pre-wrap">
+                              {safety.narrative || 'No additional commentary.'}
+                          </div>
+                      )}
+                  </div>
+              </div>
+          )}
+
        </div>
     </SectionWrapper>
   );

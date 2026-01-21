@@ -19,19 +19,26 @@ import { ScheduleSection } from '../../sections/ScheduleSection';
 import { IssuesSection } from '../../sections/IssuesSection';
 import { PhotosSection } from '../../sections/PhotosSection';
 
-import { ProjectConfig } from '../../../../types';
+import { ProjectConfig, ProjectBaselines } from '../../../../types';
 
 interface PrintPreviewProps {
   config: PrintConfig;
   pageMap: PageMap;
   reportData: ReportData;
   projectConfig: ProjectConfig;
+  baselines?: ProjectBaselines | null;
   showPageBreakGuides?: boolean;
   totalPages?: number;
+  onUpdateReport?: (data: ReportData) => void;
 }
 
 // Map section IDs to their components
+import { KeyPersonnelSection } from '../../sections/KeyPersonnelSection';
+
+// ... (existing imports)
+
 const SECTION_COMPONENTS: Record<string, React.ComponentType<any>> = {
+  key_personnel: KeyPersonnelSection,
   overview: ExecutiveSummary,
   weather: WeatherSection,
   progress: ProgressSection,
@@ -57,7 +64,9 @@ export const PrintPreview = forwardRef<HTMLDivElement, PrintPreviewProps>(functi
     pageMap,
     reportData,
     projectConfig,
+    baselines,
     showPageBreakGuides = false,
+    onUpdateReport,
   },
   ref
 ) {
@@ -80,6 +89,8 @@ export const PrintPreview = forwardRef<HTMLDivElement, PrintPreviewProps>(functi
           footerText={projectConfig.identity.projectName}
           totalPages={totalPages}
           isLastPage={index === pageMap.pages.length - 1}
+          projectConfig={projectConfig}
+          weekEnding={reportData.weekEnding}
         >
           {/* First page includes cover section */}
           {page.isFirstPage && (
@@ -107,7 +118,10 @@ export const PrintPreview = forwardRef<HTMLDivElement, PrintPreviewProps>(functi
                 key={placement.sectionId}
                 config={config}
                 reportData={reportData}
+                projectConfig={projectConfig}
+                baselines={baselines}
                 placement={placement}
+                onUpdateReport={onUpdateReport}
               />
             );
           })}
@@ -116,3 +130,5 @@ export const PrintPreview = forwardRef<HTMLDivElement, PrintPreviewProps>(functi
     </div>
   );
 });
+
+

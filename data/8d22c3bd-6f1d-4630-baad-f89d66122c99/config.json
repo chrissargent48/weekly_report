@@ -10,6 +10,13 @@
   "personnel": {
     "recon": [
       {
+        "name": "Rick Meyers",
+        "role": "Business Manager",
+        "email": "rick.meyers@keller-na.com",
+        "phone": "7135171505",
+        "id": "e501b18d-8773-4aba-ad58-2074b8db199c"
+      },
+      {
         "name": "Chris Sargent",
         "role": "Project Manager",
         "email": "chris.sargent@keller-na.com",
@@ -29,13 +36,6 @@
         "email": "corey.allen@keller-na.com",
         "phone": "9709462823",
         "id": "39b218f7-0071-4cae-9aa0-3734a8410e75"
-      },
-      {
-        "name": "Rick Meyers",
-        "role": "Business Manager",
-        "email": "rick.meyers@keller-na.com",
-        "phone": "7135171505",
-        "id": "e501b18d-8773-4aba-ad58-2074b8db199c"
       }
     ],
     "client": {

@@ -1,10 +1,14 @@
 import { PrintSection, PrintSpacing, ReportData } from '../config/printConfig.types';
 import { SECTION_BASE_HEIGHTS, pxToPoints } from './pageConstants';
 
+import { ProjectConfig, ProjectBaselines } from '../../../types';
+
 interface MeasurementContext {
   section: PrintSection;
   spacing: PrintSpacing;
   reportData: ReportData;
+  projectConfig?: ProjectConfig;
+  baselines?: ProjectBaselines | null;
 }
 
 /**
@@ -13,7 +17,7 @@ interface MeasurementContext {
  * but it should be close enough for page break calculations.
  */
 export function measureSection(ctx: MeasurementContext): number {
-  const { section, spacing, reportData } = ctx;
+  const { section, spacing, reportData, projectConfig } = ctx;
   const baseHeight = SECTION_BASE_HEIGHTS[section.id as keyof typeof SECTION_BASE_HEIGHTS] || 200;
   
   // Adjust for spacing preset
@@ -29,6 +33,19 @@ export function measureSection(ctx: MeasurementContext): number {
       dynamicHeight = baseHeight + Math.floor(summaryLength / 100) * 16;
       break;
       
+    case 'key_personnel':
+      if (projectConfig?.personnel) {
+        // Calculate max rows needed (max number of people in any column)
+        const clientReps = projectConfig.personnel.client?.representatives?.length || 1;
+        const engineerReps = projectConfig.personnel.engineer?.representatives?.length || 1;
+        const reconReps = projectConfig.personnel.recon?.length || 1;
+        
+        const maxReps = Math.max(clientReps, engineerReps, reconReps);
+        // Base headers ~60px, plus ~40px per rep
+        dynamicHeight = 60 + (maxReps * 40);
+      }
+      break;
+      
     case 'weather':
       // 7 days * row height + header
       const weatherRows = reportData.overview?.weather?.length || 7;
@@ -39,6 +56,13 @@ export function measureSection(ctx: MeasurementContext): number {
       // Look Ahead is in progress.lookAheadItems
       const lookAheadRows = reportData.progress?.lookAheadItems?.length || 10;
       dynamicHeight = 60 + (lookAheadRows * 36);
+      break;
+
+    case 'progress':
+      // Progress uses detailed bid items from Project Baselines
+      const bidItemRows = ctx.baselines?.bidItems?.length || 10;
+      // KPI Cards (~100px) + Header + Rows
+      dynamicHeight = 160 + (bidItemRows * 28); 
       break;
       
     case 'manpower':
@@ -99,13 +123,15 @@ export function measureSection(ctx: MeasurementContext): number {
 export function measureAllSections(
   sections: PrintSection[],
   spacing: PrintSpacing,
-  reportData: ReportData
+  reportData: ReportData,
+  projectConfig?: ProjectConfig,
+  baselines?: ProjectBaselines | null
 ): Map<string, number> {
   const measurements = new Map<string, number>();
   
   for (const section of sections) {
     if (section.included) {
-      measurements.set(section.id, measureSection({ section, spacing, reportData }));
+      measurements.set(section.id, measureSection({ section, spacing, reportData, projectConfig, baselines }));
     }
   }
   

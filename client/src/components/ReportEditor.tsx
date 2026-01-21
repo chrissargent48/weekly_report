@@ -229,7 +229,7 @@ export function ReportEditor({ report, projectConfig, onUpdate, onSave, onClose,
                       {/* Bento Grid Item: Executive Summary (2x2) */}
                       <div className="lg:col-span-2 lg:row-span-2 bg-white rounded-xl border border-zinc-200 shadow-sm overflow-hidden flex flex-col">
                           <div className="px-6 py-4 border-b border-zinc-100 bg-zinc-50/50 flex items-center justify-between">
-                             <label className="text-sm font-bold text-zinc-700">Executive Summary</label>
+                             <label className="text-sm font-bold text-zinc-700">Weekly Recap</label>
                              <span className="text-xs text-zinc-400 uppercase tracking-wider font-bold">Primary Narrative</span>
                           </div>
                           <textarea 
@@ -675,6 +675,8 @@ export function ReportEditor({ report, projectConfig, onUpdate, onSave, onClose,
           onClose={() => setShowPrintModal(false)}
           reportData={report}
           projectConfig={projectConfig}
+          baselines={baselines}
+          onUpdateReport={onUpdate}
       />
     </div>
   );

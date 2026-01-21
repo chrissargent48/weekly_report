@@ -1,6 +1,8 @@
 import React from 'react';
 import { PAGE, FOOTER } from '../../layout-engine/pageConstants';
 import { PageContent } from '../../config/printConfig.types';
+import { PageHeader } from './PageHeader';
+import { ProjectConfig } from '../../../../types';
 
 interface PreviewPageProps {
   page: PageContent;
@@ -9,6 +11,8 @@ interface PreviewPageProps {
   footerText?: string;
   totalPages?: number;
   isLastPage?: boolean;
+  projectConfig?: ProjectConfig;
+  weekEnding?: string;
 }
 
 /**
@@ -25,6 +29,8 @@ export function PreviewPage({
   footerText,
   totalPages = 1,
   isLastPage = false,
+  projectConfig,
+  weekEnding,
 }: PreviewPageProps) {
   return (
     <div
@@ -46,12 +52,20 @@ export function PreviewPage({
     >
       {/* Page content area - strictly limited height */}
       <div
-        className="preview-page-content page-break-avoid"
+        className="preview-page-content page-break-avoid flex flex-col"
         style={{
           height: PAGE.USABLE_HEIGHT - FOOTER.HEIGHT,
           overflow: 'hidden', // CRITICAL: This is what catches overflow issues visually
         }}
       >
+        {/* Page Header - only on pages 2+ */}
+        {!page.isFirstPage && projectConfig && weekEnding && (
+          <PageHeader 
+            projectConfig={projectConfig} 
+            weekEnding={weekEnding} 
+          />
+        )}
+        
         {children}
       </div>
 

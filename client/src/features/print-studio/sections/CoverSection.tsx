@@ -140,11 +140,6 @@ export function CoverSection({ config, reportData, projectConfig }: CoverSection
             {projectConfig.personnel?.client?.company || 'Client Name'}
           </div>
 
-          <div className="font-bold text-zinc-400">Address:</div>
-          <div className="text-zinc-600">
-            {projectConfig.identity.location || projectConfig.personnel?.client?.address || 'Project Address'}
-          </div>
-
           <div className="font-bold text-zinc-400">Job #:</div>
           <div className="text-zinc-600">
             {projectConfig.identity.jobNumber || '00-00000'}
