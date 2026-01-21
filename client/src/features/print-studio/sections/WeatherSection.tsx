@@ -92,7 +92,7 @@ export function WeatherSection({ config, reportData, placement }: Props) {
   const daysWithNotes = weather.filter((day: any) => day.notes && day.notes !== 'None' && day.notes.trim() !== '');
 
   return (
-    <SectionWrapper config={config} title={sectionTitle}>
+    <SectionWrapper config={config} title={sectionTitle} className="break-inside-avoid">
       {/* Horizontal Weather Strip - Use Grid to enforce fit within page width */}
       <div className="grid grid-cols-7 gap-2 mb-4">
         {weather.map((day: any, index: number) => {
