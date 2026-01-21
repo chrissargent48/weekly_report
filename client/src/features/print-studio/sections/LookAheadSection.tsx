@@ -4,16 +4,29 @@ import { SectionWrapper } from './SectionWrapper';
 import { Target, CornerDownRight } from 'lucide-react';
 import { LookAheadEntry } from '../../../types';
 
+import { PagePlacement } from '../config/printConfig.types';
+
 interface Props {
   config: PrintConfig;
   reportData: ReportData;
-  placement?: any;
+  placement?: PagePlacement;
   onUpdateReport?: (data: ReportData) => void;
 }
 
-export function LookAheadSection({ config, reportData }: Props) {
-  const items = reportData.progress?.lookAheadItems || [];
+export function LookAheadSection({ config, reportData, placement }: Props) {
+  const allItems = reportData.progress?.lookAheadItems || [];
+  
+  // Handle pagination slicing
+  const startIdx = placement?.dataRange?.start ?? 0;
+  const endIdx = placement?.dataRange?.end ?? allItems.length;
+  const items = allItems.slice(startIdx, endIdx);
+
   if (items.length === 0) return null;
+
+  // Header Logic
+  const showMainHeader = placement?.renderConfig?.showHeader ?? true;
+  const isContinued = placement?.continuesFromPrevious ?? false;
+  const sectionTitle = showMainHeader ? (isContinued ? "Three Week Look Ahead (Continued)" : "Three Week Look Ahead") : undefined;
 
   // Split items into 3 columns based on relative order
   const distributeItems = (items: LookAheadEntry[]) => {
@@ -38,7 +51,7 @@ export function LookAheadSection({ config, reportData }: Props) {
   ];
 
   return (
-    <SectionWrapper config={config} title="Three Week Look Ahead">
+    <SectionWrapper config={config} title={sectionTitle}>
        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {weeks.map((week, idx) => (
               <div key={idx} className="flex flex-col gap-4">

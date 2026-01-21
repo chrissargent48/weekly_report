@@ -1,27 +1,41 @@
 import React from 'react';
-import { PrintConfig, ReportData } from '../config/printConfig.types';
+import { PrintConfig, ReportData, PagePlacement } from '../config/printConfig.types';
 import { SectionWrapper } from './SectionWrapper';
 import { DollarSign, FileText } from 'lucide-react';
 
 interface Props {
   config: PrintConfig;
   reportData: ReportData;
+  placement?: PagePlacement;
 }
 
-export function FinancialsSection({ config, reportData }: Props) {
+export function FinancialsSection({ config, reportData, placement }: Props) {
   const data = reportData.financials;
   if (!data) return null;
 
   const summary = data.summary || {};
-  const invoices = data.invoices || [];
+  const allInvoices = data.invoices || [];
   
-  // If no financials data at all, skip
-  if ((!invoices || invoices.length === 0) && !summary.remainingContractValue) return null;
+  // Slicing logic
+  const startIdx = placement?.dataRange?.start ?? 0;
+  const endIdx = placement?.dataRange?.end ?? allInvoices.length;
+  const invoices = allInvoices.slice(startIdx, endIdx);
+  
+  // Header Config
+  const showMainHeader = placement?.renderConfig?.showHeader ?? true;
+  const isContinued = placement?.continuesFromPrevious ?? false;
+  const sectionTitle = showMainHeader ? "Financial Overview" : (isContinued ? "Financial Overview (Continued)" : undefined);
+
+  // If no financials data at all, skip (only on first page check)
+  if (showMainHeader && (!allInvoices || allInvoices.length === 0) && !summary.remainingContractValue) return null;
+  // If continued page and no invoices, skip
+  if (!showMainHeader && invoices.length === 0) return null;
 
   return (
-    <SectionWrapper config={config} title="Financial Overview">
+    <SectionWrapper config={config} title={sectionTitle}>
        <div className="flex flex-col gap-6">
-          {/* Top Cards */}
+          {/* Top Cards - Only show if main header is requested (Page 1) */}
+          {showMainHeader && (
           <div className="grid grid-cols-3 gap-4">
              <div className="bg-zinc-50 p-4 rounded border border-zinc-100 flex flex-col justify-between">
                 <div className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest mb-2">Earned To Date</div>
@@ -45,6 +59,7 @@ export function FinancialsSection({ config, reportData }: Props) {
                 </div>
              </div>
           </div>
+          )}
 
           {/* Invoices Table */}
           {invoices.length > 0 && (
@@ -60,7 +75,7 @@ export function FinancialsSection({ config, reportData }: Props) {
                       </tr>
                    </thead>
                    <tbody className="divide-y divide-zinc-100">
-                      {data.invoices.map((inv: any, i: number) => (
+                      {invoices.map((inv: any, i: number) => (
                          <tr key={i} className={i % 2 === 0 ? 'bg-white' : 'bg-zinc-50/50'}>
                             <td className="px-4 py-2 text-zinc-600 font-mono text-xs">{inv.date}</td>
                             <td className="px-4 py-2 font-medium text-zinc-900 flex items-center gap-2">

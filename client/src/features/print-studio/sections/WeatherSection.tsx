@@ -3,12 +3,15 @@ import { PrintConfig, ReportData } from '../config/printConfig.types';
 import { SectionWrapper } from './SectionWrapper';
 import { Cloud, CloudRain, CloudSnow, Sun, Wind } from 'lucide-react';
 
+import { PagePlacement } from '../config/printConfig.types';
+
 interface Props {
   config: PrintConfig;
   reportData: ReportData;
+  placement?: PagePlacement;
 }
 
-export function WeatherSection({ config, reportData }: Props) {
+export function WeatherSection({ config, reportData, placement }: Props) {
   const rawWeather = reportData.overview?.weather || [];
   
   if (rawWeather.length === 0) return null;
@@ -31,7 +34,7 @@ export function WeatherSection({ config, reportData }: Props) {
   }
 
   // Generate 7 days starting from startDate
-  const weather = Array.from({ length: 7 }).map((_, index) => {
+  const allWeather = Array.from({ length: 7 }).map((_, index) => {
     // Clone start date and add days
     const d = new Date(startDate);
     d.setDate(startDate.getDate() + index);
@@ -50,6 +53,16 @@ export function WeatherSection({ config, reportData }: Props) {
       notes: data.notes
     };
   });
+
+  // Slice Logic
+  const startIdx = placement?.dataRange?.start ?? 0;
+  const endIdx = placement?.dataRange?.end ?? allWeather.length;
+  const weather = allWeather.slice(startIdx, endIdx);
+  
+  // Header Logic
+  const showMainHeader = placement?.renderConfig?.showHeader ?? true;
+  const isContinued = placement?.continuesFromPrevious ?? false;
+  const sectionTitle = showMainHeader ? (isContinued ? "Weekly Weather (Continued)" : "Weekly Weather") : undefined;
 
   const getWeatherIcon = (condition: string) => {
     const c = (condition || '').toLowerCase();
@@ -79,7 +92,7 @@ export function WeatherSection({ config, reportData }: Props) {
   const daysWithNotes = weather.filter((day: any) => day.notes && day.notes !== 'None' && day.notes.trim() !== '');
 
   return (
-    <SectionWrapper config={config} title="Weekly Weather">
+    <SectionWrapper config={config} title={sectionTitle}>
       {/* Horizontal Weather Strip - Use Grid to enforce fit within page width */}
       <div className="grid grid-cols-7 gap-2 mb-4">
         {weather.map((day: any, index: number) => {

@@ -11,6 +11,40 @@ interface Props {
   onUpdateReport?: (data: ReportData) => void;
 }
 
+// Auto-resize textarea helper
+const AutoResizeTextarea = ({ 
+  value, 
+  onChange, 
+  placeholder, 
+  className 
+}: { 
+  value: string, 
+  onChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void, 
+  placeholder: string,
+  className: string 
+}) => {
+  const textareaRef = React.useRef<HTMLTextAreaElement>(null);
+
+  React.useEffect(() => {
+    const el = textareaRef.current;
+    if (el) {
+      el.style.height = 'auto'; // Reset to shrink if needed
+      el.style.height = el.scrollHeight + 'px';
+    }
+  }, [value]);
+
+  return (
+    <textarea
+      ref={textareaRef}
+      className={className}
+      value={value}
+      onChange={onChange}
+      placeholder={placeholder}
+      rows={1}
+    />
+  );
+};
+
 export function SafetySection({ config, reportData, placement, onUpdateReport }: Props) {
   const safety = reportData.safety;
   if (!safety) return null;
@@ -69,7 +103,7 @@ export function SafetySection({ config, reportData, placement, onUpdateReport }:
                            <Shield className="w-4 h-4 text-green-700" />
                            <span className="text-xs font-bold uppercase text-green-800 tracking-wider">Weekly Safety Topic</span>
                       </div>
-                      <div className="p-4 flex-1 flex flex-col min-h-[120px]">
+                      <div className="p-4 flex flex-col min-h-[80px]">
                           {onUpdateReport ? (
                               <input 
                                 className="font-bold text-zinc-900 mb-2 w-full bg-transparent border-none p-0 focus:ring-0 placeholder:text-zinc-300"
@@ -82,8 +116,8 @@ export function SafetySection({ config, reportData, placement, onUpdateReport }:
                           )}
                           
                           {onUpdateReport ? (
-                              <textarea
-                                className="text-xs text-zinc-600 leading-relaxed whitespace-pre-wrap w-full flex-1 bg-transparent border-none p-0 focus:ring-0 resize-none placeholder:text-zinc-300"
+                              <AutoResizeTextarea
+                                className="text-xs text-zinc-600 leading-relaxed whitespace-pre-wrap w-full bg-transparent border-none p-0 focus:ring-0 resize-none placeholder:text-zinc-300 overflow-hidden"
                                 value={safety.weeklyTopicNotes || ''}
                                 onChange={e => handleUpdate('weeklyTopicNotes', e.target.value)}
                                 placeholder="Enter detailed notes about the weekly safety topic..."
@@ -173,10 +207,10 @@ export function SafetySection({ config, reportData, placement, onUpdateReport }:
                        <Info className="w-4 h-4 text-blue-700" />
                        <span className="text-xs font-bold uppercase text-blue-800 tracking-wider">Safety Narrative</span>
                   </div>
-                  <div className="p-4 flex-1 flex flex-col min-h-[100px]">
+                  <div className="p-4 flex flex-col min-h-[80px]">
                       {onUpdateReport ? (
-                          <textarea
-                            className="text-xs text-zinc-600 leading-relaxed whitespace-pre-wrap w-full flex-1 bg-transparent border-none p-0 focus:ring-0 resize-none placeholder:text-zinc-300"
+                          <AutoResizeTextarea
+                            className="text-xs text-zinc-600 leading-relaxed whitespace-pre-wrap w-full bg-transparent border-none p-0 focus:ring-0 resize-none placeholder:text-zinc-300 overflow-hidden"
                             value={safety.narrative || ''}
                             onChange={e => handleUpdate('narrative', e.target.value)}
                             placeholder="Enter safety narrative..."

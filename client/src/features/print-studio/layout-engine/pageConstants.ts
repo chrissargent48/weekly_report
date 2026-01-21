@@ -27,6 +27,9 @@ export const FOOTER = {
   MARGIN_TOP: 16,
 } as const;
 
+// Safety margin to prevent edge-case overflows (e.g. slight browser font rendering differences)
+export const SAFETY_MARGIN = 20; 
+
 // First page has different constraints due to cover content
 export const FIRST_PAGE = {
   // INCREASED from 280 to 320 for better visual proportions
@@ -53,7 +56,31 @@ export const FIRST_PAGE = {
   },
 } as const;
 
+/**
+ * TUNED CONSTANTS FOR FLUID LAYOUT
+ * These values match the rendered pixel heights of standard components
+ */
+export const ROW_HEIGHTS = {
+  standard: 38,     // Standard table row (Manpower, Procurement)
+  compact: 32,      // Compact row (Financials)
+  large: 44,        // Larger row (Safety Observations, Key Personnel)
+  weather: 36,      // Weather table row
+  milestone: 34,    // Schedule milestone
+  issue: 48,        // Issue item 
+} as const;
+
+export const HEADER_HEIGHTS = {
+  standard: 60,     // Section Header + Table Header
+  simple: 40,       // Just Section Header (List)
+  complex: 100,     // Section Header + Subtitles/Filters
+  manpower: 60,     // Title + Table Header
+  procurement: 60,
+  safety_top: 160,  // Title + KPI Cards
+  lookahead: 60,
+} as const;
+
 // Approximate heights for section types (will be refined by measureSection)
+// Kept for backward compatibility and fallback
 export const SECTION_BASE_HEIGHTS = {
   overview: 280,              // Executive Summary - Stats row + paragraph
   weather: 320,               // 7-day table
@@ -118,3 +145,4 @@ export function pxToPoints(px: number): number {
 export function pointsToPx(points: number): number {
   return points * (96 / 72);
 }
+

@@ -1,5 +1,5 @@
 import React from 'react';
-import { PrintConfig, ReportData } from '../config/printConfig.types';
+import { PrintConfig, ReportData, PagePlacement } from '../config/printConfig.types';
 import { SectionWrapper } from './SectionWrapper';
 import { ProjectConfig } from '../../../types';
 
@@ -7,12 +7,32 @@ interface Props {
   config: PrintConfig;
   reportData: ReportData;
   projectConfig?: ProjectConfig;
+  placement?: PagePlacement;
 }
 
-export function KeyPersonnelSection({ config, reportData, projectConfig }: Props) {
+export function KeyPersonnelSection({ config, reportData, projectConfig, placement }: Props) {
   if (!projectConfig?.personnel) return null;
 
   const { client, engineer, recon } = projectConfig.personnel;
+  
+  // Slice logic
+  // We apply the same slice range to all 3 columns to keep them aligned across pages
+  const startIdx = placement?.dataRange?.start ?? 0;
+  // If end is undefined, we assume full length. But each list has different length.
+  // We can just slice(start, end). If end > length, it stops at length.
+  const endIdx = placement?.dataRange?.end; 
+  
+  const clientReps = client.representatives.slice(startIdx, endIdx);
+  const engineerReps = engineer.representatives.slice(startIdx, endIdx);
+  const reconReps = recon.slice(startIdx, endIdx);
+
+  // If page is empty (rare case if calc works), skip
+  if (clientReps.length === 0 && engineerReps.length === 0 && reconReps.length === 0) return null;
+
+  // Header Logic
+  const showMainHeader = placement?.renderConfig?.showHeader ?? true;
+  const isContinued = placement?.continuesFromPrevious ?? false;
+  const sectionTitle = showMainHeader ? (isContinued ? "Key Personnel (Continued)" : "Key Personnel") : undefined;
 
   // Helper to render a person row
   const PersonRow = ({ name, role }: { name: string, role: string }) => (
@@ -23,7 +43,7 @@ export function KeyPersonnelSection({ config, reportData, projectConfig }: Props
   );
 
   return (
-    <SectionWrapper config={config} title="Key Personnel">
+    <SectionWrapper config={config} title={sectionTitle}>
       <div className="grid grid-cols-3 gap-6">
         
         {/* Client Column */}
@@ -35,7 +55,7 @@ export function KeyPersonnelSection({ config, reportData, projectConfig }: Props
             <div className="font-bold text-base text-zinc-800">{client.company || 'Client Company'}</div>
             {client.address && <div className="text-xs text-zinc-500">{client.address}</div>}
           </div>
-          {client.representatives.map((rep: any, i: number) => (
+          {clientReps.map((rep: any, i: number) => (
             <PersonRow key={i} {...rep} />
           ))}
         </div>
@@ -49,7 +69,7 @@ export function KeyPersonnelSection({ config, reportData, projectConfig }: Props
             <div className="font-bold text-base text-zinc-800">{engineer.company || 'Engineer Company'}</div>
             {engineer.address && <div className="text-xs text-zinc-500">{engineer.address}</div>}
           </div>
-          {engineer.representatives.map((rep: any, i: number) => (
+          {engineerReps.map((rep: any, i: number) => (
             <PersonRow key={i} {...rep} />
           ))}
         </div>
@@ -60,7 +80,7 @@ export function KeyPersonnelSection({ config, reportData, projectConfig }: Props
             Recon Key Personnel - Contractor
           </h3>
           {/* Redundant text removed as per request */}
-          {recon.map((p: any, i: number) => (
+          {reconReps.map((p: any, i: number) => (
             <PersonRow key={i} {...p} />
           ))}
         </div>

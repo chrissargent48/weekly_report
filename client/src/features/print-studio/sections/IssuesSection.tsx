@@ -3,17 +3,31 @@ import { PrintConfig, ReportData } from '../config/printConfig.types';
 import { SectionWrapper } from './SectionWrapper';
 import { AlertTriangle, CheckCircle2 } from 'lucide-react';
 
+import { PagePlacement } from '../config/printConfig.types';
+
 interface Props {
   config: PrintConfig;
   reportData: ReportData;
+  placement?: PagePlacement;
 }
 
-export function IssuesSection({ config, reportData }: Props) {
-  const issues = reportData.issues || [];
+export function IssuesSection({ config, reportData, placement }: Props) {
+  const allIssues = reportData.issues || [];
+  
+  // Handle pagination slicing
+  const startIdx = placement?.dataRange?.start ?? 0;
+  const endIdx = placement?.dataRange?.end ?? allIssues.length;
+  const issues = allIssues.slice(startIdx, endIdx);
+
   if (issues.length === 0) return null;
 
+  // Header Logic
+  const showMainHeader = placement?.renderConfig?.showHeader ?? true;
+  const isContinued = placement?.continuesFromPrevious ?? false;
+  const sectionTitle = showMainHeader ? (isContinued ? "Issues, Risks & Concerns (Continued)" : "Issues, Risks & Concerns") : undefined;
+
   return (
-    <SectionWrapper config={config} title="Issues, Risks & Concerns">
+    <SectionWrapper config={config} title={sectionTitle}>
       <div className="flex flex-col gap-3">
          {issues.map((issue: any, i: number) => (
             <div key={i} className={`p-4 rounded border flex gap-4 ${

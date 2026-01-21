@@ -4,17 +4,31 @@ import { SectionWrapper } from './SectionWrapper';
 import { Package } from 'lucide-react';
 import { COLORS } from '../config/styleTokens';
 
+import { PagePlacement } from '../config/printConfig.types';
+
 interface Props {
   config: PrintConfig;
   reportData: ReportData;
+  placement?: PagePlacement;
 }
 
-export function ProcurementSection({ config, reportData }: Props) {
-  const items = reportData.resources?.procurement || [];
+export function ProcurementSection({ config, reportData, placement }: Props) {
+  const allItems = reportData.resources?.procurement || [];
+  
+  // Handle pagination slicing
+  const startIdx = placement?.dataRange?.start ?? 0;
+  const endIdx = placement?.dataRange?.end ?? allItems.length;
+  const items = allItems.slice(startIdx, endIdx);
+
   if (items.length === 0) return null;
 
+  // Header Logic
+  const showMainHeader = placement?.renderConfig?.showHeader ?? true;
+  const isContinued = placement?.continuesFromPrevious ?? false;
+  const sectionTitle = showMainHeader ? (isContinued ? "Procurement Log (Continued)" : "Procurement Log") : undefined;
+
   return (
-    <SectionWrapper config={config} title="Procurement Log">
+    <SectionWrapper config={config} title={sectionTitle}>
       <div className="overflow-hidden rounded border border-zinc-200">
         <table className="w-full text-sm">
           <thead className="bg-zinc-50 border-b border-zinc-200">

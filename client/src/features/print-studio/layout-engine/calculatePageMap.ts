@@ -1,25 +1,23 @@
 import { 
   PrintConfig, 
   PrintSection, 
-  PrintSpacing,
   PageMap, 
   PageContent, 
   PagePlacement,
   ReportData 
 } from '../config/printConfig.types';
-import { PAGE_POINTS, FOOTER_POINTS } from './pageConstants';
+import { PAGE_POINTS, FOOTER_POINTS, SAFETY_MARGIN } from './pageConstants';
 import { measureCover } from './measureCover';
-import { measureSection } from './measureSection';
+import { measureSection, getSectionMetrics, SectionMetrics } from './measureSection';
+
+import { ProjectConfig, ProjectBaselines } from '../../../types';
 
 /**
  * MAIN LAYOUT ENGINE FUNCTION
  * 
  * Calculates exactly what content goes on each page BEFORE rendering.
- * Both the HTML preview and PDF generator consume this same page map,
- * ensuring consistent page breaks across both outputs.
+ * Uses a generic generic splitting strategy for lists/tables to ensure fluid layout.
  */
-import { ProjectConfig, ProjectBaselines } from '../../../types';
-
 export function calculatePageMap(
   config: PrintConfig,
   reportData: ReportData,
@@ -37,7 +35,7 @@ export function calculatePageMap(
   // Calculate cover height for page 1
   const coverMeasurement = measureCover(config);
   
-  // Initialize page 1 with cover content already "used"
+  // Initialize page 1
   let currentPage: PageContent = {
     pageNumber: 1,
     isFirstPage: true,
@@ -48,6 +46,49 @@ export function calculatePageMap(
   
   // Process each section
   for (const section of visibleSections) {
+    // Get granular metrics for smart splitting
+    const metrics = getSectionMetrics({
+        section,
+        spacing: config.spacing,
+        reportData,
+        projectConfig,
+        baselines
+    });
+    
+    // 1. Handle Photos (Grid Layout - Special Case)
+    if (section.id === 'photos') {
+      const photosPlacements = handlePhotosSection(
+        section,
+        currentPage,
+        pages,
+        reportData
+      );
+      
+      currentPage = photosPlacements.currentPage;
+      photosPlacements.placements.forEach((p, idx) => {
+        if (idx === 0) sectionPlacements.set(section.id, p);
+      });
+      continue;
+    }
+
+    // 2. Handle Splittable Lists (Tables, Observations, etc.)
+    if (metrics.isSplittable) {
+       const listPlacements = handleSplittableList(
+           section,
+           metrics,
+           currentPage,
+           pages
+       );
+
+       currentPage = listPlacements.currentPage;
+       listPlacements.placements.forEach((p, idx) => {
+           if (idx === 0) sectionPlacements.set(section.id, p);
+       });
+       continue;
+    }
+    
+    // 3. Handle Monolithic Blocks (Overview, etc.)
+    // Standard measuring for non-splittable blocks
     const sectionHeight = measureSection({
       section,
       spacing: config.spacing,
@@ -55,63 +96,9 @@ export function calculatePageMap(
       projectConfig,
       baselines,
     });
-    
-    // Special case: Photos section may need to split across multiple pages
-    if (section.id === 'photos') {
-      const photosPlacements = handlePhotosSection(
-        section,
-        sectionHeight,
-        currentPage,
-        pages,
-        config,
-        reportData
-      );
-      
-      // Update current page reference and add placements
-      currentPage = photosPlacements.currentPage;
-      photosPlacements.placements.forEach((p, idx) => {
-        if (idx === 0) {
-          sectionPlacements.set(section.id, p);
-        }
-      });
-      continue;
-    }
 
-    // Special case: Progress section (multi-page table)
-    if (section.id === 'progress') {
-        const progressPlacements = handleProgressSection(
-            section,
-            { spacing: config.spacing, reportData, projectConfig, baselines },
-            currentPage,
-            pages
-        );
-
-        currentPage = progressPlacements.currentPage;
-        progressPlacements.placements.forEach((p, idx) => {
-            if (idx === 0) sectionPlacements.set(section.id, p);
-        });
-        continue;
-    }
-    
-    // Special case: Safety section (multi-page)
-    if (section.id === 'safety') {
-        const safetyPlacements = handleSafetySection(
-            section,
-            reportData,
-            currentPage,
-            pages
-        );
-
-        currentPage = safetyPlacements.currentPage;
-        safetyPlacements.placements.forEach((p, idx) => {
-            if (idx === 0) sectionPlacements.set(section.id, p);
-        });
-        continue;
-    }
-    
-    // Check if section fits on current page
     if (sectionHeight <= currentPage.availableHeight) {
-      // Section fits - add it to current page
+      // Fits
       const placement: PagePlacement = {
         sectionId: section.id,
         startsOnPage: currentPage.pageNumber,
@@ -125,16 +112,10 @@ export function calculatePageMap(
       sectionPlacements.set(section.id, placement);
       
     } else {
-      // Section doesn't fit - start new page
+      // Doesn't fit -> New Page
       pages.push(currentPage);
       
-      currentPage = {
-        pageNumber: pages.length + 1,
-        isFirstPage: false,
-        sections: [],
-        usedHeight: 0,
-        availableHeight: PAGE_POINTS.USABLE_HEIGHT - FOOTER_POINTS.HEIGHT,
-      };
+      currentPage = createNewPage(pages.length + 1);
       
       const placement: PagePlacement = {
         sectionId: section.id,
@@ -150,7 +131,7 @@ export function calculatePageMap(
     }
   }
   
-  // Don't forget to push the last page if it has content or if we created a new empty one to fill
+  // Push final page
   if (currentPage.sections.length > 0 || currentPage.isFirstPage) {
     pages.push(currentPage);
   }
@@ -163,363 +144,194 @@ export function calculatePageMap(
 }
 
 /**
- * Special handler for photos section since it may span multiple pages
+ * Creates a new blank page structure
  */
-function handlePhotosSection(
-  section: PrintSection,
-  totalHeight: number,
-  currentPage: PageContent,
-  pages: PageContent[],
-  config: PrintConfig,
-  reportData: ReportData
-): { currentPage: PageContent; placements: PagePlacement[] } {
-  const placements: PagePlacement[] = [];
-  const photosPerPage = 6; // 2 columns x 3 rows
-  const photoPageHeight = 600; // Height for one "page" of 6 photos
-  const photoCount = reportData.photos?.length || 0;
-  // If no photos, just skip
-  if (photoCount === 0) return { currentPage, placements };
-
-  const photoPages = Math.ceil(photoCount / photosPerPage);
-  
-  let workingPage = currentPage;
-  
-  for (let i = 0; i < photoPages; i++) {
-    const isFirstPhotoPage = i === 0;
-    const heightNeeded = photoPageHeight;
-    
-    if (heightNeeded <= workingPage.availableHeight) {
-      // Fits on current page
-      const placement: PagePlacement = {
-        sectionId: isFirstPhotoPage ? section.id : `${section.id}_continued_${i}`,
-        startsOnPage: workingPage.pageNumber,
-        estimatedHeight: heightNeeded,
-        continuesFromPrevious: !isFirstPhotoPage,
-      };
-      
-      workingPage.sections.push(placement);
-      workingPage.usedHeight += heightNeeded;
-      workingPage.availableHeight -= heightNeeded;
-      placements.push(placement);
-      
-    } else {
-      // Need new page
-      pages.push(workingPage);
-      
-      workingPage = {
-        pageNumber: pages.length + 1,
+function createNewPage(pageNumber: number): PageContent {
+    return {
+        pageNumber,
         isFirstPage: false,
         sections: [],
         usedHeight: 0,
         availableHeight: PAGE_POINTS.USABLE_HEIGHT - FOOTER_POINTS.HEIGHT,
-      };
-      
-      const placement: PagePlacement = {
-        sectionId: isFirstPhotoPage ? section.id : `${section.id}_continued_${i}`,
-        startsOnPage: workingPage.pageNumber,
-        estimatedHeight: heightNeeded,
-        continuesFromPrevious: !isFirstPhotoPage,
-      };
-      
-      workingPage.sections.push(placement);
-      workingPage.usedHeight += heightNeeded;
-      workingPage.availableHeight -= heightNeeded;
-      placements.push(placement);
-    }
-  }
-  
-  return { currentPage: workingPage, placements };
+    };
 }
 
 /**
- * Special handler for progress section since it may span multiple pages
+ * GENERIC SPLITTING LOGIC
+ * Handles any section that consists of a list of items (rows) + optional header/footer.
  */
-function handleProgressSection(
-  section: PrintSection,
-  ctx: {
-    spacing: PrintSpacing;
-    reportData: ReportData;
-    projectConfig?: ProjectConfig;
-    baselines?: ProjectBaselines | null;
-  },
-  currentPage: PageContent,
-  pages: PageContent[],
-): { currentPage: PageContent; placements: PagePlacement[] } {
-  const placements: PagePlacement[] = [];
-  const bidItems = ctx.baselines?.bidItems || [];
-  
-  if (bidItems.length === 0) return { currentPage, placements };
-
-  // Constants
-  const KPI_HEADER_HEIGHT = 160; // Title + KPIs
-  const TABLE_HEADER_HEIGHT = 44; // Just the table header (4px buffer)
-  const ROW_HEIGHT = 34; // Increased from 28 to 34 to account for padding/borders
-  const FOOTER_BUFFER = 60; // Increased buffer to avoid footer overlap
-
-  let remainingItems = [...bidItems];
-  let pageIndex = 0;
-  let workingPage = currentPage;
-
-  while (remainingItems.length > 0) {
-    const isFirstPage = pageIndex === 0;
-    const headerOverhead = isFirstPage ? KPI_HEADER_HEIGHT : TABLE_HEADER_HEIGHT;
-    
-    // Check if we need to start a fresh page immediately if header doesn't even fit
-    // Minimum 2 rows to be worth it
-    const minHeightNeeded = headerOverhead + (2 * ROW_HEIGHT) + FOOTER_BUFFER;
-    
-    if (workingPage.availableHeight < minHeightNeeded) {
-        // Push current page and start a new one
-        pages.push(workingPage);
-        workingPage = {
-            pageNumber: pages.length + 1,
-            isFirstPage: false,
-            sections: [],
-            usedHeight: 0,
-            availableHeight: PAGE_POINTS.USABLE_HEIGHT - FOOTER_POINTS.HEIGHT,
-        };
-    }
-
-    // Calculate how many rows fit on this page
-    const availableForRows = workingPage.availableHeight - headerOverhead - FOOTER_BUFFER;
-    const rowsThatFit = Math.max(0, Math.floor(availableForRows / ROW_HEIGHT));
-    
-    // Take that many items
-    const itemsForThisPage = remainingItems.slice(0, rowsThatFit);
-    const startIndex = bidItems.length - remainingItems.length;
-    
-    // Check if we exhausted all items
-    if (itemsForThisPage.length === remainingItems.length) {
-        // All fit!
-        const totalHeight = headerOverhead + (itemsForThisPage.length * ROW_HEIGHT);
-        
-        const placement: PagePlacement = {
-            sectionId: isFirstPage ? section.id : `${section.id}_continued_${pageIndex}`,
-            startsOnPage: workingPage.pageNumber,
-            estimatedHeight: totalHeight,
-            continuesFromPrevious: !isFirstPage,
-            dataRange: { start: startIndex, end: startIndex + itemsForThisPage.length }
-        };
-        
-        workingPage.sections.push(placement);
-        workingPage.usedHeight += totalHeight;
-        workingPage.availableHeight -= totalHeight;
-        placements.push(placement);
-        
-        remainingItems = []; // Done loop
-    } else {
-        // Only some fit
-        const totalHeight = headerOverhead + (itemsForThisPage.length * ROW_HEIGHT);
-        
-        const placement: PagePlacement = {
-            sectionId: isFirstPage ? section.id : `${section.id}_continued_${pageIndex}`,
-            startsOnPage: workingPage.pageNumber,
-            estimatedHeight: totalHeight,
-            continuesFromPrevious: !isFirstPage,
-            dataRange: { start: startIndex, end: startIndex + itemsForThisPage.length }
-        };
-        
-        workingPage.sections.push(placement);
-        workingPage.usedHeight += totalHeight;
-        workingPage.availableHeight -= totalHeight;
-        placements.push(placement);
-        
-        // Remove processed items
-        remainingItems = remainingItems.slice(rowsThatFit);
-        
-        // Force new page for next iteration
-        pages.push(workingPage);
-        workingPage = {
-            pageNumber: pages.length + 1,
-            isFirstPage: false,
-            sections: [],
-            usedHeight: 0,
-            availableHeight: PAGE_POINTS.USABLE_HEIGHT - FOOTER_POINTS.HEIGHT,
-        };
-    }
-    
-    pageIndex++;
-  }
-
-  return { currentPage: workingPage, placements };
-}
-
-/**
- * Handle splitting of Safety Section
- */
-function handleSafetySection(
+function handleSplittableList(
     section: PrintSection,
-    reportData: ReportData,
+    metrics: SectionMetrics,
     currentPage: PageContent,
     pages: PageContent[]
 ): { currentPage: PageContent; placements: PagePlacement[] } {
     const placements: PagePlacement[] = [];
-    
-    // 1. Calculate Heights
-    const HEADER_HEIGHT = 450; // Topic (~120) + Stats Table (~330)
-    const OBS_OFFSET_TOP = 80; // "Observations" header + spacing
-    const OBS_ROW_HEIGHT = 42; 
-    const NARRATIVE_BUFFER = 150; // Text box at bottom
-    
-    const observations = reportData.safety?.observations || [];
-    let remainingObs = [...observations];
-    
     let workingPage = currentPage;
+    
+    const { headerHeight, rowHeight, footerHeight, itemCount } = metrics;
+    const totalItems = itemCount;
+    let processedItems = 0;
     let pageIndex = 0;
 
-    // Safety Loop
-    // We treat the "Content" as a list of Observations.
-    // However, if Observations is EMPTY, we still have to render Header + Narrative.
-    
-    const hasObs = remainingObs.length > 0;
-    
-    if (!hasObs) {
-        // Simple Case: Just Header + Narrative
-        // Check if fits
-        const totalHeight = HEADER_HEIGHT + NARRATIVE_BUFFER;
-        if (workingPage.availableHeight < totalHeight) {
-            pages.push(workingPage);
-            workingPage = {
-                 pageNumber: pages.length + 1,
-                 isFirstPage: false,
-                 sections: [],
-                 usedHeight: 0,
-                 availableHeight: PAGE_POINTS.USABLE_HEIGHT - FOOTER_POINTS.HEIGHT,
-            };
+    // Handle empty state separately or as 0 items
+    if (totalItems === 0) {
+        // Just render the "No Data" state (Header + small buffer)
+        // Treated as monolithic small block
+        const emptyStateHeight = headerHeight + 40; 
+        
+        if (emptyStateHeight > workingPage.availableHeight) {
+             pages.push(workingPage);
+             workingPage = createNewPage(pages.length + 1);
         }
         
-        const placement: PagePlacement = {
-            sectionId: section.id,
-            startsOnPage: workingPage.pageNumber,
-            estimatedHeight: totalHeight,
-            continuesFromPrevious: false,
-            renderConfig: { showHeader: true, showFooter: true } // Show all
-        };
-        workingPage.sections.push(placement);
-        workingPage.usedHeight += totalHeight;
-        workingPage.availableHeight -= totalHeight;
-        placements.push(placement);
-        
-        return { currentPage: workingPage, placements };
+         const placement: PagePlacement = {
+             sectionId: section.id,
+             startsOnPage: workingPage.pageNumber,
+             estimatedHeight: emptyStateHeight,
+             continuesFromPrevious: false,
+             dataRange: { start: 0, end: 0 },
+             renderConfig: { showHeader: true, showFooter: true }
+         };
+         workingPage.sections.push(placement);
+         workingPage.usedHeight += emptyStateHeight;
+         workingPage.availableHeight -= emptyStateHeight;
+         placements.push(placement);
+         
+         return { currentPage: workingPage, placements };
     }
-    
-    // Complex Case: Observations exist
-    while (remainingObs.length > 0 || pageIndex === 0) { // Should run at least once logic
-        const isFirstPage = pageIndex === 0;
-        const currentHeaderHeight = isFirstPage ? HEADER_HEIGHT : 40; // 40 = Obs table header only
+
+    // Process items
+    while (processedItems < totalItems) {
+        const isFirstSectionPage = pageIndex === 0;
         
-        // Calculate space for observations
-        let availableForObs = workingPage.availableHeight - currentHeaderHeight;
+        // Determine header requirement for THIS page chunk
+        // If it's the very first page of the section, we need the full header.
+        // If it's a continuation page, we might imply a smaller header or just the table header, 
+        // but for now we assume the generic splitter repeats the table header logic inside the component 
+        // if we flag it as 'continued'. 
+        // Simplified: The metric 'headerHeight' from getSectionMetrics is usually the "Start of Section" header.
+        // We need a way to know "Continued Header Height" (e.g. just table column headers).
+        // For simplicity, we'll assume continuation pages just have a smaller buffer or standard table header (approx 40px).
         
-        // Check if we can fit ANY observations?
-        // If header is huge and we are on a used page, maybe we need to push to fresh page immediately?
-        if (availableForObs < (OBS_OFFSET_TOP + OBS_ROW_HEIGHT)) {
-             pages.push(workingPage);
-             workingPage = {
-                 pageNumber: pages.length + 1,
-                 isFirstPage: false,
-                 sections: [],
-                 usedHeight: 0,
-                 availableHeight: PAGE_POINTS.USABLE_HEIGHT - FOOTER_POINTS.HEIGHT,
-            };
-            availableForObs = workingPage.availableHeight - currentHeaderHeight;
+        const currentHeaderHeight = isFirstSectionPage ? headerHeight : 45; // 45px guess for table header only
+        const remainingItemsInList = totalItems - processedItems;
+        
+        // Calculate how many items fit on current page
+        // Available space = Page - Header - (Maybe Footer if we can fit it?)
+        
+        let availableForRows = workingPage.availableHeight - currentHeaderHeight - SAFETY_MARGIN;
+        
+        // Check if we should even start here?
+        // Minimum viable height: Header + 1 Row
+        if (availableForRows < rowHeight) {
+            // Not enough space for even one row. Push to next page.
+            pages.push(workingPage);
+            workingPage = createNewPage(pages.length + 1);
+            availableForRows = workingPage.availableHeight - currentHeaderHeight - SAFETY_MARGIN;
         }
 
-        const maxObsRows = Math.max(0, Math.floor((availableForObs - OBS_OFFSET_TOP - 40) / OBS_ROW_HEIGHT)); // 40 buffer
+        // Potential rows that fit
+        const maxRowsThatFit = Math.floor(availableForRows / rowHeight);
         
-        const itemsThisPage = remainingObs.slice(0, maxObsRows);
-        const startIndex = observations.length - remainingObs.length;
+        // How many should we take?
+        const itemsToTake = Math.min(remainingItemsInList, maxRowsThatFit);
         
-        // Check if we finished all items
-        if (itemsThisPage.length === remainingObs.length) {
-            // All items fit. Can we fit the FOOTER (Narrative) too?
-            const obsHeight = OBS_OFFSET_TOP + (itemsThisPage.length * OBS_ROW_HEIGHT);
-            const heightWithFooter = currentHeaderHeight + obsHeight + NARRATIVE_BUFFER;
+        // IF we took ALL remaining items, can we ALSO fit the footer?
+        const canFinishHere = itemsToTake === remainingItemsInList;
+        
+        if (canFinishHere) {
+            // Check footer space
+            const heightNeeded = currentHeaderHeight + (itemsToTake * rowHeight) + footerHeight;
             
-            if (heightWithFooter <= workingPage.availableHeight) {
-                // Yes! Everything fits on this page.
-                 const placement: PagePlacement = {
-                    sectionId: isFirstPage ? section.id : `${section.id}_continued_${pageIndex}`,
+            if (heightNeeded <= workingPage.availableHeight) {
+                // SUCCESS: Fits completely (Items + Footer)
+                const placement: PagePlacement = {
+                    sectionId: isFirstSectionPage ? section.id : `${section.id}_continued_${pageIndex}`,
                     startsOnPage: workingPage.pageNumber,
-                    estimatedHeight: heightWithFooter,
-                    continuesFromPrevious: !isFirstPage,
-                    dataRange: { start: startIndex, end: startIndex + itemsThisPage.length },
-                    renderConfig: { showHeader: isFirstPage, showFooter: true }
+                    estimatedHeight: heightNeeded,
+                    continuesFromPrevious: !isFirstSectionPage,
+                    dataRange: { start: processedItems, end: processedItems + itemsToTake },
+                    renderConfig: { showHeader: isFirstSectionPage, showFooter: true } // Show footer!
                 };
+                
                 workingPage.sections.push(placement);
-                workingPage.usedHeight += heightWithFooter;
-                workingPage.availableHeight -= heightWithFooter;
+                workingPage.usedHeight += heightNeeded;
+                workingPage.availableHeight -= heightNeeded;
                 placements.push(placement);
-                remainingObs = [];
+                
+                processedItems += itemsToTake; // Done
             } else {
-                // No. Items fit, but Footer doesn't.
-                // Render items here, push footer to next page.
-                const heightWithoutFooter = currentHeaderHeight + obsHeight + 20;
+                // FAILURE: Items fit, but Footer implies overflow.
+                // Strategy: Render items here, push Footer to orphan page? 
+                // OR push some items to next page to keep footer company? (Widow/Orphan control)
+                // START SIMPLE: Render items, push Footer to new page.
+                
+                const heightWithoutFooter = currentHeaderHeight + (itemsToTake * rowHeight) + SAFETY_MARGIN;
+                
                  const placement: PagePlacement = {
-                    sectionId: isFirstPage ? section.id : `${section.id}_continued_${pageIndex}`,
+                    sectionId: isFirstSectionPage ? section.id : `${section.id}_continued_${pageIndex}`,
                     startsOnPage: workingPage.pageNumber,
                     estimatedHeight: heightWithoutFooter,
-                    continuesFromPrevious: !isFirstPage,
-                    dataRange: { start: startIndex, end: startIndex + itemsThisPage.length },
-                    renderConfig: { showHeader: isFirstPage, showFooter: false }
+                    continuesFromPrevious: !isFirstSectionPage,
+                    dataRange: { start: processedItems, end: processedItems + itemsToTake },
+                    renderConfig: { showHeader: isFirstSectionPage, showFooter: false } // Hide footer
                 };
                 workingPage.sections.push(placement);
                 workingPage.usedHeight += heightWithoutFooter;
                 workingPage.availableHeight -= heightWithoutFooter;
                 placements.push(placement);
-                remainingObs = []; // Items done
+                processedItems += itemsToTake;
                 
-                // New Page for Footer
+                // Now create generic footer-only placement handling
+                // Ideally the next iteration handles 0 items?
+                // Let's force a loop continuation with 0 remaining items?
+                // Actually if we break loop, we need to handle footer explicitly.
+                
+                // Create separate footer placement
                 pages.push(workingPage);
-                workingPage = {
-                     pageNumber: pages.length + 1,
-                     isFirstPage: false,
-                     sections: [],
-                     usedHeight: 0,
-                     availableHeight: PAGE_POINTS.USABLE_HEIGHT - FOOTER_POINTS.HEIGHT,
-                };
+                workingPage = createNewPage(pages.length + 1);
+                
                 const footerPlacement: PagePlacement = {
-                    sectionId: `${section.id}_footer`,
-                    startsOnPage: workingPage.pageNumber,
-                    estimatedHeight: NARRATIVE_BUFFER + 60, // Header overhead for 'continued' page
-                    continuesFromPrevious: true,
-                    dataRange: { start: 0, end: 0 }, // No items
-                    renderConfig: { showHeader: false, showFooter: true }
+                     sectionId: `${section.id}_footer`,
+                     startsOnPage: workingPage.pageNumber,
+                     estimatedHeight: footerHeight + 40, // + buffer
+                     continuesFromPrevious: true,
+                     dataRange: { start: totalItems, end: totalItems }, // No items
+                     renderConfig: { showHeader: false, showFooter: true }
                 };
                 workingPage.sections.push(footerPlacement);
-                workingPage.usedHeight += (NARRATIVE_BUFFER + 60);
-                workingPage.availableHeight -= (NARRATIVE_BUFFER + 60);
+                workingPage.usedHeight += (footerHeight + 40);
+                workingPage.availableHeight -= (footerHeight + 40);
                 placements.push(footerPlacement);
             }
         } else {
-             // Not all items fit. Fill this page, continue.
-             const obsHeight = OBS_OFFSET_TOP + (itemsThisPage.length * OBS_ROW_HEIGHT);
-             const pageHeight = currentHeaderHeight + obsHeight + 20;
-             
-              const placement: PagePlacement = {
-                sectionId: isFirstPage ? section.id : `${section.id}_continued_${pageIndex}`,
+            // Cannot finish here, populate page and continue
+            // Ensure we take at least 1 row if we forced a new page, otherwise we loop forever
+            // (The check `availableForRows < rowHeight` above handles this usually)
+            
+            const rowsTaking = Math.max(1, itemsToTake); // Force progress
+            const height = currentHeaderHeight + (rowsTaking * rowHeight) + SAFETY_MARGIN;
+            
+             const placement: PagePlacement = {
+                sectionId: isFirstSectionPage ? section.id : `${section.id}_continued_${pageIndex}`,
                 startsOnPage: workingPage.pageNumber,
-                estimatedHeight: pageHeight,
-                continuesFromPrevious: !isFirstPage,
-                dataRange: { start: startIndex, end: startIndex + itemsThisPage.length },
-                renderConfig: { showHeader: isFirstPage, showFooter: false } // No footer yet
+                estimatedHeight: height,
+                continuesFromPrevious: !isFirstSectionPage,
+                dataRange: { start: processedItems, end: processedItems + rowsTaking },
+                renderConfig: { showHeader: isFirstSectionPage, showFooter: false }
             };
+            
             workingPage.sections.push(placement);
-            workingPage.usedHeight += pageHeight;
-            workingPage.availableHeight -= pageHeight;
+            workingPage.usedHeight += height;
+            workingPage.availableHeight -= height;
             placements.push(placement);
             
-            remainingObs = remainingObs.slice(itemsThisPage.length);
+            processedItems += rowsTaking;
             
-            // New Page
+            // Force new page for next chunk
             pages.push(workingPage);
-            workingPage = {
-                 pageNumber: pages.length + 1,
-                 isFirstPage: false,
-                 sections: [],
-                 usedHeight: 0,
-                 availableHeight: PAGE_POINTS.USABLE_HEIGHT - FOOTER_POINTS.HEIGHT,
-            };
+            workingPage = createNewPage(pages.length + 1);
         }
         
         pageIndex++;
@@ -528,17 +340,49 @@ function handleSafetySection(
     return { currentPage: workingPage, placements };
 }
 
+
 /**
- * Utility function to check if a section will fit on the current page
+ * Special handler for photos section
  */
-export function willFitOnPage(
-  sectionHeight: number,
-  availableHeight: number,
-  minHeightThreshold: number = 100
-): boolean {
-  // Don't start a section if there's very little room - push to next page
-  if (availableHeight < minHeightThreshold) {
-    return false;
+function handlePhotosSection(
+  section: PrintSection,
+  currentPage: PageContent,
+  pages: PageContent[],
+  reportData: ReportData
+): { currentPage: PageContent; placements: PagePlacement[] } {
+  const placements: PagePlacement[] = [];
+  const photosPerPage = 6; 
+  const photoPageHeight = 600; 
+  const photoCount = reportData.photos?.length || 0;
+  
+  if (photoCount === 0) return { currentPage, placements };
+
+  const photoPages = Math.ceil(photoCount / photosPerPage);
+  let workingPage = currentPage;
+  
+  for (let i = 0; i < photoPages; i++) {
+    const isFirstPhotoPage = i === 0;
+    const heightNeeded = photoPageHeight;
+    
+    if (heightNeeded > workingPage.availableHeight) {
+        pages.push(workingPage);
+        workingPage = createNewPage(pages.length + 1);
+    }
+    
+    const placement: PagePlacement = {
+        sectionId: isFirstPhotoPage ? section.id : `${section.id}_continued_${i}`,
+        startsOnPage: workingPage.pageNumber,
+        estimatedHeight: heightNeeded,
+        continuesFromPrevious: !isFirstPhotoPage,
+        dataRange: { start: i * photosPerPage, end: (i + 1) * photosPerPage }
+    };
+      
+    workingPage.sections.push(placement);
+    workingPage.usedHeight += heightNeeded;
+    workingPage.availableHeight -= heightNeeded;
+    placements.push(placement);
   }
-  return sectionHeight <= availableHeight;
+  
+  return { currentPage: workingPage, placements };
 }
+

@@ -2,15 +2,28 @@ import React from 'react';
 import { PrintConfig, ReportData } from '../config/printConfig.types';
 import { SectionWrapper } from './SectionWrapper';
 
+import { PagePlacement } from '../config/printConfig.types';
+
 interface Props {
   config: PrintConfig;
   reportData: ReportData;
+  placement?: PagePlacement;
 }
 
+export function ManpowerSection({ config, reportData, placement }: Props) {
+  const allItems = reportData.resources?.manpower || [];
+  
+  // Handle pagination slicing
+  const startIdx = placement?.dataRange?.start ?? 0;
+  const endIdx = placement?.dataRange?.end ?? allItems.length;
+  const items = allItems.slice(startIdx, endIdx);
 
-export function ManpowerSection({ config, reportData }: Props) {
-  const items = reportData.resources?.manpower || [];
   if (items.length === 0) return null;
+
+  // Header Logic
+  const showMainHeader = placement?.renderConfig?.showHeader ?? true;
+  const isContinued = placement?.continuesFromPrevious ?? false;
+  const sectionTitle = showMainHeader ? (isContinued ? "Manpower Log (Continued)" : "Manpower Log") : undefined;
 
   // Helper to calculate total hours
   const getTotal = (item: any) => {
@@ -140,7 +153,7 @@ export function ManpowerSection({ config, reportData }: Props) {
   };
 
   return (
-    <SectionWrapper config={config} title="Manpower Log">
+    <SectionWrapper config={config} title={sectionTitle}>
       <div className="flex flex-col gap-2">
         {/* Render Sections */}
         {renderTable(management, 'Management Personnel')}

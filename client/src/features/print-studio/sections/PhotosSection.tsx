@@ -15,16 +15,13 @@ export function PhotosSection({ config, reportData, placement }: Props) {
 
   // Logic to determine WHICH photos to show on THIS page instance
   // The layout engine assigns IDs like 'photos' (page 1), 'photos_continued_1' (page 2), etc.
-  const PHOTOS_PER_PAGE = 6;
-
-  let pageIndex = 0;
-  if (placement.sectionId.includes('_continued_')) {
-    const parts = placement.sectionId.split('_continued_');
-    pageIndex = parseInt(parts[1], 10);
-  }
-
-  const startIndex = pageIndex * PHOTOS_PER_PAGE;
-  const pagePhotos = allPhotos.slice(startIndex, startIndex + PHOTOS_PER_PAGE);
+  const startIndex = placement.dataRange?.start ?? 0;
+  const endIndex = placement.dataRange?.end ?? allPhotos.length;
+  // const pagePhotos = allPhotos.slice(startIndex, endIndex); // Handled below by slice(startIndex, startIndex + PHOTOS_PER_PAGE)? 
+  // Wait, existing logic slices by PHOTOS_PER_PAGE.
+  // The DataRange passed from calculatePageMap IS ALREADY 6 photos max.
+  // So I can just use start/end from dataRange.
+  const pagePhotos = allPhotos.slice(startIndex, endIndex);
 
   if (pagePhotos.length === 0) return null;
 
@@ -32,7 +29,7 @@ export function PhotosSection({ config, reportData, placement }: Props) {
     // We force min-height to ensure grid looks good even with fewer photos
     <SectionWrapper
       config={config}
-      title={pageIndex === 0 ? 'Site Photos' : 'Site Photos (Continued)'}
+      title={placement.continuesFromPrevious ? 'Site Photos (Continued)' : 'Site Photos'}
       className="h-full flex flex-col"
     >
       <div className="grid grid-cols-2 gap-x-6 gap-y-8 flex-1">

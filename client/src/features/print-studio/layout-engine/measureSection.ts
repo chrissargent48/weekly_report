@@ -1,14 +1,190 @@
 import { PrintSection, PrintSpacing, ReportData } from '../config/printConfig.types';
-import { SECTION_BASE_HEIGHTS, pxToPoints } from './pageConstants';
+import { 
+  SECTION_BASE_HEIGHTS, 
+  ROW_HEIGHTS, 
+  HEADER_HEIGHTS, 
+  SAFETY_MARGIN, 
+  pxToPoints 
+} from './pageConstants';
 
 import { ProjectConfig, ProjectBaselines } from '../../../types';
 
-interface MeasurementContext {
+export interface MeasurementContext {
   section: PrintSection;
   spacing: PrintSpacing;
   reportData: ReportData;
   projectConfig?: ProjectConfig;
   baselines?: ProjectBaselines | null;
+}
+
+export interface SectionMetrics {
+  totalHeight: number;
+  isSplittable: boolean;
+  headerHeight: number;
+  rowHeight: number;
+  footerHeight: number;
+  itemCount: number;
+}
+
+/**
+ * Calculates detailed metrics for a section to support smart usage of page space.
+ * Returns both total height and granular details (header/row/footer) for splitting.
+ */
+export function getSectionMetrics(ctx: MeasurementContext): SectionMetrics {
+  const { section, reportData, projectConfig, baselines } = ctx;
+  
+  // Default values
+  let headerHeight = 0;
+  let rowHeight = 0;
+  let footerHeight = 0;
+  let itemCount = 0;
+  let isSplittable = false;
+  let totalHeight = 0;
+
+  switch (section.id) {
+    case 'overview': // Executive Summary
+      const summaryLength = reportData.overview?.executiveSummary?.length || 0;
+      // Not splittable in the list sense, but treated as a block
+      isSplittable = false;
+      totalHeight = SECTION_BASE_HEIGHTS.overview + Math.floor(summaryLength / 100) * 16;
+      break;
+      
+    case 'key_personnel':
+      isSplittable = true;
+      headerHeight = HEADER_HEIGHTS.simple;
+      rowHeight = ROW_HEIGHTS.large;
+      
+      if (projectConfig?.personnel) {
+        const clientReps = projectConfig.personnel.client?.representatives?.length || 0;
+        const engineerReps = projectConfig.personnel.engineer?.representatives?.length || 0;
+        const reconReps = projectConfig.personnel.recon?.length || 0;
+        // We split by "max row" in the visual grid, but effectively it's one row per person index
+        itemCount = Math.max(clientReps, engineerReps, reconReps);
+      }
+      break;
+      
+    case 'weather':
+      isSplittable = true;
+      headerHeight = HEADER_HEIGHTS.standard;
+      rowHeight = ROW_HEIGHTS.weather;
+      itemCount = reportData.overview?.weather?.length || 0;
+      break;
+      
+    case 'lookahead':
+      isSplittable = true;
+      headerHeight = HEADER_HEIGHTS.lookahead;
+      rowHeight = ROW_HEIGHTS.standard;
+      itemCount = reportData.progress?.lookAheadItems?.length || 0;
+      break;
+
+    case 'progress':
+      isSplittable = true;
+      headerHeight = HEADER_HEIGHTS.safety_top; // Reusing large header (KPI cards)
+      rowHeight = ROW_HEIGHTS.standard;
+      itemCount = baselines?.bidItems?.length || 0;
+      break;
+      
+    case 'manpower':
+      isSplittable = true;
+      headerHeight = HEADER_HEIGHTS.manpower;
+      rowHeight = ROW_HEIGHTS.standard;
+      itemCount = reportData.resources?.manpower?.length || 0;
+      break;
+      
+    case 'equipment':
+      isSplittable = true;
+      headerHeight = HEADER_HEIGHTS.standard;
+      rowHeight = ROW_HEIGHTS.standard;
+      itemCount = reportData.resources?.equipment?.onSite?.length || 0;
+      break;
+      
+    case 'materials':
+      isSplittable = true;
+      headerHeight = HEADER_HEIGHTS.standard;
+      rowHeight = ROW_HEIGHTS.standard;
+      itemCount = reportData.resources?.materials?.length || 0;
+      break;
+      
+    case 'procurement':
+      isSplittable = true;
+      headerHeight = HEADER_HEIGHTS.procurement;
+      rowHeight = ROW_HEIGHTS.standard;
+      itemCount = reportData.resources?.procurement?.length || 0;
+      break;
+      
+    case 'safety':
+      isSplittable = true;
+      // Estimate Header Height: 
+      // 1. Weekly Topic Box (Dynamic)
+      const topicNotes = reportData.safety?.weeklyTopicNotes || '';
+      const topicHeight = 40 + 40 + Math.ceil(topicNotes.length / 90) * 20; // Title + Padding + Text (safer 20px/line)
+      const kpiHeight = 120; // KPI Table
+      headerHeight = topicHeight + kpiHeight + 20; // + GAP
+
+      rowHeight = ROW_HEIGHTS.large;
+      
+      // Estimate Footer Height: Narrative (Dynamic)
+      const narrative = reportData.safety?.narrative || '';
+      footerHeight = 40 + 40 + Math.ceil(narrative.length / 90) * 20; // Header + Padding + Text
+      
+      itemCount = reportData.safety?.observations?.length || 0;
+      break;
+      
+    case 'financials':
+      isSplittable = true;
+      headerHeight = 150; // Summary cards (80) + Title (40) + Table Header (30)
+      rowHeight = ROW_HEIGHTS.compact;
+      itemCount = reportData.financials?.invoices?.length || 0;
+      break;
+
+    case 'issues':
+      isSplittable = true;
+      headerHeight = HEADER_HEIGHTS.simple;
+      rowHeight = ROW_HEIGHTS.issue;
+      itemCount = reportData.issues?.length || 0;
+      break;
+      
+    case 'photos':
+      // Photos handled specially by calculatePageMap due to grid layout
+      isSplittable = false;
+      const photoCount = reportData.photos?.length || 0;
+      const photoPages = Math.ceil(photoCount / 6);
+      totalHeight = photoPages * 600;
+      break;
+
+    default:
+      // Fallback for unknown or simple sections
+      isSplittable = false;
+      const base = SECTION_BASE_HEIGHTS[section.id as keyof typeof SECTION_BASE_HEIGHTS] || 200;
+      totalHeight = base;
+      break;
+  }
+
+  // Calculate total height if not manually set
+  if (isSplittable && totalHeight === 0) {
+    if (itemCount === 0) {
+        // Even if empty, usually show header + empty state (or maybe hide? logic depends on component)
+        // For now assume we show at least header + small buffer
+        totalHeight = headerHeight + 40; 
+    } else {
+        totalHeight = headerHeight + (itemCount * rowHeight) + footerHeight;
+    }
+  }
+
+  // Apply Safety Margin
+  // We add a safety margin to the TOTAL only, not per row, to handle container padding/borders
+  if (totalHeight > 0) {
+      totalHeight += SAFETY_MARGIN;
+  }
+
+  return {
+    totalHeight,
+    isSplittable,
+    headerHeight,
+    rowHeight,
+    footerHeight,
+    itemCount
+  };
 }
 
 /**
@@ -17,101 +193,20 @@ interface MeasurementContext {
  * but it should be close enough for page break calculations.
  */
 export function measureSection(ctx: MeasurementContext): number {
-  const { section, spacing, reportData, projectConfig } = ctx;
-  const baseHeight = SECTION_BASE_HEIGHTS[section.id as keyof typeof SECTION_BASE_HEIGHTS] || 200;
+  const { spacing } = ctx;
   
-  // Adjust for spacing preset
-  const spacingMultiplier = spacing.type === 'compact' ? 0.85 : spacing.type === 'relaxed' ? 1.15 : 1;
+  // Get raw metrics
+  const metrics = getSectionMetrics(ctx);
   
-  // Section-specific adjustments based on actual data
-  let dynamicHeight = baseHeight;
+  // Adjust for spacing preset (only affects specific visual gaps, not row internals usually,
+  // but keeping logic consistent with previous implementation for overall scale)
+  const spacingMultiplier = spacing.type === 'compact' ? 0.95 : spacing.type === 'relaxed' ? 1.05 : 1;
   
-  switch (section.id) {
-    case 'overview': // Executive Summary
-      // Estimate based on text length
-      const summaryLength = reportData.overview?.executiveSummary?.length || 0;
-      dynamicHeight = baseHeight + Math.floor(summaryLength / 100) * 16;
-      break;
-      
-    case 'key_personnel':
-      if (projectConfig?.personnel) {
-        // Calculate max rows needed (max number of people in any column)
-        const clientReps = projectConfig.personnel.client?.representatives?.length || 1;
-        const engineerReps = projectConfig.personnel.engineer?.representatives?.length || 1;
-        const reconReps = projectConfig.personnel.recon?.length || 1;
-        
-        const maxReps = Math.max(clientReps, engineerReps, reconReps);
-        // Base headers ~60px, plus ~40px per rep
-        dynamicHeight = 60 + (maxReps * 40);
-      }
-      break;
-      
-    case 'weather':
-      // 7 days * row height + header
-      const weatherRows = reportData.overview?.weather?.length || 7;
-      dynamicHeight = 60 + (weatherRows * 36);
-      break;
-      
-    case 'lookahead':
-      // Look Ahead is in progress.lookAheadItems
-      const lookAheadRows = reportData.progress?.lookAheadItems?.length || 10;
-      dynamicHeight = 60 + (lookAheadRows * 36);
-      break;
-
-    case 'progress':
-      // Progress uses detailed bid items from Project Baselines
-      const bidItemRows = ctx.baselines?.bidItems?.length || 10;
-      // KPI Cards (~100px) + Header + Rows
-      dynamicHeight = 160 + (bidItemRows * 28); 
-      break;
-      
-    case 'manpower':
-      // Manpower is in resources.manpower
-      const manpowerRows = reportData.resources?.manpower?.length || 8;
-      dynamicHeight = 60 + (manpowerRows * 32);
-      break;
-      
-    case 'equipment':
-      // Equipment is in resources.equipment.onSite
-      const equipmentRows = reportData.resources?.equipment?.onSite?.length || 6;
-      dynamicHeight = 60 + (equipmentRows * 32);
-      break;
-      
-    case 'materials':
-      // Materials is in resources.materials
-      const materialRows = reportData.resources?.materials?.length || 3;
-      dynamicHeight = 60 + (materialRows * 32);
-      break;
-      
-    case 'procurement':
-      // Procurement is in resources.procurement
-      const procurementRows = reportData.resources?.procurement?.length || 5;
-      dynamicHeight = 60 + (procurementRows * 36);
-      break;
-      
-    case 'safety':
-      const safetyNarrativeLength = reportData.safety?.narrative?.length || 0;
-      dynamicHeight = 120 + Math.floor(safetyNarrativeLength / 100) * 16;
-      break;
-      
-    case 'financials':
-      const invoiceRows = reportData.financials?.invoices?.length || 1;
-      dynamicHeight = 100 + (invoiceRows * 32);
-      break;
-      
-    case 'photos':
-      // 6 photos per page section, 2 columns x 3 rows
-      const photoCount = reportData.photos?.length || 0;
-      const photoPages = Math.ceil(photoCount / 6);
-      dynamicHeight = photoPages * 600;
-      break;
-  }
+  // Add section wrapper header height (Title of the section block itself)
+  const sectionWrapperHeader = spacing.type === 'compact' ? 40 : 48;
   
-  // Add section header height (title + spacing)
-  const sectionHeaderHeight = spacing.type === 'compact' ? 40 : 48;
-  
-  // Apply spacing multiplier and add gaps
-  const pixelHeight = Math.ceil((dynamicHeight + sectionHeaderHeight) * spacingMultiplier) + spacing.sectionGap;
+  // Calculate final pixel height
+  const pixelHeight = Math.ceil((metrics.totalHeight + sectionWrapperHeader) * spacingMultiplier) + spacing.sectionGap;
   
   // Convert to points for PDF
   return pxToPoints(pixelHeight);
@@ -137,3 +232,4 @@ export function measureAllSections(
   
   return measurements;
 }
+
