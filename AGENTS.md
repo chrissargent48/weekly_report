@@ -6,13 +6,14 @@
 
 ## 🎯 Project Vision
 
-**Weekly Report Builder** is a local-first, full-stack application for construction project managers to generate professional weekly status reports.
+**Weekly Report Builder** is a local-first, full-stack application for construction project managers to generate professional weekly status reports. It runs as a desktop application via Electron (wrapping a React frontend) and a local Node.js server.
 
 ### Core Philosophy
 
 - **Local First:** Data lives in the local file system (JSON files), managed by a local Node.js server.
 - **Data Ownership:** You own your data. Projects are folders. Reports are files.
 - **Professional Output:** The "Product" is the PDF report. It must look impeccable.
+- **WYSIWYG:** The "Print Studio" allows users to design and preview reports exactly as they will look in PDF.
 - **Workflow Centric:** The app guides the user through the weekly flow: _Review Schedule -> Update Progress -> Log Issues -> Print_.
 
 ---
@@ -21,32 +22,36 @@
 
 ### Tech Stack
 
-| Layer       | Technology         | Purpose                                          |
-| :---------- | :----------------- | :----------------------------------------------- |
-| **Server**  | Node.js + Express  | Local API, File System Access, orchestration     |
-| **Client**  | React + TypeScript | Component-based UI logic                         |
-| **Build**   | Vite               | Fast dev server and bundling                     |
-| **Styling** | Tailwind CSS       | Utility-first styling (RECON Theme)              |
-| **PDF**     | Puppeteer          | High-fidelity PDF generation via Headless Chrome |
-| **Data**    | JSON + File System | Simple, human-readable data storage              |
+| Layer         | Technology          | Purpose                                         |
+| :------------ | :------------------ | :---------------------------------------------- |
+| **App Shell** | Electron            | Desktop application wrapper                     |
+| **Server**    | Node.js + Express   | Local API, File System Access, orchestration    |
+| **Client**    | React + TypeScript  | Component-based UI logic                        |
+| **Build**     | Vite                | Fast dev server and bundling                    |
+| **Styling**   | Tailwind CSS        | Utility-first styling (RECON Theme)             |
+| **PDF**       | @react-pdf/renderer | Client-side PDF generation (replaced Puppeteer) |
+| **Editor**    | Tiptap              | Rich text editing for summaries                 |
+| **DnD**       | @dnd-kit            | Drag and drop interactions                      |
+| **Data**      | JSON + File System  | Simple, human-readable data storage             |
 
 ### Directory Structure
 
-```
+```text
 .
 ├── client/                 # React Frontend
 │   ├── src/
-│   │   ├── App.tsx         # Main Controller
-│   │   ├── components/     # UI Components
-│   │   └── index.css       # Tailwind Styles
+│   │   ├── features/       # Feature-based architecture (e.g., print-studio)
+│   │   ├── components/     # Shared UI Components
+│   │   └── types.ts        # Client-side Type Definitions
 │   └── package.json
 ├── server/                 # Node.js Backend
 │   ├── index.ts            # Express App & API Routes
 │   ├── DataManager.ts      # File System Persistence Layer
-│   └── types.ts            # Shared Types
+│   └── types.ts            # Server-side Type Definitions
+├── electron/               # Electron Main Process layer
 ├── data/                   # Local Database (JSON files)
 │   ├── projects.json       # Index of projects
-│   └── [project-id]/       # Per-project data
+│   └── [project-id]/       # Per-project data (reports.json, images/)
 └── AGENTS.md               # This file
 ```
 
@@ -55,7 +60,8 @@
 1.  **Client** requests data via `fetch('/api/...')`.
 2.  **Server** (`index.ts`) routes request to `DataManager`.
 3.  **DataManager** reads/writes JSON files in `data/` directory.
-4.  **Client** receives JSON and updates React State.
+4.  **Weather API**: Server proxies requests to Census Bureau (Geocoding) and Open-Meteo/NWS.
+5.  **Images**: Uploaded to `data/[project-id]/images` and served via `/uploads` static route.
 
 ---
 
@@ -68,7 +74,8 @@ All major components should follow this structure:
 ```typescript
 import React, { useState } from 'react';
 import { Icon } from 'lucide-react';
-import { SharedType } from '../../server/types'; // Import from server source of truth
+// Note: Client and Server types are currently separate.
+import { SharedType } from '../types';
 
 interface Props {
   data: SharedType;
@@ -108,9 +115,9 @@ export function ComponentName({ data, onUpdate }: Props) {
 
 ### Refactoring Rules
 
-1. **The "Print" Test:** Never merge a UI refactor without verifying that `print:break-inside-avoid` and other print-specific classes are preserved.
-2. **Type Safety:** We share types between Client and Server. If you refactor a Server type in `types.ts`, you MUST immediately update the consuming Client component.
-3. **No "Magic" Logic:** Logic belongs in `DataManager` (server) or React Hooks (client). Do not put business logic inside JSX rendering blocks.
+1.  **The "Print" Test:** Never merge a UI refactor without verifying that `print:break-inside-avoid` and other print-specific classes are preserved.
+2.  **Type Safety:** `client/src/types.ts` and `server/types.ts` have diverged. When modifying data structures, ensure BOTH are updated to match until they are unified.
+3.  **No "Magic" Logic:** Logic belongs in `DataManager` (server) or React Hooks (client). Do not put business logic inside JSX rendering blocks.
 
 ---
 
@@ -120,12 +127,11 @@ export function ComponentName({ data, onUpdate }: Props) {
 
 - **Server-Side Validation:** Ensure `DataManager` checks for file existence before reading.
 - **Atomic Writes:** (Goal) Prevent partial writes to JSON files.
-- **Types:** Keep `client` and `server` types in sync (currently defined in server/types.ts).
 
 ### 2. Print Safety
 
-- **Puppeteer Fidelity:** PDF generation happens on the server via Puppeteer, visiting the client in a special print mode.
-- **CSS Print Media:** Always test changes with `print:break-inside-avoid`.
+- **PDF Fidelity:** We use `@react-pdf/renderer` in the "Print Studio". This allows for a precise PREVIEW of the PDF before generation.
+- **Font Loading:** Ensure fonts are loaded via `Font.register` in React PDF components.
 
 ---
 
@@ -133,11 +139,12 @@ export function ComponentName({ data, onUpdate }: Props) {
 
 ### When Adding Features
 
-1.  **Check Data Model**: Does `server/types.ts` support this?
+1.  **Check Data Model**: Does `server/types.ts` AND `client/src/types.ts` support this?
 2.  **Update Server**: Add API endpoints in `server/index.ts` and methods in `server/DataManager.ts`.
 3.  **Update Client**: Create components in `client/src/components/` that consume the new API.
 
 ### When Refactoring
 
-1.  **Respect the Brand**: Do not verify from RECON colors.
+1.  **Respect the Brand**: Do not verifiy from RECON colors.
 2.  **Maintain "Local-First"**: Do not add dependencies that require internet access (cloud DBs, external analytics) without explicit user permission.
+3.  **Electron Awareness**: Remember the app handles local file paths and native windows.

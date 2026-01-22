@@ -22,24 +22,24 @@ const photosStyles = StyleSheet.create({
     marginBottom: 16,
   },
   grid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 10,
+    flexDirection: 'column', // Vertical stack
+    gap: 16,
   },
   photoContainer: {
-    width: '48%',
-    marginBottom: 10,
+    width: '100%',
+    marginBottom: 16,
+    breakInside: 'avoid', // Prevent breaking inside a photo card
   },
   photoImage: {
     width: '100%',
-    height: 140,
+    height: 240, // Increased height for larger photos
     objectFit: 'cover',
     borderRadius: 3,
     backgroundColor: COLORS.borderLight,
   },
   photoPlaceholder: {
     width: '100%',
-    height: 140,
+    height: 240,
     borderRadius: 3,
     backgroundColor: COLORS.borderLight,
     borderWidth: 1,
@@ -80,7 +80,7 @@ const photosStyles = StyleSheet.create({
 });
 
 // Photos per page constant
-const PHOTOS_PER_PAGE = 6;
+const PHOTOS_PER_PAGE = 2;
 
 export function PhotosSection({ config, reportData, placement }: PhotosSectionProps) {
   const isContinued = placement?.continuesFromPrevious ?? false;

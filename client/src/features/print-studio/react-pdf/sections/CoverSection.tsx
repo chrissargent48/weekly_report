@@ -147,7 +147,7 @@ const coverStyles = StyleSheet.create({
   content: {
     flex: 1,
     paddingHorizontal: PAGE.MARGIN_LEFT, // 40pt margins
-    paddingTop: 20,
+    paddingTop: 40, // Increased top padding
     paddingBottom: COVER.SAFETY_BANNER_HEIGHT + COVER.FOOTER_HEIGHT + 16, // Space for banner + footer
   },
 
@@ -156,15 +156,15 @@ const coverStyles = StyleSheet.create({
     marginBottom: 16,
   },
   projectName: {
-    fontSize: 22,
+    fontSize: 30, // Increased from 22
     fontWeight: 'bold',
     color: COLORS.text,
     marginBottom: 8,
     lineHeight: 1.2,
   },
   projectLocation: {
-    fontSize: 12,
-    color: COLORS.primary,
+    fontSize: 16, // Increased from 12
+    color: COLORS.primaryDark, // Darker teal
     marginBottom: 12,
   },
   reportType: {
