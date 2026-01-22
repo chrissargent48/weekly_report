@@ -5,7 +5,7 @@
  * but are expressed in react-pdf's StyleSheet format.
  */
 
-import { StyleSheet, Font } from '@react-pdf/renderer';
+import { StyleSheet, Font } from "@react-pdf/renderer";
 
 // Register fonts (using built-in fonts for now, can add custom later)
 // Font.register({
@@ -15,33 +15,33 @@ import { StyleSheet, Font } from '@react-pdf/renderer';
 
 // Brand colors matching styleTokens.ts
 export const COLORS = {
-  primary: '#0891B2',        // Teal/cyan brand color
-  primaryDark: '#0E7490',
-  accent: '#D4A84B',         // Golden accent (was F59E0B)
-  text: '#18181b',           // zinc-900
-  textMuted: '#71717a',      // zinc-500
-  textLight: '#a1a1aa',      // zinc-400
-  border: '#e4e4e7',         // zinc-200
-  borderLight: '#f4f4f5',    // zinc-100
-  background: '#FFFFFF',
-  backgroundAlt: '#fafafa',  // zinc-50
-  safetyBanner: '#0891B2',
-  green: '#16a34a',
-  greenLight: '#dcfce7',
-  amber: '#d97706',
-  amberLight: '#fef3c7',
-  red: '#dc2626',
-  redLight: '#fee2e2',
-  blue: '#2563eb',
-  blueLight: '#dbeafe',
-  teal: '#0d9488',
-  tealLight: '#ccfbf1',
+  primary: "#0891B2", // Teal/cyan brand color
+  primaryDark: "#0E7490",
+  accent: "#F59E0B", // Yellow accent
+  text: "#18181b", // zinc-900
+  textMuted: "#71717a", // zinc-500
+  textLight: "#a1a1aa", // zinc-400
+  border: "#e4e4e7", // zinc-200
+  borderLight: "#f4f4f5", // zinc-100
+  background: "#FFFFFF",
+  backgroundAlt: "#fafafa", // zinc-50
+  safetyBanner: "#0891B2",
+  green: "#16a34a",
+  greenLight: "#dcfce7",
+  amber: "#d97706",
+  amberLight: "#fef3c7",
+  red: "#dc2626",
+  redLight: "#fee2e2",
+  blue: "#2563eb",
+  blueLight: "#dbeafe",
+  teal: "#0d9488",
+  tealLight: "#ccfbf1",
 } as const;
 
 // Page dimensions in points (72 DPI)
 export const PAGE = {
-  WIDTH: 612,    // 8.5" Letter
-  HEIGHT: 792,   // 11" Letter
+  WIDTH: 612, // 8.5" Letter
+  HEIGHT: 792, // 11" Letter
   MARGIN_TOP: 50, // Reverted from 90 - Header is in-flow, so standard margin is fine
   MARGIN_BOTTOM: 50,
   MARGIN_LEFT: 40,
@@ -56,7 +56,7 @@ export const PAGE = {
 
 // Cover section constants
 export const COVER = {
-  HEADER_HEIGHT: 350,      // ~45% of page height for dramatic hero
+  HEADER_HEIGHT: 280, // Reduced from 320 to match visual scale
   TITLE_BLOCK_HEIGHT: 110,
   PHOTO_STRIP_HEIGHT: 100, // Height for 3-photo strip
   CLIENT_INFO_HEIGHT: 60,
@@ -68,21 +68,21 @@ export const COVER = {
 export const styles = StyleSheet.create({
   // ===== PAGE LAYOUTS =====
   page: {
-    flexDirection: 'column',
+    flexDirection: "column",
     backgroundColor: COLORS.background,
     paddingTop: PAGE.MARGIN_TOP,
     paddingBottom: PAGE.MARGIN_BOTTOM,
     paddingLeft: PAGE.MARGIN_LEFT,
     paddingRight: PAGE.MARGIN_RIGHT,
-    fontFamily: 'Helvetica',
+    fontFamily: "Helvetica",
     fontSize: 10,
     color: COLORS.text,
   },
   coverPage: {
-    flexDirection: 'column',
+    flexDirection: "column",
     backgroundColor: COLORS.background,
     padding: 0, // Cover page has no padding - handled internally
-    fontFamily: 'Helvetica',
+    fontFamily: "Helvetica",
     fontSize: 10,
     color: COLORS.text,
   },
@@ -90,15 +90,15 @@ export const styles = StyleSheet.create({
   // ===== TYPOGRAPHY =====
   h1: {
     fontSize: 20, // Reduced from 24 to prevent wrapping
-    fontWeight: 'bold',
+    fontWeight: "bold",
     color: COLORS.text,
     marginBottom: 4,
   },
   h2: {
     fontSize: 12,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     color: COLORS.primary,
-    textTransform: 'uppercase',
+    textTransform: "uppercase",
     letterSpacing: 0.5,
     marginBottom: 8,
     paddingBottom: 4,
@@ -107,9 +107,9 @@ export const styles = StyleSheet.create({
   },
   h3: {
     fontSize: 10,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     color: COLORS.textMuted,
-    textTransform: 'uppercase',
+    textTransform: "uppercase",
     letterSpacing: 0.5,
     marginBottom: 4,
   },
@@ -126,11 +126,11 @@ export const styles = StyleSheet.create({
   label: {
     fontSize: 8,
     color: COLORS.textMuted,
-    textTransform: 'uppercase',
+    textTransform: "uppercase",
     letterSpacing: 0.3,
   },
   mono: {
-    fontFamily: 'Courier',
+    fontFamily: "Courier",
     fontSize: 9,
   },
 
@@ -147,19 +147,19 @@ export const styles = StyleSheet.create({
 
   // ===== TABLES =====
   table: {
-    width: '100%',
+    width: "100%",
     borderWidth: 1,
     borderColor: COLORS.border,
     borderRadius: 3,
   },
   tableHeader: {
-    flexDirection: 'row',
+    flexDirection: "row",
     backgroundColor: COLORS.primary,
     paddingVertical: 6,
     paddingHorizontal: 8,
   },
   tableHeaderAlt: {
-    flexDirection: 'row',
+    flexDirection: "row",
     backgroundColor: COLORS.backgroundAlt,
     paddingVertical: 5,
     paddingHorizontal: 8,
@@ -168,27 +168,27 @@ export const styles = StyleSheet.create({
   },
   tableHeaderCell: {
     fontSize: 8,
-    fontWeight: 'bold',
-    color: '#FFFFFF',
-    textTransform: 'uppercase',
+    fontWeight: "bold",
+    color: "#FFFFFF",
+    textTransform: "uppercase",
     letterSpacing: 0.3,
   },
   tableHeaderCellDark: {
     fontSize: 8,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     color: COLORS.textMuted,
-    textTransform: 'uppercase',
+    textTransform: "uppercase",
     letterSpacing: 0.3,
   },
   tableRow: {
-    flexDirection: 'row',
+    flexDirection: "row",
     paddingVertical: 5,
     paddingHorizontal: 8,
     borderBottomWidth: 1,
     borderBottomColor: COLORS.borderLight,
   },
   tableRowAlt: {
-    flexDirection: 'row',
+    flexDirection: "row",
     paddingVertical: 5,
     paddingHorizontal: 8,
     borderBottomWidth: 1,
@@ -201,7 +201,7 @@ export const styles = StyleSheet.create({
   },
   tableCellBold: {
     fontSize: 9,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     color: COLORS.text,
   },
   tableCellMuted: {
@@ -211,23 +211,23 @@ export const styles = StyleSheet.create({
   tableCellRight: {
     fontSize: 9,
     color: COLORS.text,
-    textAlign: 'right',
+    textAlign: "right",
   },
   tableCellCenter: {
     fontSize: 9,
     color: COLORS.text,
-    textAlign: 'center',
+    textAlign: "center",
   },
 
   // ===== COVER PAGE =====
   coverHeader: {
-    width: '100%',
+    width: "100%",
     height: COVER.HEADER_HEIGHT,
     backgroundColor: COLORS.primary,
-    position: 'relative',
+    position: "relative",
   },
   coverHeaderGradient: {
-    position: 'absolute',
+    position: "absolute",
     top: 0,
     left: 0,
     right: 0,
@@ -236,19 +236,19 @@ export const styles = StyleSheet.create({
     opacity: 0.9,
   },
   coverLogo: {
-    position: 'absolute',
+    position: "absolute",
     top: 20,
     left: 30,
   },
   coverLogoText: {
     fontSize: 28,
-    fontWeight: 'bold',
-    color: '#FFFFFF',
+    fontWeight: "bold",
+    color: "#FFFFFF",
     letterSpacing: 1,
   },
   coverLogoSubtext: {
     fontSize: 8,
-    color: 'rgba(255,255,255,0.8)',
+    color: "rgba(255,255,255,0.8)",
     letterSpacing: 2,
   },
   coverContent: {
@@ -259,7 +259,7 @@ export const styles = StyleSheet.create({
   },
   coverTitle: {
     fontSize: 26,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     color: COLORS.text,
     marginBottom: 4,
   },
@@ -276,20 +276,20 @@ export const styles = StyleSheet.create({
   },
   coverReportType: {
     fontSize: 12,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     color: COLORS.text,
-    textTransform: 'uppercase',
+    textTransform: "uppercase",
     letterSpacing: 0.5,
     marginBottom: 4,
   },
   coverDate: {
     fontSize: 12,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     color: COLORS.primary,
     marginBottom: 20,
   },
   coverPhotoStrip: {
-    flexDirection: 'row',
+    flexDirection: "row",
     gap: 8,
     marginBottom: 20,
   },
@@ -297,42 +297,42 @@ export const styles = StyleSheet.create({
     flex: 1,
     height: 80,
     borderRadius: 3,
-    objectFit: 'cover',
+    objectFit: "cover",
     backgroundColor: COLORS.borderLight,
   },
   coverInfoGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
+    flexDirection: "row",
+    flexWrap: "wrap",
     gap: 4,
   },
   coverInfoLabel: {
     fontSize: 9,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     color: COLORS.textLight,
     width: 50,
   },
   coverInfoValue: {
     fontSize: 9,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     color: COLORS.text,
     flex: 1,
   },
   coverSafetyBanner: {
-    width: '100%',
+    width: "100%",
     height: COVER.SAFETY_BANNER_HEIGHT,
     backgroundColor: COLORS.safetyBanner,
-    justifyContent: 'center',
-    alignItems: 'center',
-    position: 'absolute',
+    justifyContent: "center",
+    alignItems: "center",
+    position: "absolute",
     bottom: 0,
     left: 0,
     right: 0,
   },
   coverSafetyText: {
     fontSize: 11,
-    fontStyle: 'italic',
-    fontWeight: 'bold',
-    color: '#FFFFFF',
+    fontStyle: "italic",
+    fontWeight: "bold",
+    color: "#FFFFFF",
   },
 
   // ===== CARDS =====
@@ -340,12 +340,12 @@ export const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: COLORS.border,
     borderRadius: 4,
-    overflow: 'hidden',
+    overflow: "hidden",
     marginBottom: 8,
   },
   cardHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: 6,
     paddingVertical: 6,
     paddingHorizontal: 10,
@@ -354,23 +354,23 @@ export const styles = StyleSheet.create({
   },
   cardHeaderGreen: {
     backgroundColor: COLORS.greenLight,
-    borderBottomColor: '#bbf7d0',
+    borderBottomColor: "#bbf7d0",
   },
   cardHeaderBlue: {
     backgroundColor: COLORS.blueLight,
-    borderBottomColor: '#bfdbfe',
+    borderBottomColor: "#bfdbfe",
   },
   cardHeaderAmber: {
     backgroundColor: COLORS.amberLight,
-    borderBottomColor: '#fde68a',
+    borderBottomColor: "#fde68a",
   },
   cardBody: {
     padding: 10,
   },
   cardTitle: {
     fontSize: 8,
-    fontWeight: 'bold',
-    textTransform: 'uppercase',
+    fontWeight: "bold",
+    textTransform: "uppercase",
     letterSpacing: 0.3,
   },
 
@@ -380,8 +380,8 @@ export const styles = StyleSheet.create({
     paddingHorizontal: 6,
     borderRadius: 10,
     fontSize: 7,
-    fontWeight: 'bold',
-    textTransform: 'uppercase',
+    fontWeight: "bold",
+    textTransform: "uppercase",
   },
   badgeGreen: {
     backgroundColor: COLORS.tealLight,
@@ -402,13 +402,13 @@ export const styles = StyleSheet.create({
 
   // ===== STATS =====
   statsRow: {
-    flexDirection: 'row',
+    flexDirection: "row",
     gap: 12,
     marginBottom: 12,
   },
   statBox: {
     flex: 1,
-    alignItems: 'center',
+    alignItems: "center",
     paddingVertical: 8,
     borderWidth: 1,
     borderColor: COLORS.border,
@@ -416,36 +416,36 @@ export const styles = StyleSheet.create({
   },
   statValue: {
     fontSize: 22,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     color: COLORS.primary,
   },
   statLabel: {
     fontSize: 7,
     color: COLORS.textMuted,
-    textTransform: 'uppercase',
+    textTransform: "uppercase",
     marginTop: 2,
   },
 
   // ===== PHOTOS GRID =====
   photosGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
+    flexDirection: "row",
+    flexWrap: "wrap",
     gap: 10,
   },
   photoContainer: {
-    width: '48%',
+    width: "48%",
     marginBottom: 10,
   },
   photo: {
-    width: '100%',
+    width: "100%",
     height: 140,
-    objectFit: 'cover',
+    objectFit: "cover",
     borderRadius: 3,
     marginBottom: 4,
   },
   photoCaption: {
     fontSize: 8,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     color: COLORS.text,
   },
   photoDescription: {
@@ -456,13 +456,13 @@ export const styles = StyleSheet.create({
 
   // ===== FOOTER =====
   footer: {
-    position: 'absolute',
+    position: "absolute",
     bottom: 20,
     left: PAGE.MARGIN_LEFT,
     right: PAGE.MARGIN_RIGHT,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     paddingTop: 8,
     borderTopWidth: 1,
     borderTopColor: COLORS.border,
@@ -478,10 +478,10 @@ export const styles = StyleSheet.create({
 
   // ===== UTILITIES =====
   row: {
-    flexDirection: 'row',
+    flexDirection: "row",
   },
   col: {
-    flexDirection: 'column',
+    flexDirection: "column",
   },
   flex1: {
     flex: 1,
@@ -517,42 +517,42 @@ export const styles = StyleSheet.create({
     marginTop: 8,
   },
   alignCenter: {
-    alignItems: 'center',
+    alignItems: "center",
   },
   alignEnd: {
-    alignItems: 'flex-end',
+    alignItems: "flex-end",
   },
   justifyBetween: {
-    justifyContent: 'space-between',
+    justifyContent: "space-between",
   },
   justifyCenter: {
-    justifyContent: 'center',
+    justifyContent: "center",
   },
   textCenter: {
-    textAlign: 'center',
+    textAlign: "center",
   },
   textRight: {
-    textAlign: 'right',
+    textAlign: "right",
   },
   bold: {
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
   italic: {
-    fontStyle: 'italic',
+    fontStyle: "italic",
   },
 
   // ===== DAY INDICATORS =====
   dayIndicatorRow: {
-    flexDirection: 'row',
+    flexDirection: "row",
     gap: 2,
-    justifyContent: 'center',
+    justifyContent: "center",
   },
   dayIndicator: {
     width: 12,
     height: 12,
     borderRadius: 2,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
   dayIndicatorActive: {
     backgroundColor: COLORS.primary,
@@ -562,10 +562,10 @@ export const styles = StyleSheet.create({
   },
   dayIndicatorText: {
     fontSize: 6,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
   dayIndicatorTextActive: {
-    color: '#FFFFFF',
+    color: "#FFFFFF",
   },
   dayIndicatorTextInactive: {
     color: COLORS.textLight,
