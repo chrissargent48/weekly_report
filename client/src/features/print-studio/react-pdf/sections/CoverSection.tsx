@@ -1,27 +1,28 @@
 /**
  * Cover Section for @react-pdf/renderer
  *
- * Renders the first page with pixel-perfect layout matching the HTML preview:
- * - Header with hero image/gradient and logo overlay
+ * Renders the first page with pixel-perfect layout:
+ * - Full-bleed hero image section (~45% of page, 350pt)
+ * - Semi-transparent teal overlay on hero image
+ * - Logo positioned in top-left corner
  * - Title block with project name, location, accent bar, report type
- * - Photo strip (3 photos)
+ * - Photo strip (stretches available photos to fill width)
  * - Client info block
  * - Safety banner at bottom
  * - Page footer with page numbers
  *
- * Layout breakdown (from mockup):
+ * Layout breakdown:
  * ┌─────────────────────────────────────────────────┐
  * │ ┌─────────────────────────────────────────────┐ │
- * │ │           HERO IMAGE (full width)          │ │
+ * │ │           HERO IMAGE (full bleed)          │ │
  * │ │    ┌──────────────┐                        │ │
- * │ │    │ RECON LOGO   │  (positioned top-left) │ │
- * │ │    │ A Keller Co  │                        │ │
+ * │ │    │ LOGO         │  (top-left, from file) │ │
  * │ │    └──────────────┘                        │ │
  * │ └─────────────────────────────────────────────┘ │
  * │                                                 │
  * │  Project Name - Title                           │
- * │  Location (teal text)                           │
  * │  ─────────────── (golden accent bar)            │
+ * │  Location (teal text)                           │
  * │                                                 │
  * │  WEEKLY PROGRESS REPORT                         │
  * │  Week Ending: 2026-01-18  (teal text)           │
@@ -29,6 +30,7 @@
  * │  ┌─────────┐ ┌─────────┐ ┌─────────┐           │
  * │  │ Photo 1 │ │ Photo 2 │ │ Photo 3 │           │
  * │  └─────────┘ └─────────┘ └─────────┘           │
+ * │         (photos stretch to fill width)          │
  * │                                                 │
  * │                        (spacer pushes info down)│
  * │                                                 │
@@ -46,6 +48,7 @@
 import React from 'react';
 import { View, Text, Image, StyleSheet } from '@react-pdf/renderer';
 import { COLORS, COVER, PAGE } from '../styles';
+import { AccentLine } from '../components';
 import { PrintConfig } from '../../config/printConfig.types';
 import { WeeklyReport, ProjectConfig } from '../../../../types';
 
@@ -62,10 +65,10 @@ const coverStyles = StyleSheet.create({
     position: 'relative',
   },
 
-  // ===== HEADER SECTION (Hero Image + Logo) =====
+  // ===== HEADER SECTION (Hero Image + Logo) - FULL BLEED =====
   header: {
     width: '100%',
-    height: COVER.HEADER_HEIGHT,
+    height: COVER.HEADER_HEIGHT, // 350pt (~45% of page)
     position: 'relative',
     overflow: 'hidden',
   },
@@ -77,7 +80,7 @@ const coverStyles = StyleSheet.create({
     height: '100%',
     objectFit: 'cover',
   },
-  // Gradient overlay on hero image
+  // Semi-transparent teal overlay (~85% opacity)
   headerOverlay: {
     position: 'absolute',
     top: 0,
@@ -87,7 +90,7 @@ const coverStyles = StyleSheet.create({
     backgroundColor: COLORS.primary,
     opacity: 0.85,
   },
-  // Fallback solid background when no hero image
+  // Solid teal background when no hero image
   headerFallback: {
     position: 'absolute',
     top: 0,
@@ -96,7 +99,8 @@ const coverStyles = StyleSheet.create({
     height: '100%',
     backgroundColor: COLORS.primary,
   },
-  // Logo positioning
+
+  // ===== LOGO POSITIONING =====
   logoContainer: {
     position: 'absolute',
     top: 24,
@@ -115,29 +119,36 @@ const coverStyles = StyleSheet.create({
     right: 32,
   },
   logoImage: {
-    maxHeight: 50,
-    maxWidth: 160,
+    maxHeight: 60,
+    maxWidth: 180,
     objectFit: 'contain',
   },
+  // Fallback text logo (when no image)
   logoText: {
-    fontSize: 28,
+    fontSize: 32,
     fontWeight: 'bold',
     color: '#FFFFFF',
     letterSpacing: 1,
   },
   logoSubtext: {
-    fontSize: 7,
+    fontSize: 8,
     color: 'rgba(255,255,255,0.7)',
     letterSpacing: 2,
     marginTop: 2,
   },
+  logoAccent: {
+    fontSize: 32,
+    fontWeight: 'bold',
+    color: COLORS.accent, // Yellow accent
+    letterSpacing: 1,
+  },
 
-  // ===== CONTENT AREA =====
+  // ===== CONTENT AREA (with margins) =====
   content: {
     flex: 1,
-    paddingHorizontal: 40,
-    paddingTop: 24,
-    paddingBottom: 70, // Space for safety banner + footer
+    paddingHorizontal: PAGE.MARGIN_LEFT, // 40pt margins
+    paddingTop: 20,
+    paddingBottom: COVER.SAFETY_BANNER_HEIGHT + COVER.FOOTER_HEIGHT + 16, // Space for banner + footer
   },
 
   // ===== TITLE BLOCK =====
@@ -145,26 +156,19 @@ const coverStyles = StyleSheet.create({
     marginBottom: 16,
   },
   projectName: {
-    fontSize: 24,
+    fontSize: 22,
     fontWeight: 'bold',
     color: COLORS.text,
-    marginBottom: 6,
+    marginBottom: 8,
     lineHeight: 1.2,
   },
   projectLocation: {
-    fontSize: 13,
+    fontSize: 12,
     color: COLORS.primary,
     marginBottom: 12,
   },
-  accentBar: {
-    width: 100,
-    height: 4,
-    backgroundColor: COLORS.accent,
-    marginBottom: 16,
-    borderRadius: 2,
-  },
   reportType: {
-    fontSize: 12,
+    fontSize: 11,
     fontWeight: 'bold',
     color: COLORS.text,
     textTransform: 'uppercase',
@@ -172,7 +176,7 @@ const coverStyles = StyleSheet.create({
     marginBottom: 4,
   },
   weekEnding: {
-    fontSize: 12,
+    fontSize: 11,
     fontWeight: 'bold',
     color: COLORS.primary,
   },
@@ -181,40 +185,43 @@ const coverStyles = StyleSheet.create({
   photoStrip: {
     flexDirection: 'row',
     gap: 8,
-    marginTop: 20,
-    marginBottom: 20,
-  },
-  stripPhotoContainer: {
-    flex: 1,
-    height: 90,
+    marginTop: 16,
+    marginBottom: 16,
+    height: COVER.PHOTO_STRIP_HEIGHT, // 100pt
   },
   stripPhoto: {
-    width: '100%',
-    height: 90,
+    flex: 1, // Stretches to fill available width
+    height: '100%',
     objectFit: 'cover',
-    borderRadius: 3,
+    borderRadius: 4,
   },
   stripPhotoPlaceholder: {
     flex: 1,
-    height: 90,
-    borderRadius: 3,
+    height: '100%',
+    borderRadius: 4,
     backgroundColor: COLORS.borderLight,
     borderWidth: 1,
     borderColor: COLORS.border,
     borderStyle: 'dashed',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  placeholderText: {
+    fontSize: 8,
+    color: COLORS.textMuted,
   },
 
   // ===== CLIENT INFO =====
   infoGrid: {
-    marginTop: 'auto', // Push to bottom of flex container
-    gap: 6,
+    marginTop: 'auto', // Push to bottom
+    gap: 4,
   },
   infoRow: {
     flexDirection: 'row',
     alignItems: 'baseline',
   },
   infoLabel: {
-    width: 55,
+    width: 50,
     fontSize: 9,
     fontWeight: 'bold',
     color: COLORS.textLight,
@@ -234,7 +241,7 @@ const coverStyles = StyleSheet.create({
   // ===== SAFETY BANNER =====
   safetyBanner: {
     position: 'absolute',
-    bottom: 30, // Above footer
+    bottom: COVER.FOOTER_HEIGHT + 4, // Above footer
     left: 0,
     right: 0,
     height: COVER.SAFETY_BANNER_HEIGHT,
@@ -252,9 +259,9 @@ const coverStyles = StyleSheet.create({
   // ===== FOOTER =====
   footer: {
     position: 'absolute',
-    bottom: 10,
-    left: 40,
-    right: 40,
+    bottom: 8,
+    left: PAGE.MARGIN_LEFT,
+    right: PAGE.MARGIN_RIGHT,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
@@ -276,12 +283,11 @@ export function CoverSection({ config, reportData, projectConfig }: CoverSection
   const heroPhoto = reportData.photos?.[heroIndex];
   const hasHeroImage = heroPhoto?.url && heroPhoto.url.length > 0;
 
-  // Strip photos (3 photos below title)
+  // Strip photos - get available photos and stretch them
   const stripIndexes = config.stripPhotoIndexes || [1, 2, 3];
   const stripPhotos = stripIndexes
     .map((idx) => reportData.photos?.[idx])
-    .filter(Boolean)
-    .slice(0, 3);
+    .filter((photo): photo is NonNullable<typeof photo> => Boolean(photo?.url));
   const showStrip = config.showCoverPhotos !== false && stripPhotos.length > 0;
 
   // Logo configuration
@@ -289,7 +295,11 @@ export function CoverSection({ config, reportData, projectConfig }: CoverSection
   const hasLogo = logoUrl && logoUrl.length > 0;
   const logoScale = (config.logoScale || 100) / 100;
 
-  // Logo alignment style selection
+  // Calculate scaled logo dimensions
+  const scaledLogoHeight = 60 * logoScale;
+  const scaledLogoWidth = 180 * logoScale;
+
+  // Logo alignment style
   const getLogoContainerStyle = () => {
     switch (config.logoAlign) {
       case 'center':
@@ -318,7 +328,7 @@ export function CoverSection({ config, reportData, projectConfig }: CoverSection
 
   return (
     <View style={coverStyles.container}>
-      {/* ===== HEADER SECTION ===== */}
+      {/* ===== HEADER SECTION (Full Bleed) ===== */}
       <View style={coverStyles.header}>
         {/* Hero Image or Fallback Background */}
         {hasHeroImage ? (
@@ -334,61 +344,64 @@ export function CoverSection({ config, reportData, projectConfig }: CoverSection
                 },
               ]}
             />
-            {/* Teal overlay on image */}
+            {/* Semi-transparent teal overlay */}
             <View style={coverStyles.headerOverlay} />
           </>
         ) : (
-          // Solid teal background fallback
           <View style={coverStyles.headerFallback} />
         )}
 
-        {/* Logo - positioned based on config */}
-        <View
-          style={[
-            getLogoContainerStyle(),
-            { transform: `scale(${logoScale})` },
-          ]}
-        >
+        {/* Logo */}
+        <View style={getLogoContainerStyle()}>
           {hasLogo ? (
-            <Image src={logoUrl} style={coverStyles.logoImage} />
+            <Image
+              src={logoUrl}
+              style={{
+                maxHeight: scaledLogoHeight,
+                maxWidth: scaledLogoWidth,
+                objectFit: 'contain',
+              }}
+            />
           ) : (
             <View>
-              <Text style={coverStyles.logoText}>RECON</Text>
+              <View style={{ flexDirection: 'row' }}>
+                <Text style={coverStyles.logoText}>REC</Text>
+                <Text style={coverStyles.logoAccent}>O</Text>
+                <Text style={coverStyles.logoText}>N</Text>
+              </View>
               <Text style={coverStyles.logoSubtext}>A KELLER COMPANY</Text>
             </View>
           )}
         </View>
       </View>
 
-      {/* ===== MAIN CONTENT ===== */}
+      {/* ===== MAIN CONTENT (with margins) ===== */}
       <View style={coverStyles.content}>
         {/* Title Block */}
         <View style={coverStyles.titleBlock}>
           <Text style={coverStyles.projectName}>{projectName}</Text>
+          <AccentLine width={100} height={3} marginBottom={12} />
           {location && (
             <Text style={coverStyles.projectLocation}>{location}</Text>
           )}
-          <View style={coverStyles.accentBar} />
           <Text style={coverStyles.reportType}>Weekly Progress Report</Text>
           <Text style={coverStyles.weekEnding}>Week Ending: {weekEnding}</Text>
         </View>
 
-        {/* Photo Strip */}
+        {/* Photo Strip - stretches available photos */}
         {showStrip && (
           <View style={coverStyles.photoStrip}>
-            {stripPhotos.map((photo: any, i: number) => (
-              <View key={i} style={coverStyles.stripPhotoContainer}>
-                {photo?.url ? (
-                  <Image src={photo.url} style={coverStyles.stripPhoto} />
-                ) : (
-                  <View style={coverStyles.stripPhotoPlaceholder} />
-                )}
-              </View>
+            {stripPhotos.map((photo, i) => (
+              <Image
+                key={i}
+                src={photo.url}
+                style={coverStyles.stripPhoto}
+              />
             ))}
           </View>
         )}
 
-        {/* Client Info Grid - pushed to bottom by marginTop: auto */}
+        {/* Client Info Grid - pushed to bottom */}
         <View style={coverStyles.infoGrid}>
           <View style={coverStyles.infoRow}>
             <Text style={coverStyles.infoLabel}>Client:</Text>

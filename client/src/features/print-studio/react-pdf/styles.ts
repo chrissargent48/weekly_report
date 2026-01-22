@@ -56,11 +56,12 @@ export const PAGE = {
 
 // Cover section constants
 export const COVER = {
-  HEADER_HEIGHT: 280,      // Reduced from 320 to match visual scale
+  HEADER_HEIGHT: 350,      // ~45% of page height for dramatic hero
   TITLE_BLOCK_HEIGHT: 110,
-  PHOTO_STRIP_HEIGHT: 130, // Reduced from 160
+  PHOTO_STRIP_HEIGHT: 100, // Height for 3-photo strip
   CLIENT_INFO_HEIGHT: 60,
-  SAFETY_BANNER_HEIGHT: 30,
+  SAFETY_BANNER_HEIGHT: 32,
+  FOOTER_HEIGHT: 24,       // Space for footer with border
 } as const;
 
 // Main stylesheet

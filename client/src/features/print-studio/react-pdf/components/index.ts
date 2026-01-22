@@ -7,3 +7,4 @@
 export { PageHeader } from './PageHeader';
 export { PageFooter, CoverFooter } from './PageFooter';
 export { AccentLine } from './AccentLine';
+export { SectionWrapper, SectionContent } from './SectionWrapper';
