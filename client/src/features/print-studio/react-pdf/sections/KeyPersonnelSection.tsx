@@ -1,5 +1,12 @@
 /**
  * Key Personnel Section for @react-pdf/renderer
+ *
+ * Displays project team in a 3-column layout:
+ * - Client column (company + representatives)
+ * - Engineer of Record column (company + representatives)
+ * - RECON Team column (contractor personnel)
+ *
+ * Matches the HTML preview's visual structure.
  */
 
 import React from 'react';
@@ -20,68 +27,85 @@ const personnelStyles = StyleSheet.create({
   container: {
     marginBottom: 16,
   },
+  // 3-column grid layout
   grid: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
     gap: 10,
   },
-  card: {
-    width: '48%',
+  // Column card - Client/Engineer style
+  columnCard: {
+    flex: 1,
+    backgroundColor: COLORS.backgroundAlt, // zinc-50
     borderWidth: 1,
     borderColor: COLORS.border,
-    borderRadius: 4,
-    overflow: 'hidden',
-    marginBottom: 6,
+    borderRadius: 6,
+    padding: 10,
   },
-  cardHeader: {
-    paddingVertical: 4,
-    paddingHorizontal: 8,
-    backgroundColor: COLORS.primary,
+  // Column card - RECON style (emphasized)
+  columnCardRecon: {
+    flex: 1,
+    backgroundColor: '#FFFFFF',
+    borderWidth: 2,
+    borderColor: COLORS.border,
+    borderRadius: 6,
+    padding: 10,
   },
-  cardHeaderText: {
+  // Column header
+  columnHeader: {
     fontSize: 8,
     fontWeight: 'bold',
-    color: '#FFFFFF',
+    color: COLORS.textMuted,
     textTransform: 'uppercase',
-    letterSpacing: 0.3,
+    letterSpacing: 0.5,
+    marginBottom: 6,
+    paddingBottom: 4,
+    borderBottomWidth: 1,
+    borderBottomColor: COLORS.border,
   },
-  cardBody: {
-    padding: 8,
+  // Company info block
+  companyBlock: {
+    marginBottom: 8,
   },
+  companyName: {
+    fontSize: 10,
+    fontWeight: 'bold',
+    color: COLORS.text,
+    marginBottom: 2,
+  },
+  companyAddress: {
+    fontSize: 7,
+    color: COLORS.textMuted,
+    lineHeight: 1.3,
+  },
+  // Person row
   personRow: {
     marginBottom: 6,
+  },
+  personRowLast: {
+    marginBottom: 0,
   },
   personName: {
     fontSize: 9,
     fontWeight: 'bold',
     color: COLORS.text,
+    lineHeight: 1.2,
   },
   personRole: {
     fontSize: 7,
     color: COLORS.textMuted,
-    textTransform: 'uppercase',
     marginTop: 1,
   },
+  // Contact info
   contactRow: {
     flexDirection: 'row',
-    marginTop: 3,
     gap: 8,
+    marginTop: 2,
   },
   contactItem: {
-    fontSize: 7,
-    color: COLORS.textMuted,
+    fontSize: 6,
+    color: COLORS.textLight,
   },
-  companyName: {
-    fontSize: 9,
-    fontWeight: 'bold',
-    color: COLORS.text,
-    marginBottom: 4,
-  },
-  companyAddress: {
-    fontSize: 7,
-    color: COLORS.textMuted,
-    marginBottom: 6,
-  },
+  // Empty state
   emptyText: {
     fontSize: 8,
     color: COLORS.textMuted,
@@ -91,22 +115,24 @@ const personnelStyles = StyleSheet.create({
   },
 });
 
-// Person card content
-function PersonCard({ title, children }: { title: string; children: React.ReactNode }) {
+/**
+ * Render a single person row with name, role, and optional contact info
+ */
+function PersonRow({
+  name,
+  role,
+  email,
+  phone,
+  isLast = false,
+}: {
+  name: string;
+  role: string;
+  email?: string;
+  phone?: string;
+  isLast?: boolean;
+}) {
   return (
-    <View style={personnelStyles.card} wrap={false}>
-      <View style={personnelStyles.cardHeader}>
-        <Text style={personnelStyles.cardHeaderText}>{title}</Text>
-      </View>
-      <View style={personnelStyles.cardBody}>{children}</View>
-    </View>
-  );
-}
-
-// Person row
-function PersonRow({ name, role, email, phone }: { name: string; role: string; email?: string; phone?: string }) {
-  return (
-    <View style={personnelStyles.personRow}>
+    <View style={isLast ? personnelStyles.personRowLast : personnelStyles.personRow}>
       <Text style={personnelStyles.personName}>{name}</Text>
       <Text style={personnelStyles.personRole}>{role}</Text>
       {(email || phone) && (
@@ -119,88 +145,115 @@ function PersonRow({ name, role, email, phone }: { name: string; role: string; e
   );
 }
 
-export function KeyPersonnelSection({ config, reportData, projectConfig, placement }: KeyPersonnelSectionProps) {
+export function KeyPersonnelSection({
+  config,
+  reportData,
+  projectConfig,
+  placement,
+}: KeyPersonnelSectionProps) {
   const isContinued = placement?.continuesFromPrevious ?? false;
+  const showHeader = placement?.renderConfig?.showHeader ?? true;
   const personnel = projectConfig.personnel;
 
   if (!personnel) {
     return (
       <View style={personnelStyles.container}>
-        <SectionHeader title="Key Personnel" isContinued={isContinued} />
+        {showHeader && <SectionHeader title="Key Personnel" isContinued={isContinued} />}
         <Text style={personnelStyles.emptyText}>No personnel information available.</Text>
       </View>
     );
   }
 
-  const reconPersonnel = personnel.recon || [];
-  const clientReps = personnel.client?.representatives || [];
-  const engineerReps = personnel.engineer?.representatives || [];
+  // Handle pagination slicing
+  const startIdx = placement?.dataRange?.start ?? 0;
+  const endIdx = placement?.dataRange?.end;
+
+  // Get representatives from each group
+  const clientReps = (personnel.client?.representatives || []).slice(startIdx, endIdx);
+  const engineerReps = (personnel.engineer?.representatives || []).slice(startIdx, endIdx);
+  const reconReps = (personnel.recon || []).slice(startIdx, endIdx);
+
+  // Skip if all columns are empty
+  if (clientReps.length === 0 && engineerReps.length === 0 && reconReps.length === 0) {
+    return null;
+  }
+
+  const sectionTitle = isContinued ? 'Key Personnel (Continued)' : 'Key Personnel';
 
   return (
     <View style={personnelStyles.container}>
-      <SectionHeader title="Key Personnel" isContinued={isContinued} />
+      {showHeader && <SectionHeader title={sectionTitle} isContinued={isContinued} />}
+
+      {/* 3-Column Grid */}
       <View style={personnelStyles.grid}>
-        {/* RECON Team */}
-        {reconPersonnel.length > 0 && (
-          <React.Fragment>
-            <PersonCard title="RECON Team">
-              {reconPersonnel.map((person, i) => (
-                <PersonRow
-                  key={person.id || i}
-                  name={person.name}
-                  role={person.role}
-                  email={person.email}
-                  phone={person.phone}
-                />
-              ))}
-            </PersonCard>
-            {config.manualBreaks?.some(b => b.sectionId === 'key_personnel' && b.afterRowIndex === 0) && <View break />}
-          </React.Fragment>
-        )}
-
-        {/* Client */}
-        {personnel.client && (
-          <React.Fragment>
-            <PersonCard title="Client">
-              <Text style={personnelStyles.companyName}>{personnel.client.company}</Text>
+        {/* Client Column */}
+        <View style={personnelStyles.columnCard} wrap={false}>
+          <Text style={personnelStyles.columnHeader}>Client</Text>
+          {personnel.client && (
+            <View style={personnelStyles.companyBlock}>
+              <Text style={personnelStyles.companyName}>
+                {personnel.client.company || 'Client Company'}
+              </Text>
               {personnel.client.address && (
-                <Text style={personnelStyles.companyAddress}>{personnel.client.address}</Text>
+                <Text style={personnelStyles.companyAddress}>
+                  {personnel.client.address}
+                </Text>
               )}
-              {clientReps.map((rep, i) => (
-                <PersonRow
-                  key={rep.id || i}
-                  name={rep.name}
-                  role={rep.role}
-                  email={rep.email}
-                  phone={rep.phone}
-                />
-              ))}
-            </PersonCard>
-             {config.manualBreaks?.some(b => b.sectionId === 'key_personnel' && b.afterRowIndex === 1) && <View break />}
-          </React.Fragment>
-        )}
+            </View>
+          )}
+          {clientReps.map((rep: any, i: number) => (
+            <PersonRow
+              key={rep.id || i}
+              name={rep.name}
+              role={rep.role}
+              email={rep.email}
+              phone={rep.phone}
+              isLast={i === clientReps.length - 1}
+            />
+          ))}
+        </View>
 
-        {/* Engineer */}
-        {personnel.engineer && engineerReps.length > 0 && (
-          <React.Fragment>
-            <PersonCard title="Engineer of Record">
-              <Text style={personnelStyles.companyName}>{personnel.engineer.company}</Text>
+        {/* Engineer of Record Column */}
+        <View style={personnelStyles.columnCard} wrap={false}>
+          <Text style={personnelStyles.columnHeader}>Engineer of Record</Text>
+          {personnel.engineer && (
+            <View style={personnelStyles.companyBlock}>
+              <Text style={personnelStyles.companyName}>
+                {personnel.engineer.company || 'Engineer Company'}
+              </Text>
               {personnel.engineer.address && (
-                <Text style={personnelStyles.companyAddress}>{personnel.engineer.address}</Text>
+                <Text style={personnelStyles.companyAddress}>
+                  {personnel.engineer.address}
+                </Text>
               )}
-              {engineerReps.map((rep, i) => (
-                <PersonRow
-                  key={rep.id || i}
-                  name={rep.name}
-                  role={rep.role}
-                  email={rep.email}
-                  phone={rep.phone}
-                />
-              ))}
-            </PersonCard>
-             {config.manualBreaks?.some(b => b.sectionId === 'key_personnel' && b.afterRowIndex === 2) && <View break />}
-          </React.Fragment>
-        )}
+            </View>
+          )}
+          {engineerReps.map((rep: any, i: number) => (
+            <PersonRow
+              key={rep.id || i}
+              name={rep.name}
+              role={rep.role}
+              email={rep.email}
+              phone={rep.phone}
+              isLast={i === engineerReps.length - 1}
+            />
+          ))}
+        </View>
+
+        {/* RECON Column (emphasized with thicker border) */}
+        <View style={personnelStyles.columnCardRecon} wrap={false}>
+          <Text style={personnelStyles.columnHeader}>RECON Key Personnel</Text>
+          {reconReps.map((person: any, i: number) => (
+            <PersonRow
+              key={person.id || i}
+              name={person.name}
+              role={person.role}
+              email={person.email}
+              phone={person.phone}
+              isLast={i === reconReps.length - 1}
+            />
+          ))}
+        </View>
       </View>
     </View>
   );
