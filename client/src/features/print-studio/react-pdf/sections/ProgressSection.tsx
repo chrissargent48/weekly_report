@@ -67,12 +67,22 @@ export function ProgressSection({ config, reportData, placement }: ProgressSecti
 
       {visibleActivities.length > 0 ? (
         <View style={progressStyles.activitiesCard}>
-          {visibleActivities.map((activity, i) => (
-            <View key={i} style={progressStyles.activityItem} wrap={false}>
-              <Text style={progressStyles.bullet}>•</Text>
-              <Text style={progressStyles.activityText}>{activity}</Text>
-            </View>
-          ))}
+          {visibleActivities.map((activity, i) => {
+            // Check for manual page break after this item
+            const hasBreak = config.manualBreaks?.some(
+              b => b.sectionId === 'progress' && b.afterRowIndex === (startIdx + i)
+            );
+
+            return (
+              <React.Fragment key={i}>
+                <View style={progressStyles.activityItem} wrap={false}>
+                  <Text style={progressStyles.bullet}>•</Text>
+                  <Text style={progressStyles.activityText}>{activity}</Text>
+                </View>
+                {hasBreak && <View break />}
+              </React.Fragment>
+            );
+          })}
         </View>
       ) : (
         <View style={progressStyles.activitiesCard}>

@@ -33,7 +33,7 @@ export function CoverSection({ config, reportData, projectConfig }: CoverSection
     <div className="flex flex-col h-full relative">
       {/* 1. HEADER SECTION (Hero + Logo) */}
       <div
-        className="relative w-full"
+        className="relative w-full overflow-hidden"
         style={{ height: FIRST_PAGE.HEADER_IMAGE_HEIGHT }}
       >
         {/* Hero Image - Now Draggable */}
@@ -64,10 +64,15 @@ export function CoverSection({ config, reportData, projectConfig }: CoverSection
 
         {/* Logo Overlay - NOW USES ACTUAL LOGO! */}
         <div
-          className="absolute top-8 left-8 z-10 drop-shadow-lg"
+          className="absolute top-8 z-10 drop-shadow-lg transition-all duration-300"
           style={{
             transform: `scale(${logoScale})`,
-            transformOrigin: 'top left'
+            transformOrigin: 'top left',
+            // Alignment Logic
+            left: config.logoAlign === 'center' ? '50%' : (config.logoAlign === 'right' ? 'auto' : '2rem'),
+            right: config.logoAlign === 'right' ? '2rem' : 'auto',
+            marginLeft: config.logoAlign === 'center' ? -100 : 0, // Centering offset
+            textAlign: config.logoAlign || 'left' as any
           }}
         >
           {hasLogo ? (
@@ -84,10 +89,10 @@ export function CoverSection({ config, reportData, projectConfig }: CoverSection
             />
           ) : (
             // Fallback to RECON branding if no logo URL configured
-            <>
+            <div className="flex flex-col">
               <div className="text-3xl font-extrabold text-white tracking-tight">RECON</div>
               <div className="text-[10px] text-white/80 tracking-widest">A KELLER COMPANY</div>
-            </>
+            </div>
           )}
         </div>
       </div>

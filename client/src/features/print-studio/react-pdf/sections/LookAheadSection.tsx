@@ -156,6 +156,9 @@ export function LookAheadSection({ config, reportData, placement }: LookAheadSec
         data={visibleItems}
         keyExtractor={(item) => item.id}
         alternateRowColor={true}
+        manualBreaks={config.manualBreaks
+          ?.filter(b => b.sectionId === 'lookahead')
+          .map(b => b.afterRowIndex)}
       />
     </View>
   );

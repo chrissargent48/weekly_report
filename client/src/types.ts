@@ -361,6 +361,38 @@ export interface WeeklyReport {
   // Change Management
   fieldDirectives?: FieldDirective[];
   changeOrders?: ChangeOrder[];
+
+  // [NEW] Custom Layout Data
+  layout?: ReportLayout;
+}
+
+// --- CANVAS LAYOUT TYPES ---
+
+export interface CanvasNode {
+  id: string;
+  type: 'section' | 'image' | 'text' | 'shape';
+  sectionType?: 'cover' | 'header' | 'overview' | 'weather' | 'progress' | 'manpower' | 'financials' | 'photos'; 
+  x: number;      // pt
+  y: number;      // pt
+  width: number;  // pt
+  height: number; // pt
+  rotation: number; // degrees
+  zIndex?: number;
+  
+  // For 'text' or 'image' types
+  content?: string; 
+  style?: {
+      fontSize?: number;
+      fontColor?: string;
+      backgroundColor?: string;
+  };
+}
+
+export interface ReportLayout {
+  pages: {
+    id: string;
+    items: CanvasNode[];
+  }[];
 }
 
 export interface IssueEntry {

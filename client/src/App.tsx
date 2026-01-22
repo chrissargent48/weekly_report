@@ -55,7 +55,7 @@ const emptyReport = (date: string): WeeklyReport => {
 
 function App() {
   // Routing State
-  const [view, setView] = useState<'selector' | 'dashboard' | 'settings' | 'editor'>('selector');
+  const [view, setView] = useState<'selector' | 'dashboard' | 'settings' | 'editor' | 'canvas'>('selector');
   const [projectId, setProjectId] = useState<string | null>(null);
   
   // Data State
@@ -238,6 +238,8 @@ function App() {
                 projectId={projectId}
              />
          )}
+
+
 
          {/* Profile Editor Modal */}
          <UserProfileModal 

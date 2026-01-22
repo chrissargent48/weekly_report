@@ -1,16 +1,31 @@
 import React from 'react';
 import { PrintConfig, ReportData } from '../config/printConfig.types';
 import { SectionWrapper } from './SectionWrapper';
+import { RichTextEditor } from '../components/RichTextEditor';
 
 interface Props {
   config: PrintConfig;
   reportData: ReportData;
+  onUpdateReport?: (data: ReportData) => void;
 }
 
-export function ExecutiveSummary({ config, reportData }: Props) {
+export function ExecutiveSummary({ config, reportData, onUpdateReport }: Props) {
   // Use WeeklyReport structure
   const overview = reportData.overview;
   if (!overview) return null;
+
+  // Handle Text Update
+  const handleSummaryChange = (newHtml: string) => {
+    if (onUpdateReport) {
+      onUpdateReport({
+        ...reportData,
+        overview: {
+          ...reportData.overview!,
+          executiveSummary: newHtml
+        }
+      });
+    }
+  };
 
   // Calculate manpower breakdown by category
   const manpower = reportData.resources?.manpower || [];
@@ -18,7 +33,7 @@ export function ExecutiveSummary({ config, reportData }: Props) {
   // Helper function to sum daily hours for a manpower entry
   const sumDailyHours = (sum: number, m: any) => {
     const dh = m.dailyHours || { mon: 0, tue: 0, wed: 0, thu: 0, fri: 0, sat: 0, sun: 0 };
-    return sum + dh.mon + dh.tue + dh.wed + dh.thu + dh.fri + dh.sat + dh.sun;
+    return sum + Number(dh.mon || 0) + Number(dh.tue || 0) + Number(dh.wed || 0) + Number(dh.thu || 0) + Number(dh.fri || 0) + Number(dh.sat || 0) + Number(dh.sun || 0);
   };
 
   // RECON Onsite: type='recon' AND location='onsite' (or missing location, default to onsite)
@@ -54,12 +69,25 @@ export function ExecutiveSummary({ config, reportData }: Props) {
       <div className="flex flex-col md:flex-row gap-6 items-stretch">
         {/* Left Column: Executive Summary Narrative */}
         <div className="flex-1 flex flex-col">
-          <div className="bg-white border border-zinc-300 rounded p-4 flex-1 h-full min-h-[300px]">
+          <div className="bg-white border border-zinc-300 rounded p-4 flex-1 h-full min-h-[300px] flex flex-col">
             <h3 className="text-[10px] font-bold mb-2 uppercase text-zinc-600 tracking-wider">
               Weekly Recap
             </h3>
-            <div className="text-sm text-zinc-700 leading-relaxed whitespace-pre-wrap">
-              {overview.executiveSummary || 'No summary provided.'}
+            {/* Rich Text Editor */}
+            <div className="flex-1">
+
+              {onUpdateReport ? (
+                <RichTextEditor
+                  value={overview.executiveSummary || ''}
+                  onChange={handleSummaryChange}
+                  className="min-h-full border-none shadow-none"
+                />
+              ) : (
+                 <div 
+                   className="text-sm text-zinc-700 leading-relaxed whitespace-pre-wrap prose prose-sm max-w-none"
+                   dangerouslySetInnerHTML={{ __html: overview.executiveSummary || 'No summary provided.' }}
+                 />
+              )}
             </div>
           </div>
         </div>
@@ -138,7 +166,7 @@ export function ExecutiveSummary({ config, reportData }: Props) {
               <div className="flex justify-between items-center">
                 <span className="text-xs text-zinc-600 uppercase tracking-wide">Safety Incidents</span>
                 <span className={`font-mono text-base font-bold ${
-                  reportData.safety?.stats?.recordables?.week > 0 ? 'text-red-600' : 'text-green-600'
+                  (reportData.safety?.stats?.recordables?.week || 0) > 0 ? 'text-red-600' : 'text-green-600'
                 }`}>
                   {reportData.safety?.stats?.recordables?.week || 0}
                 </span>

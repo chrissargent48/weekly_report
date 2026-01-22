@@ -31,7 +31,8 @@ export function PrintStudioModal({ open, onClose, reportData, projectConfig, bas
   const [showPageBreakGuides, setShowPageBreakGuides] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [previewScale, setPreviewScale] = useState(0.7); // Default 70% scale
-  const [previewMode, setPreviewMode] = useState<'edit' | 'pdf'>('edit'); // Toggle between edit and PDF preview
+  // const [previewMode, setPreviewMode] = useState<'edit' | 'pdf'>('edit'); // Toggle between edit and PDF preview
+  const [previewMode, setPreviewMode] = useState<'edit' | 'pdf'>('edit'); // Default to Edit Mode for interactivity
   const previewRef = useRef<HTMLDivElement>(null);
 
   // Custom sensors for drag and drop to preventing scrolling while dragging
@@ -58,7 +59,7 @@ export function PrintStudioModal({ open, onClose, reportData, projectConfig, bas
     setPhotoPosition,
   } = usePrintConfig(projectConfig.identity.jobNumber);
 
-  // 2. Calculated Layout
+  // 2. Calculated Layout (Still used for Sidebar warnings, though PDF flow is native)
   const pageMap = usePageMap(config, reportData, projectConfig, baselines);
 
   // 3. PDF Generation - Using @react-pdf/renderer for reliable output
@@ -74,18 +75,7 @@ export function PrintStudioModal({ open, onClose, reportData, projectConfig, bas
 
   // Track scroll position to update current page indicator
   const handleScroll = useCallback((e: React.UIEvent<HTMLDivElement>) => {
-    const container = e.currentTarget;
-    const pages = container.querySelectorAll('.preview-page');
-    const containerTop = container.scrollTop + container.offsetHeight / 3;
-
-    pages.forEach((page, index) => {
-      const rect = page.getBoundingClientRect();
-      const pageTop = page.getBoundingClientRect().top - container.getBoundingClientRect().top + container.scrollTop;
-
-      if (pageTop <= containerTop && pageTop + rect.height > containerTop) {
-        setCurrentPage(index + 1);
-      }
-    });
+     // Scroll handling logic primarily for HTML preview, unnecessary for PDFViewer iframe
   }, []);
 
   return (
@@ -103,9 +93,7 @@ export function PrintStudioModal({ open, onClose, reportData, projectConfig, bas
               <div>
                 <h1 className="text-lg font-bold">Print Studio</h1>
                 <div className="text-xs text-zinc-400 flex gap-2">
-                  <span>{pageMap.totalPages} Pages</span>
-                  <span>•</span>
-                  <span>Page {currentPage}</span>
+                  <span>PDF Native Mode</span>
                   <span>•</span>
                   <span>{projectConfig.identity.projectName}</span>
                 </div>
@@ -113,57 +101,25 @@ export function PrintStudioModal({ open, onClose, reportData, projectConfig, bas
             </div>
 
             <div className="flex items-center gap-4">
-              {/* Preview Mode Toggle */}
-              <div className="flex items-center gap-1 bg-zinc-800 rounded-lg p-1">
+              <div className="bg-zinc-800 rounded-lg p-1 flex">
                 <button
                   onClick={() => setPreviewMode('edit')}
-                  className={`px-3 py-1 rounded text-xs font-medium transition flex items-center gap-1.5 ${
-                    previewMode === 'edit'
-                      ? 'bg-brand-primary text-white'
-                      : 'text-zinc-400 hover:text-white hover:bg-white/10'
+                  className={`px-3 py-1.5 rounded-md text-sm font-medium transition ${
+                    previewMode === 'edit' ? 'bg-zinc-600 text-white shadow-sm' : 'text-zinc-400 hover:text-white'
                   }`}
-                  title="Edit mode - interactive preview"
                 >
-                  <EyeIcon className="w-3.5 h-3.5" />
                   Edit
                 </button>
                 <button
                   onClick={() => setPreviewMode('pdf')}
-                  className={`px-3 py-1 rounded text-xs font-medium transition flex items-center gap-1.5 ${
-                    previewMode === 'pdf'
-                      ? 'bg-brand-primary text-white'
-                      : 'text-zinc-400 hover:text-white hover:bg-white/10'
+                  className={`px-3 py-1.5 rounded-md text-sm font-medium transition ${
+                    previewMode === 'pdf' ? 'bg-zinc-600 text-white shadow-sm' : 'text-zinc-400 hover:text-white'
                   }`}
-                  title="PDF preview - exact output"
                 >
-                  <DocumentArrowDownIcon className="w-3.5 h-3.5" />
                   PDF
                 </button>
               </div>
-
-              {/* Zoom Controls - only in edit mode */}
-              {previewMode === 'edit' && (
-                <div className="flex items-center gap-2 bg-zinc-800 rounded-lg px-2 py-1">
-                  <button
-                    onClick={() => setPreviewScale(Math.max(0.3, previewScale - 0.1))}
-                    className="p-1 hover:bg-white/10 rounded text-zinc-400 hover:text-white transition"
-                    title="Zoom out"
-                  >
-                    <MagnifyingGlassMinusIcon className="w-4 h-4" />
-                  </button>
-                  <span className="text-xs text-zinc-400 w-10 text-center">
-                    {Math.round(previewScale * 100)}%
-                  </span>
-                  <button
-                    onClick={() => setPreviewScale(Math.min(1.5, previewScale + 0.1))}
-                    className="p-1 hover:bg-white/10 rounded text-zinc-400 hover:text-white transition"
-                    title="Zoom in"
-                  >
-                    <MagnifyingGlassPlusIcon className="w-4 h-4" />
-                  </button>
-                </div>
-              )}
-
+              
               {error && <span className="text-red-400 text-sm">{error}</span>}
               <button
                 onClick={handleDownload}
@@ -190,13 +146,13 @@ export function PrintStudioModal({ open, onClose, reportData, projectConfig, bas
               setPhotoPosition={setPhotoPosition}
             >
               <div className="flex-1 flex overflow-hidden">
-                {/* Thumbnail Navigator */}
-                <ThumbnailNavigator
+                {/* Thumbnail Navigator (Optional in PDF mode, but kept for layout structure) */}
+                 {/* <ThumbnailNavigator
                   pageMap={pageMap}
                   currentPage={currentPage}
                   onPageSelect={setCurrentPage}
                   previewRef={previewRef}
-                />
+                /> */}
 
                 {/* Sidebar Controls */}
                 <DndContext sensors={sensors}>
@@ -226,11 +182,11 @@ export function PrintStudioModal({ open, onClose, reportData, projectConfig, bas
                           onSetPhotoPosition={setPhotoPosition}
                         />
 
-                        {/* Overflow Warnings */}
-                        <OverflowWarnings
+                        {/* Overflow Warnings (Disabled in Native Flow as strict pages aren't calculated) */}
+                        {/* <OverflowWarnings
                           previewRef={previewRef}
                           totalPages={pageMap.totalPages}
-                        />
+                        /> */}
                       </div>
                     </div>
                   </div>
@@ -239,53 +195,41 @@ export function PrintStudioModal({ open, onClose, reportData, projectConfig, bas
                 {/* Preview Area */}
                 <div
                   className="flex-1 overflow-auto bg-zinc-200 relative"
-                  onScroll={previewMode === 'edit' ? handleScroll : undefined}
                   style={{
                     // Create visual depth with inset shadow
                     boxShadow: 'inset 0 2px 8px rgba(0,0,0,0.1)',
                   }}
                 >
-                  {previewMode === 'edit' ? (
-                    // Edit Mode - Interactive HTML Preview
-                    <div
-                      className="flex flex-col items-center py-8"
-                      style={{
-                        transform: `scale(${previewScale})`,
-                        transformOrigin: 'top center',
-                        // Adjust container width to prevent horizontal scroll at small scales
-                        minWidth: `calc(100% / ${previewScale})`,
-                      }}
-                    >
-                      <PrintPreview
-                        ref={previewRef}
-                        config={config}
-                        pageMap={pageMap}
-                        reportData={reportData}
-                        projectConfig={projectConfig}
-                        baselines={baselines}
-                        showPageBreakGuides={showPageBreakGuides}
-                        onUpdateReport={onUpdateReport}
-                        onToggleRowBreak={toggleRowBreak}
-                      />
-                      <div className="h-20" /> {/* Spacer at bottom */}
-                    </div>
-                  ) : (
-                    // PDF Mode - React-PDF Preview (exact output)
-                    <div className="w-full h-full p-4">
-                      <div className="bg-white rounded-lg shadow-lg overflow-hidden h-full">
-                        <PDFPreview
+                    {/* Toggle Layout */}
+                    {previewMode === 'edit' ? (
+                      <div className="w-full min-h-full p-8 flex justify-center">
+                        <PrintPreview
                           config={config}
+                          pageMap={pageMap}
                           reportData={reportData}
                           projectConfig={projectConfig}
-                          baselines={baselines || undefined}
-                          pageMap={pageMap}
-                          showViewer={true}
-                          viewerWidth="100%"
-                          viewerHeight="100%"
+                          baselines={baselines}
+                          showPageBreakGuides={showPageBreakGuides}
+                          onUpdateReport={onUpdateReport}
+                          onToggleRowBreak={toggleRowBreak}
                         />
                       </div>
-                    </div>
-                  )}
+                    ) : (
+                      <div className="w-full h-full p-4">
+                        <div className="bg-white rounded-lg shadow-lg overflow-hidden h-full">
+                          <PDFPreview
+                            config={config}
+                            reportData={reportData}
+                            projectConfig={projectConfig}
+                            baselines={baselines || undefined}
+                            pageMap={pageMap}
+                            showViewer={true}
+                            viewerWidth="100%"
+                            viewerHeight="100%"
+                          />
+                        </div>
+                      </div>
+                    )}
                 </div>
               </div>
             </ImagePositionProvider>

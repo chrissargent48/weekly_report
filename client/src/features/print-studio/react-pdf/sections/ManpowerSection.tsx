@@ -263,7 +263,7 @@ function ManpowerTable({
       ];
 
   return (
-    <View style={manpowerStyles.subSection} wrap={false}>
+    <View style={manpowerStyles.subSection}>
       <Text style={manpowerStyles.subTitle}>{title}</Text>
       <Table
         columns={columns}

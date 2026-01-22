@@ -1,8 +1,8 @@
 /**
  * Main Report Document for @react-pdf/renderer
  *
- * This is the top-level Document component that orchestrates
- * all sections and handles page layout.
+ * VALIDATED NATIVE FLOW IMPLEMENTATION
+ * Uses standard React-PDF wrapping (`<Page wrap>`) instead of manual pagination.
  */
 
 import React from 'react';
@@ -10,6 +10,7 @@ import { Document, Page, View, Text, StyleSheet } from '@react-pdf/renderer';
 import { styles, COLORS, PAGE } from './styles';
 import { PrintConfig, PagePlacement, PageMap } from '../config/printConfig.types';
 import { WeeklyReport, ProjectConfig, ProjectBaselines } from '../../../types';
+import { PageHeader } from './components/PageHeader';
 
 // Import all section components
 import {
@@ -35,7 +36,7 @@ interface ReportDocumentProps {
   reportData: WeeklyReport;
   projectConfig: ProjectConfig;
   baselines?: ProjectBaselines;
-  pageMap?: PageMap;
+  pageMap?: PageMap; // Kept for interface compatibility but unused
 }
 
 const footerStyles = StyleSheet.create({
@@ -61,20 +62,6 @@ const footerStyles = StyleSheet.create({
   },
 });
 
-// Footer component with page numbers
-function PageFooter({ projectName, showFooter }: { projectName: string; showFooter: boolean }) {
-  if (!showFooter) return null;
-  return (
-    <View style={footerStyles.footer} fixed>
-      <Text style={footerStyles.footerText}>{projectName} - Weekly Report</Text>
-      <Text
-        style={footerStyles.pageNumber}
-        render={({ pageNumber, totalPages }) => `Page ${pageNumber} of ${totalPages}`}
-      />
-    </View>
-  );
-}
-
 // Section renderer - maps section ID to component
 function renderSection(
   sectionId: string,
@@ -83,55 +70,48 @@ function renderSection(
     reportData: WeeklyReport;
     projectConfig: ProjectConfig;
     baselines?: ProjectBaselines;
-    placement?: PagePlacement;
+    // contentBreak: boolean; // Not used in native flow
   }
 ) {
-  const { config, reportData, projectConfig, baselines, placement } = props;
+  const { config, reportData, projectConfig, baselines } = props;
+
+  // Common props for all sections
+  const sectionProps = {
+    config,
+    reportData,
+    projectConfig,
+    baselines,
+  };
 
   switch (sectionId) {
     case 'overview':
-      return <ExecutiveSummary config={config} reportData={reportData} placement={placement} />;
+      return <ExecutiveSummary {...sectionProps} />;
     case 'weather':
-      return <WeatherSection config={config} reportData={reportData} placement={placement} />;
+      return <WeatherSection {...sectionProps} />;
     case 'progress':
-      return <ProgressSection config={config} reportData={reportData} placement={placement} />;
+      return <ProgressSection {...sectionProps} />;
     case 'lookahead':
-      return <LookAheadSection config={config} reportData={reportData} placement={placement} />;
+      return <LookAheadSection {...sectionProps} />;
     case 'manpower':
-      return <ManpowerSection config={config} reportData={reportData} placement={placement} />;
+      return <ManpowerSection {...sectionProps} />;
     case 'equipment':
-      return <EquipmentSection config={config} reportData={reportData} placement={placement} />;
+      return <EquipmentSection {...sectionProps} />;
     case 'materials':
-      return <MaterialsSection config={config} reportData={reportData} placement={placement} />;
+      return <MaterialsSection {...sectionProps} />;
     case 'procurement':
-      return <ProcurementSection config={config} reportData={reportData} placement={placement} />;
+      return <ProcurementSection {...sectionProps} />;
     case 'safety':
-      return <SafetySection config={config} reportData={reportData} placement={placement} />;
+      return <SafetySection {...sectionProps} />;
     case 'financials':
-      return (
-        <FinancialsSection
-          config={config}
-          reportData={reportData}
-          projectConfig={projectConfig}
-          baselines={baselines}
-          placement={placement}
-        />
-      );
+      return <FinancialsSection {...sectionProps} />;
     case 'schedule':
-      return <ScheduleSection config={config} reportData={reportData} placement={placement} />;
+      return <ScheduleSection {...sectionProps} />;
     case 'issues':
-      return <IssuesSection config={config} reportData={reportData} placement={placement} />;
+      return <IssuesSection {...sectionProps} />;
     case 'photos':
-      return <PhotosSection config={config} reportData={reportData} placement={placement} />;
+      return <PhotosSection {...sectionProps} />;
     case 'key_personnel':
-      return (
-        <KeyPersonnelSection
-          config={config}
-          reportData={reportData}
-          projectConfig={projectConfig}
-          placement={placement}
-        />
-      );
+      return <KeyPersonnelSection {...sectionProps} />;
     default:
       return null;
   }
@@ -142,7 +122,6 @@ export function ReportDocument({
   reportData,
   projectConfig,
   baselines,
-  pageMap,
 }: ReportDocumentProps) {
   // Get visible sections in order
   const visibleSections = config.sections
@@ -161,56 +140,56 @@ export function ReportDocument({
       creator="Weekly Report Generator"
     >
       {/* Cover Page - No margins, special layout */}
-      <Page size="LETTER" style={styles.coverPage}>
-        <CoverSection
-          config={config}
-          reportData={reportData}
-          projectConfig={projectConfig}
-        />
-      </Page>
+      {config.sections.find(s => s.id === 'cover' && s.included) && (
+        <Page size="LETTER" style={styles.coverPage}>
+          <CoverSection
+            config={config}
+            reportData={reportData}
+            projectConfig={projectConfig}
+          />
+        </Page>
+      )}
 
       {/* Content Pages */}
       <Page size="LETTER" style={styles.page} wrap>
-        {/* Render all visible sections */}
+        
+        {/* Repeating Page Header */}
+        <PageHeader 
+          projectConfig={projectConfig}
+          weekEnding={reportData.weekEnding || ''}
+        />
+
+        {/* Fixed Footer */}
+        {showFooter && (
+          <View style={footerStyles.footer} fixed>
+            <Text style={footerStyles.footerText}>{projectName} - Weekly Report</Text>
+            {showPageNumbers && (
+              <Text
+                style={footerStyles.pageNumber}
+                render={({ pageNumber, totalPages }) => `Page ${pageNumber} of ${totalPages}`}
+              />
+            )}
+          </View>
+        )}
+
+        {/* Render Remaining Sections */}
         {visibleSections.map((section) => {
-          // Skip cover-only sections
-          if (section.id === 'cover') return null;
+          if (section.id === 'cover') return null; // Already rendered
 
-          // Get placement from pageMap if available
-          const placement = pageMap?.sectionPlacements?.get(section.id);
-
-          // Check for forced page break
-          if (section.forcePageBreakBefore) {
-            return (
-              <View key={section.id} break>
-                {renderSection(section.id, {
-                  config,
-                  reportData,
-                  projectConfig,
-                  baselines,
-                  placement,
-                })}
-              </View>
-            );
-          }
+          // Force page break if configured
+          const forceBreak = section.forcePageBreakBefore;
 
           return (
-            <View key={section.id}>
+            <View key={section.id} break={forceBreak}>
               {renderSection(section.id, {
                 config,
                 reportData,
                 projectConfig,
                 baselines,
-                placement,
               })}
             </View>
           );
         })}
-
-        {/* Footer */}
-        {showFooter && showPageNumbers && (
-          <PageFooter projectName={projectName} showFooter={showFooter} />
-        )}
       </Page>
     </Document>
   );

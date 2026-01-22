@@ -243,6 +243,9 @@ export function EquipmentSection({ config, reportData, placement }: EquipmentSec
         data={visibleEquipment}
         keyExtractor={(item) => item.id}
         alternateRowColor={true}
+        manualBreaks={config.manualBreaks
+          ?.filter(b => b.sectionId === 'equipment')
+          .map(b => b.afterRowIndex)}
       />
     </View>
   );

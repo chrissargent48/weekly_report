@@ -1,6 +1,7 @@
 import { PrintSection } from './printConfig.types';
 
 export const DEFAULT_SECTIONS: PrintSection[] = [
+    { id: 'cover', label: 'Cover Page', included: true, order: -1 },
     { id: 'key_personnel', label: 'Key Personnel', included: true, order: 0 },
     { id: 'overview', label: 'Weekly Recap', included: true, order: 1 },
     { id: 'weather', label: 'Weather', included: true, order: 1 },

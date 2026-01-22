@@ -212,6 +212,9 @@ export function FinancialsSection({
             data={visibleInvoices}
             keyExtractor={(item) => item.id}
             alternateRowColor={true}
+            manualBreaks={config.manualBreaks
+              ?.filter(b => b.sectionId === 'financials')
+              .map(b => b.afterRowIndex)}
           />
         </View>
       ) : (

@@ -179,6 +179,9 @@ export function IssuesSection({ config, reportData, placement }: IssuesSectionPr
         data={visibleIssues}
         keyExtractor={(item) => item.id}
         alternateRowColor={true}
+        manualBreaks={config.manualBreaks
+          ?.filter(b => b.sectionId === 'issues')
+          .map(b => b.afterRowIndex)}
       />
     </View>
   );

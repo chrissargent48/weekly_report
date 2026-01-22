@@ -3,6 +3,7 @@ import { PrintConfig, ReportData, PagePlacement } from '../config/printConfig.ty
 import { ProjectConfig, MasterBidItem, WeeklyBidEntry, ProjectBaselines } from '../../../types';
 import { SectionWrapper } from './SectionWrapper';
 import { RowBreakDivider, useHasBreakAtRow } from '../components/RowBreakDivider';
+import { SplitRowControl } from '../components/SplitRowControl';
 
 interface Props {
   config: PrintConfig;
@@ -203,7 +204,7 @@ export function ProgressSection({ config, reportData, projectConfig, baselines, 
 
               return (
                 <React.Fragment key={item.id}>
-                  <tr className="group odd:bg-white even:bg-zinc-50/50 hover:bg-blue-50/30 transition-colors">
+                  <tr className="group odd:bg-white even:bg-zinc-50/50 hover:bg-blue-50/30 transition-colors relative">
                     <td className="py-2 pl-3 font-mono text-xs text-zinc-500">{item.itemNumber}</td>
                     <td className="py-2 pl-2 font-semibold text-zinc-800 text-xs">{item.description}</td>
                     <td className="py-2 px-2 text-center text-[10px] text-zinc-500 uppercase">{item.unit}</td>
@@ -215,15 +216,19 @@ export function ProgressSection({ config, reportData, projectConfig, baselines, 
                     <td className="py-1 px-2 flex justify-center">
                       <CircularProgress percentage={item.percentComplete} />
                     </td>
+                    
+                    {/* Hover Split Control */}
+                    {onToggleRowBreak && (
+                      <td className="absolute left-0 right-0 bottom-0 h-0 p-0 border-none w-full">
+                         <SplitRowControl 
+                            sectionId="progress"
+                            rowIndex={actualRowIndex}
+                            hasBreak={hasBreak}
+                            onToggle={() => onToggleRowBreak('progress', actualRowIndex, item.id)}
+                         />
+                      </td>
+                    )}
                   </tr>
-                  {/* Row break divider - show after each row except the last */}
-                  {!isLastRow && onToggleRowBreak && (
-                    <RowBreakDivider
-                      hasBreak={hasBreak}
-                      onToggleBreak={() => onToggleRowBreak('progress', actualRowIndex, item.id)}
-                      compact
-                    />
-                  )}
                 </React.Fragment>
               );
             })}

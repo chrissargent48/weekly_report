@@ -8,9 +8,10 @@ interface Props {
   config: PrintConfig;
   reportData: ReportData;
   placement?: PagePlacement;
+  onUpdateReport?: (data: ReportData) => void;
 }
 
-export function ManpowerSection({ config, reportData, placement }: Props) {
+export function ManpowerSection({ config, reportData, placement, onUpdateReport }: Props) {
   const allItems = reportData.resources?.manpower || [];
   
   // Handle pagination slicing
@@ -102,29 +103,73 @@ export function ManpowerSection({ config, reportData, placement }: Props) {
               const name = item.name || 'Unknown';
               const role = item.role || '-';
 
+              const updateItem = (field: string, val: any) => {
+                  if (!onUpdateReport) return;
+                  const newManpower = reportData.resources.manpower.map(m => 
+                      m.id === item.id ? { ...m, [field]: val } : m
+                  );
+                  onUpdateReport({
+                      ...reportData,
+                      resources: { ...reportData.resources, manpower: newManpower }
+                  });
+              };
+
               return (
                 <tr key={i} className="group">
                   {isSubcontractor && (
                       <td className="py-2 pl-2 pr-2 text-xs font-medium text-zinc-600 truncate max-w-[150px]" title={companyName}>
-                          {companyName}
+                          {onUpdateReport ? (
+                              <input 
+                                  className="w-full bg-transparent border-none p-0 focus:ring-0 text-xs font-medium text-zinc-600 placeholder-zinc-300"
+                                  value={item.company || ''}
+                                  placeholder="Company"
+                                  onChange={(e) => updateItem('company', e.target.value)}
+                              />
+                          ) : companyName}
                       </td>
                   )}
                   <td className="py-2 pl-2 pr-2">
-                     <span className="font-bold text-zinc-900 text-xs">{name}</span>
+                     {onUpdateReport ? (
+                          <input 
+                              className="w-full bg-transparent border-none p-0 focus:ring-0 font-bold text-zinc-900 text-xs placeholder-zinc-300"
+                              value={item.name || ''}
+                              placeholder="Name"
+                              onChange={(e) => updateItem('name', e.target.value)}
+                          />
+                      ) : <span className="font-bold text-zinc-900 text-xs">{name}</span>}
                   </td>
                   <td className="py-2 pl-2 pr-2">
-                     <span className="text-[10px] text-zinc-500 uppercase tracking-tight">{role}</span>
+                     {onUpdateReport ? (
+                          <input 
+                              className="w-full bg-transparent border-none p-0 focus:ring-0 text-[10px] text-zinc-900 uppercase tracking-tight placeholder-zinc-300"
+                              value={item.role || ''}
+                              placeholder="Role"
+                              onChange={(e) => updateItem('role', e.target.value)}
+                          />
+                      ) : <span className="text-[10px] text-zinc-500 uppercase tracking-tight">{role}</span>}
                   </td>
                   <td className="py-2 text-center align-middle">
                     <div className="flex justify-center gap-0.5">
                         {activeDays.map((d, idx) => (
                             <div 
                                 key={idx} 
-                                className={`w-3 h-3 flex items-center justify-center text-[7px] rounded-sm font-bold ${
+                                className={`w-3 h-3 flex items-center justify-center text-[7px] rounded-sm font-bold cursor-pointer transition ${
                                     d.hasHours 
-                                    ? 'bg-brand-primary text-white' 
-                                    : 'text-zinc-300 bg-zinc-50'
+                                    ? 'bg-brand-primary text-white hover:bg-brand-primary/80' 
+                                    : 'text-zinc-300 bg-zinc-50 hover:bg-zinc-200'
                                 }`}
+                                onClick={() => {
+                                    if (!onUpdateReport) return;
+                                    // Toggle 10 hours for now (simplified interaction)
+                                    const dayKeys = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
+                                    const dayKey = dayKeys[idx];
+                                    const currentHours = Number(item.dailyHours?.[dayKey] || 0);
+                                    const newHours = currentHours > 0 ? 0 : 10;
+                                    
+                                    const newDailyHours = { ...item.dailyHours, [dayKey]: newHours };
+                                    updateItem('dailyHours', newDailyHours);
+                                }}
+                                title={onUpdateReport ? "Click to toggle 10hrs" : undefined}
                             >
                                 {d.label}
                             </div>
@@ -132,13 +177,16 @@ export function ManpowerSection({ config, reportData, placement }: Props) {
                     </div>
                   </td>
                   <td className="py-2 text-right align-middle">
-                    <span className={`inline-flex items-center px-1.5 py-0.5 rounded text-[8px] font-bold border uppercase tracking-wide ${
+                    <button 
+                        disabled={!onUpdateReport}
+                        onClick={() => updateItem('location', isRemote ? 'onsite' : 'remote')}
+                        className={`inline-flex items-center px-1.5 py-0.5 rounded text-[8px] font-bold border uppercase tracking-wide transition ${
                         isRemote 
                         ? 'bg-blue-50 text-blue-700 border-blue-100' 
                         : 'bg-teal-50 text-teal-700 border-teal-100'
-                    }`}>
+                    } ${onUpdateReport ? 'cursor-pointer hover:brightness-95' : ''}`}>
                         {isRemote ? 'RMT' : 'ONS'}
-                    </span>
+                    </button>
                   </td>
                   <td className="py-2 text-right font-mono text-xs font-bold text-zinc-700 bg-zinc-50/30 align-middle">
                     {total}

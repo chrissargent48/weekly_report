@@ -30,6 +30,7 @@ interface TableProps {
   headerBgColor?: string;
   headerTextColor?: string;
   alternateRowColor?: boolean;
+  manualBreaks?: number[]; // Array of row indices to break after
 }
 
 const tableStyles = StyleSheet.create({
@@ -111,6 +112,7 @@ export function Table({
   headerBgColor,
   headerTextColor,
   alternateRowColor = true,
+  manualBreaks,
 }: TableProps) {
   const displayTitle = title
     ? (isContinued ? `${title} (Continued)` : title)
@@ -135,7 +137,7 @@ export function Table({
   };
 
   return (
-    <View style={tableStyles.container} wrap={false}>
+    <View style={tableStyles.container}>
       {displayTitle && (
         <Text style={tableStyles.title}>{displayTitle}</Text>
       )}
@@ -168,26 +170,28 @@ export function Table({
         {/* Data Rows */}
         {data.length > 0 ? (
           data.map((row, rowIndex) => (
-            <View
-              key={keyExtractor ? keyExtractor(row, rowIndex) : rowIndex}
-              style={[
-                tableStyles.row,
-                alternateRowColor && rowIndex % 2 === 1 ? tableStyles.rowAlt : {},
-              ]}
-              wrap={false}
-            >
-              {columns.map((col) => (
-                <View key={col.key} style={getColumnStyle(col)}>
-                  {col.render ? (
-                    col.render(row[col.key], row, rowIndex)
-                  ) : (
-                    <Text style={[tableStyles.cell, getCellAlignStyle(col.align)]}>
-                      {row[col.key]?.toString() ?? '-'}
-                    </Text>
-                  )}
-                </View>
-              ))}
-            </View>
+            <React.Fragment key={keyExtractor ? keyExtractor(row, rowIndex) : rowIndex}>
+              <View
+                style={[
+                  tableStyles.row,
+                  alternateRowColor && rowIndex % 2 === 1 ? tableStyles.rowAlt : {},
+                ]}
+                wrap={false}
+              >
+                {columns.map((col) => (
+                  <View key={col.key} style={getColumnStyle(col)}>
+                    {col.render ? (
+                      col.render(row[col.key], row, rowIndex)
+                    ) : (
+                      <Text style={[tableStyles.cell, getCellAlignStyle(col.align)]}>
+                        {row[col.key]?.toString() ?? '-'}
+                      </Text>
+                    )}
+                  </View>
+                ))}
+              </View>
+              {manualBreaks?.includes(rowIndex) && <View break />}
+            </React.Fragment>
           ))
         ) : (
           <View style={[tableStyles.row, tableStyles.emptyRow]}>

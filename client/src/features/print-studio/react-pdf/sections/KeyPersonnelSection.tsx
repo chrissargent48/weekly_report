@@ -142,55 +142,64 @@ export function KeyPersonnelSection({ config, reportData, projectConfig, placeme
       <View style={personnelStyles.grid}>
         {/* RECON Team */}
         {reconPersonnel.length > 0 && (
-          <PersonCard title="RECON Team">
-            {reconPersonnel.map((person, i) => (
-              <PersonRow
-                key={person.id || i}
-                name={person.name}
-                role={person.role}
-                email={person.email}
-                phone={person.phone}
-              />
-            ))}
-          </PersonCard>
+          <React.Fragment>
+            <PersonCard title="RECON Team">
+              {reconPersonnel.map((person, i) => (
+                <PersonRow
+                  key={person.id || i}
+                  name={person.name}
+                  role={person.role}
+                  email={person.email}
+                  phone={person.phone}
+                />
+              ))}
+            </PersonCard>
+            {config.manualBreaks?.some(b => b.sectionId === 'key_personnel' && b.afterRowIndex === 0) && <View break />}
+          </React.Fragment>
         )}
 
         {/* Client */}
         {personnel.client && (
-          <PersonCard title="Client">
-            <Text style={personnelStyles.companyName}>{personnel.client.company}</Text>
-            {personnel.client.address && (
-              <Text style={personnelStyles.companyAddress}>{personnel.client.address}</Text>
-            )}
-            {clientReps.map((rep, i) => (
-              <PersonRow
-                key={rep.id || i}
-                name={rep.name}
-                role={rep.role}
-                email={rep.email}
-                phone={rep.phone}
-              />
-            ))}
-          </PersonCard>
+          <React.Fragment>
+            <PersonCard title="Client">
+              <Text style={personnelStyles.companyName}>{personnel.client.company}</Text>
+              {personnel.client.address && (
+                <Text style={personnelStyles.companyAddress}>{personnel.client.address}</Text>
+              )}
+              {clientReps.map((rep, i) => (
+                <PersonRow
+                  key={rep.id || i}
+                  name={rep.name}
+                  role={rep.role}
+                  email={rep.email}
+                  phone={rep.phone}
+                />
+              ))}
+            </PersonCard>
+             {config.manualBreaks?.some(b => b.sectionId === 'key_personnel' && b.afterRowIndex === 1) && <View break />}
+          </React.Fragment>
         )}
 
         {/* Engineer */}
         {personnel.engineer && engineerReps.length > 0 && (
-          <PersonCard title="Engineer of Record">
-            <Text style={personnelStyles.companyName}>{personnel.engineer.company}</Text>
-            {personnel.engineer.address && (
-              <Text style={personnelStyles.companyAddress}>{personnel.engineer.address}</Text>
-            )}
-            {engineerReps.map((rep, i) => (
-              <PersonRow
-                key={rep.id || i}
-                name={rep.name}
-                role={rep.role}
-                email={rep.email}
-                phone={rep.phone}
-              />
-            ))}
-          </PersonCard>
+          <React.Fragment>
+            <PersonCard title="Engineer of Record">
+              <Text style={personnelStyles.companyName}>{personnel.engineer.company}</Text>
+              {personnel.engineer.address && (
+                <Text style={personnelStyles.companyAddress}>{personnel.engineer.address}</Text>
+              )}
+              {engineerReps.map((rep, i) => (
+                <PersonRow
+                  key={rep.id || i}
+                  name={rep.name}
+                  role={rep.role}
+                  email={rep.email}
+                  phone={rep.phone}
+                />
+              ))}
+            </PersonCard>
+             {config.manualBreaks?.some(b => b.sectionId === 'key_personnel' && b.afterRowIndex === 2) && <View break />}
+          </React.Fragment>
         )}
       </View>
     </View>

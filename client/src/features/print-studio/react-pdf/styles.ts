@@ -42,7 +42,7 @@ export const COLORS = {
 export const PAGE = {
   WIDTH: 612,    // 8.5" Letter
   HEIGHT: 792,   // 11" Letter
-  MARGIN_TOP: 40,
+  MARGIN_TOP: 50, // Reverted from 90 - Header is in-flow, so standard margin is fine
   MARGIN_BOTTOM: 50,
   MARGIN_LEFT: 40,
   MARGIN_RIGHT: 40,
@@ -56,9 +56,9 @@ export const PAGE = {
 
 // Cover section constants
 export const COVER = {
-  HEADER_HEIGHT: 180,
-  TITLE_BLOCK_HEIGHT: 100,
-  PHOTO_STRIP_HEIGHT: 100,
+  HEADER_HEIGHT: 280,      // Reduced from 320 to match visual scale
+  TITLE_BLOCK_HEIGHT: 110,
+  PHOTO_STRIP_HEIGHT: 130, // Reduced from 160
   CLIENT_INFO_HEIGHT: 60,
   SAFETY_BANNER_HEIGHT: 30,
 } as const;
@@ -88,7 +88,7 @@ export const styles = StyleSheet.create({
 
   // ===== TYPOGRAPHY =====
   h1: {
-    fontSize: 24,
+    fontSize: 20, // Reduced from 24 to prevent wrapping
     fontWeight: 'bold',
     color: COLORS.text,
     marginBottom: 4,
@@ -253,7 +253,8 @@ export const styles = StyleSheet.create({
   coverContent: {
     flex: 1,
     paddingHorizontal: 40,
-    paddingTop: 24,
+    paddingTop: 16, // Reduced from 24 to bring text closer to hero
+    paddingBottom: 40,
   },
   coverTitle: {
     fontSize: 26,
@@ -264,7 +265,7 @@ export const styles = StyleSheet.create({
   coverSubtitle: {
     fontSize: 14,
     color: COLORS.primary,
-    marginBottom: 12,
+    marginBottom: 8, // Reduced form 12
   },
   coverAccentBar: {
     width: 100,

@@ -54,6 +54,7 @@ const coverStyles = StyleSheet.create({
     position: 'absolute',
     top: 24,
     left: 32,
+    zIndex: 50, // Ensure logo sits on top of overlay
   },
   logoImage: {
     maxHeight: 50,
@@ -211,13 +212,28 @@ export function CoverSection({ config, reportData, projectConfig }: CoverSection
         {heroPhoto?.url && (
           <Image
             src={heroPhoto.url}
-            style={coverStyles.heroImage}
+            style={[
+              coverStyles.heroImage,
+              {
+                objectPosition: `${config.heroPhotoPosition?.x ?? 50}% ${config.heroPhotoPosition?.y ?? 50}%`
+              }
+            ]}
           />
         )}
         {/* Overlay */}
         <View style={coverStyles.headerOverlay} />
         {/* Logo */}
-        <View style={[coverStyles.logoContainer, { transform: `scale(${logoScale})` }]}>
+        <View 
+          style={[
+            coverStyles.logoContainer, 
+            { 
+              transform: `scale(${logoScale})`,
+              // alignments
+              ...(config.logoAlign === 'center' ? { left: '50%', marginLeft: -80 } : {}), // centering trick since transform is used for scale
+              ...(config.logoAlign === 'right' ? { left: 'auto', right: 32 } : {}),
+            }
+          ]}
+        >
           {hasLogo ? (
             <Image
               src={logoUrl}
@@ -271,9 +287,29 @@ export function CoverSection({ config, reportData, projectConfig }: CoverSection
         </View>
       </View>
 
-      {/* Safety Banner */}
-      <View style={coverStyles.safetyBanner}>
+      {/* Safety Banner - Moved up to allow Footer below */}
+      <View style={[coverStyles.safetyBanner, { bottom: 30 }]}>
         <Text style={coverStyles.safetyText}>Safety is a core value</Text>
+      </View>
+
+      {/* Footer (Manual placement for Cover Page) */}
+      <View style={{
+        position: 'absolute',
+        bottom: 10,
+        left: 40,
+        right: 40,
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        borderTopWidth: 1,
+        borderTopColor: COLORS.border,
+        paddingTop: 6,
+      }}>
+         <Text style={{ fontSize: 7, color: COLORS.textMuted }}>
+           {projectName} - Weekly Report
+         </Text>
+         <Text style={{ fontSize: 7, color: COLORS.textMuted }} render={({ pageNumber, totalPages }) => (
+           `${pageNumber} of ${totalPages}`
+         )} fixed />
       </View>
     </View>
   );
