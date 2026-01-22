@@ -6,11 +6,11 @@
  */
 
 import React from 'react';
-import { Document, Page, View, Text, StyleSheet } from '@react-pdf/renderer';
-import { styles, COLORS, PAGE } from './styles';
-import { PrintConfig, PagePlacement, PageMap } from '../config/printConfig.types';
+import { Document, Page, View, Text } from '@react-pdf/renderer';
+import { styles } from './styles';
+import { PrintConfig, PageMap } from '../config/printConfig.types';
 import { WeeklyReport, ProjectConfig, ProjectBaselines } from '../../../types';
-import { PageHeader } from './components/PageHeader';
+import { PageHeader, PageFooter } from './components';
 
 // Import all section components
 import {
@@ -38,29 +38,6 @@ interface ReportDocumentProps {
   baselines?: ProjectBaselines;
   pageMap?: PageMap; // Kept for interface compatibility but unused
 }
-
-const footerStyles = StyleSheet.create({
-  footer: {
-    position: 'absolute',
-    bottom: 20,
-    left: PAGE.MARGIN_LEFT,
-    right: PAGE.MARGIN_RIGHT,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingTop: 8,
-    borderTopWidth: 1,
-    borderTopColor: COLORS.border,
-  },
-  footerText: {
-    fontSize: 7,
-    color: COLORS.textMuted,
-  },
-  pageNumber: {
-    fontSize: 7,
-    color: COLORS.textMuted,
-  },
-});
 
 // Section renderer - maps section ID to component
 function renderSection(
@@ -159,17 +136,12 @@ export function ReportDocument({
           weekEnding={reportData.weekEnding || ''}
         />
 
-        {/* Fixed Footer */}
+        {/* Fixed Footer - repeats on every content page */}
         {showFooter && (
-          <View style={footerStyles.footer} fixed>
-            <Text style={footerStyles.footerText}>{projectName} - Weekly Report</Text>
-            {showPageNumbers && (
-              <Text
-                style={footerStyles.pageNumber}
-                render={({ pageNumber, totalPages }) => `Page ${pageNumber} of ${totalPages}`}
-              />
-            )}
-          </View>
+          <PageFooter
+            projectName={projectName}
+            showPageNumbers={showPageNumbers}
+          />
         )}
 
         {/* Render Remaining Sections */}

@@ -30,6 +30,9 @@ export { styles, COLORS, PAGE, COVER, DENSITY_MULTIPLIERS, type DensityMode } fr
 // Primitives
 export { Table, SectionHeader, type TableColumn } from './primitives';
 
+// Shared components
+export { PageHeader, PageFooter, CoverFooter, AccentLine } from './components';
+
 // Individual section components (for custom documents)
 export {
   CoverSection,
