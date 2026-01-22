@@ -18,10 +18,7 @@
     "@react-pdf/renderer": "^4.3.2",
     "@types/uuid": "^10.0.0",
     "clsx": "^2.1.1",
-    "html2pdf.js": "^0.14.0",
     "lucide-react": "^0.309.0",
-    "pagedjs": "^0.4.3",
-    "pdfmake": "^0.3.3",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-is": "^19.2.3",
@@ -31,7 +28,6 @@
     "xlsx": "^0.18.5"
   },
   "devDependencies": {
-    "@types/pdfmake": "^0.2.12",
     "@types/react": "^18.2.43",
     "@types/react-dom": "^18.2.17",
     "@vitejs/plugin-react": "^4.2.1",
