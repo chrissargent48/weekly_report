@@ -1,6 +1,9 @@
 import React, { forwardRef } from 'react';
 import { PrintConfig, PageMap, ReportData } from '../../config/printConfig.types';
 import { PreviewPage } from './PreviewPage';
+import { LayoutDebugView } from '../../../../components/Print/LayoutDebugView';
+import { layoutApi } from '../../../../services/layoutApi';
+import { ReportLayout } from '../../../../../../server/types';
 
 // Import all section components using index files
 // (Ideally we'd have a barrel file, but importing directly for now)
@@ -73,16 +76,55 @@ export const PrintPreview = forwardRef<HTMLDivElement, PrintPreviewProps>(functi
   ref
 ) {
   const totalPages = pageMap.pages.length;
+  const [debugLayout, setDebugLayout] = React.useState<ReportLayout | null>(null);
+  const [isDebugLoading, setIsDebugLoading] = React.useState(false);
+
+  const toggleDebug = async () => {
+    if (debugLayout) {
+        setDebugLayout(null);
+        return;
+    }
+
+    setIsDebugLoading(true);
+    try {
+        const fullReport: any = {
+            ...reportData,
+            id: reportData.id || 'preview-id', 
+        };
+        
+        const layout = await layoutApi.calculateLayout(fullReport);
+        setDebugLayout(layout);
+    } catch (e) {
+        console.error("Failed to fetch layout:", e);
+        alert("Failed to calculate server layout. See console.");
+    } finally {
+        setIsDebugLoading(false);
+    }
+  };
 
   return (
+    <div className="flex flex-col items-center">
+        <div className="fixed bottom-4 right-4 z-50 print:hidden">
+            <button 
+                onClick={toggleDebug}
+                className={`px-4 py-2 rounded shadow-lg font-bold text-white transition-colors ${debugLayout ? 'bg-red-600 hover:bg-red-700' : 'bg-gray-800 hover:bg-gray-700'}`}
+            >
+                {isDebugLoading ? 'Calculating...' : debugLayout ? 'Disable Layout Debug' : 'Debug Server Layout'}
+            </button>
+        </div>
+
     <div
       ref={ref}
       className="print-preview-container flex flex-col items-center min-h-full gap-8"
       style={{
         // Remove padding for PDF capture - each page handles its own margins
         padding: 0,
+        position: 'relative' // Needed for absolute overlay
       }}
     >
+      {debugLayout && (
+          <LayoutDebugView layout={debugLayout} />
+      )}
       {pageMap.pages.map((page, index) => (
         <PreviewPage
           key={page.pageNumber}
@@ -130,6 +172,7 @@ export const PrintPreview = forwardRef<HTMLDivElement, PrintPreviewProps>(functi
           })}
         </PreviewPage>
       ))}
+    </div>
     </div>
   );
 });

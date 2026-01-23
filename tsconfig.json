@@ -8,8 +8,12 @@
     "skipLibCheck": true,
     "outDir": "./dist",
     "rootDir": ".",
-    "moduleResolution": "node"
+    "moduleResolution": "node",
+    "baseUrl": ".",
+    "paths": {
+      "@shared/*": ["shared/*"]
+    }
   },
-  "include": ["tests/**/*", "server/**/*"],
+  "include": ["tests/**/*", "server/**/*", "shared/**/*"],
   "exclude": ["node_modules", "client"]
 }

@@ -73,6 +73,24 @@ export class DataManager {
       }
   }
 
+  /**
+   * Performs an atomic write by writing to a temp file and renaming it.
+   * This prevents data corruption if the process crashes during write.
+   */
+  private async atomicWrite(filePath: string, data: string): Promise<void> {
+      const tempPath = `${filePath}.tmp.${Date.now()}`;
+      try {
+          await fs.writeFile(tempPath, data);
+          // Rename is atomic on POSIX and ensures file is either old or new version
+          await fs.rename(tempPath, filePath);
+      } catch (e) {
+          // Cleanup temp if it exists
+          try { await fs.unlink(tempPath); } catch {}
+          throw e;
+      }
+  }
+
+
 
   // --- PROJECT MANAGEMENT ---
 
@@ -100,7 +118,7 @@ export class DataManager {
       
       // Update Index
       projects.push(newProject);
-      await fs.writeFile(PROJECTS_FILE, JSON.stringify(projects, null, 2));
+      await this.atomicWrite(PROJECTS_FILE, JSON.stringify(projects, null, 2));
 
       // Create Project Folder
       const projectDir = path.join(DATA_DIR, newProject.id);
@@ -119,7 +137,7 @@ export class DataManager {
           contract: { originalValue: 0, startDate: "", substantialCompletionDate: "" },
           distributionList: { to: [], cc: [] }
       };
-      await fs.writeFile(path.join(projectDir, 'config.json'), JSON.stringify(defaultConfig, null, 2));
+      await this.atomicWrite(path.join(projectDir, 'config.json'), JSON.stringify(defaultConfig, null, 2));
 
       return newProject;
   }
@@ -141,7 +159,7 @@ export class DataManager {
       }
 
       projects = projects.filter(p => p.id !== projectId);
-      await fs.writeFile(PROJECTS_FILE, JSON.stringify(projects, null, 2));
+      await this.atomicWrite(PROJECTS_FILE, JSON.stringify(projects, null, 2));
 
       // 2. Remove Directory
       const projectDir = this.getProjectDir(projectId);
@@ -177,7 +195,7 @@ export class DataManager {
 
   async saveProjectConfig(projectId: string, config: ProjectConfig): Promise<void> {
     const filePath = path.join(this.getProjectDir(projectId), 'config.json');
-    await fs.writeFile(filePath, JSON.stringify(config, null, 2));
+    await this.atomicWrite(filePath, JSON.stringify(config, null, 2));
     
     // Update Index Metdata (Name/Location might have changed)
     const projects = await this.listProjects();
@@ -186,7 +204,7 @@ export class DataManager {
         projects[idx].name = config.identity.projectName;
         projects[idx].location = config.identity.location;
         projects[idx].lastUpdated = new Date().toISOString();
-        await fs.writeFile(PROJECTS_FILE, JSON.stringify(projects, null, 2));
+        await this.atomicWrite(PROJECTS_FILE, JSON.stringify(projects, null, 2));
     }
   }
 
@@ -205,7 +223,7 @@ export class DataManager {
     await fs.mkdir(reportsDir, { recursive: true }); // Ensure exists
     
     const filePath = path.join(reportsDir, `${date}.json`);
-    await fs.writeFile(filePath, JSON.stringify(report, null, 2));
+    await this.atomicWrite(filePath, JSON.stringify(report, null, 2));
     
     // Update lastUpdated
     const projects = await this.listProjects();
@@ -241,7 +259,7 @@ export class DataManager {
   async saveBaselines(projectId: string, baselines: import('./types').ProjectBaselines): Promise<void> {
     const filePath = path.join(this.getProjectDir(projectId), 'baselines.json');
     try {
-        await fs.writeFile(filePath, JSON.stringify(baselines, null, 2));
+        await this.atomicWrite(filePath, JSON.stringify(baselines, null, 2));
     } catch (e) {
         console.error(`[DataManager] Write failed:`, e);
         throw e;

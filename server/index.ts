@@ -7,8 +7,10 @@ import { DataManager } from './DataManager';
 import crypto from 'crypto';
 
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT ? parseInt(process.env.PORT) : 3000;
 const dataManager = new DataManager();
+import { LayoutEngine } from './services/LayoutEngine';
+const layoutEngine = new LayoutEngine();
 
 app.use(cors());
 app.use(bodyParser.json({ limit: '50mb' })); // Support large photo uploads
@@ -75,6 +77,24 @@ app.get('/api/projects/:id/reports/:date', async (req, res) => {
 app.post('/api/projects/:id/reports/:date', async (req, res) => {
   await dataManager.saveReport(req.params.id, req.params.date, req.body);
   res.json({ success: true });
+});
+
+// --- LAYOUT ENGINE API ---
+app.post('/api/layout/calculate', async (req, res) => {
+    try {
+        const report = req.body;
+        // Basic validation
+        if (!report || !report.id) {
+            return res.status(400).json({ error: "Invalid report data" });
+        }
+        
+        console.log(`[LayoutEngine] Calculating layout for report ${report.id}`);
+        const layout = layoutEngine.calculateLayout(report);
+        res.json(layout);
+    } catch (e: any) {
+        console.error("Layout Calculation Error:", e);
+        res.status(500).json({ error: e.message || "Layout calculation failed" });
+    }
 });
 
 // PDF generation is now handled client-side via pdfmake
