@@ -6,6 +6,8 @@ interface ImagePositionContextType {
   setHeroPhotoPosition: (x: number, y: number) => void;
   setStripPhotoPosition: (index: number, x: number, y: number) => void;
   setPhotoPosition: (index: number, x: number, y: number) => void;
+  setPhotoZoom: (id: string, zoom: number) => void;
+  setPhotoCrop: (id: string, crop: { x: number; y: number; width: number; height: number }) => void;
   getPosition: (id: string) => ImagePosition;
 }
 
@@ -17,6 +19,8 @@ interface ImagePositionProviderProps {
   setHeroPhotoPosition: (x: number, y: number) => void;
   setStripPhotoPosition: (index: number, x: number, y: number) => void;
   setPhotoPosition: (index: number, x: number, y: number) => void;
+  setPhotoZoom: (id: string, zoom: number) => void;
+  setPhotoCrop: (id: string, crop: { x: number; y: number; width: number; height: number }) => void;
 }
 
 export function ImagePositionProvider({
@@ -25,6 +29,8 @@ export function ImagePositionProvider({
   setHeroPhotoPosition,
   setStripPhotoPosition,
   setPhotoPosition,
+  setPhotoZoom,
+  setPhotoCrop,
 }: ImagePositionProviderProps) {
   const getPosition = useCallback((id: string): ImagePosition => {
     if (id === 'hero-image') {
@@ -51,6 +57,8 @@ export function ImagePositionProvider({
         setHeroPhotoPosition,
         setStripPhotoPosition,
         setPhotoPosition,
+        setPhotoZoom,
+        setPhotoCrop,
         getPosition,
       }}
     >
@@ -71,7 +79,14 @@ export function useImagePosition() {
  * Hook to get position and setter for a specific image ID.
  */
 export function useImagePositionById(id: string) {
-  const { getPosition, setHeroPhotoPosition, setStripPhotoPosition, setPhotoPosition } = useImagePosition();
+  const { 
+    getPosition, 
+    setHeroPhotoPosition, 
+    setStripPhotoPosition, 
+    setPhotoPosition,
+    setPhotoZoom,
+    setPhotoCrop
+  } = useImagePosition();
 
   const position = getPosition(id);
 
@@ -87,5 +102,13 @@ export function useImagePositionById(id: string) {
     }
   }, [id, setHeroPhotoPosition, setStripPhotoPosition, setPhotoPosition]);
 
-  return { position, setPosition };
+  const setZoom = useCallback((zoom: number) => {
+    setPhotoZoom(id, zoom);
+  }, [id, setPhotoZoom]);
+
+  const setCrop = useCallback((crop: { x: number; y: number; width: number; height: number }) => {
+    setPhotoCrop(id, crop);
+  }, [id, setPhotoCrop]);
+
+  return { position, setPosition, setZoom, setCrop };
 }

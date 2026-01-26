@@ -22,6 +22,13 @@ export interface PrintSpacing {
 export interface ImagePosition {
   x: number;  // 0-100, percentage from left
   y: number;  // 0-100, percentage from top
+  zoom?: number; // 1-3, scale factor
+  crop?: { // Pixel crop (React Easy Crop format)
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+  };
 }
 
 /**
@@ -37,6 +44,7 @@ export interface ManualPageBreak {
   sectionId: string;      // e.g., "progress", "safety", "materials"
   afterRowIndex: number;  // Break after row at this index (0-based)
   afterRowId?: string;    // Optional: row ID for more stable reference
+  type: 'simple' | 'split'; // simple = just break; split = cut table (repeat headers, flat borders)
 }
 
 export interface PrintConfig {
@@ -66,6 +74,8 @@ export interface PagePlacement {
     showHeader?: boolean;
     showFooter?: boolean;
     showContinuedHeader?: boolean;  // Show minimal header for continuation pages
+    isSplitTop?: boolean; // For "Cut" tables: bottom borders flat
+    isSplitBottom?: boolean; // For "Cut" tables: top borders flat
     [key: string]: boolean | undefined;
   };
   /** CSS-based layout hints for page break control */

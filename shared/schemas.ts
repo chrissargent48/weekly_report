@@ -414,3 +414,25 @@ export type ChangeOrder = z.infer<typeof ChangeOrderSchema>;
 export type CanvasNode = z.infer<typeof CanvasNodeSchema>;
 export type ReportLayout = z.infer<typeof ReportLayoutSchema>;
 
+export type ProjectConfig = z.infer<typeof ProjectConfigSchema>;
+export type WeeklyReport = z.infer<typeof WeeklyReportSchema>;
+export type ProjectBaselines = z.infer<typeof ProjectBaselinesSchema>;
+export type MasterBidItem = z.infer<typeof MasterBidItemSchema>;
+export type MasterTask = z.infer<typeof MasterTaskSchema>;
+export type TaskBidLink = z.infer<typeof TaskBidLinkSchema>;
+export type WeatherDay = z.infer<typeof WeatherDaySchema>;
+export type SafetyStats = z.infer<typeof SafetyStatsSchema>;
+export type SafetyObservation = z.infer<typeof SafetyObservationSchema>;
+export type WeeklyBidEntry = z.infer<typeof WeeklyBidEntrySchema>;
+export type Invoice = z.infer<typeof InvoiceSchema>;
+export type ScheduleMilestone = z.infer<typeof ScheduleMilestoneSchema>;
+export type LookAheadEntry = z.infer<typeof LookAheadEntrySchema>;
+export type PhotoEntry = z.infer<typeof PhotoEntrySchema>;
+export type ManpowerEntry = z.infer<typeof ManpowerEntrySchema>;
+export type EquipmentEntry = z.infer<typeof EquipmentEntrySchema>;
+export type MaterialDelivery = z.infer<typeof MaterialDeliverySchema>;
+export type ProcurementEntry = z.infer<typeof ProcurementEntrySchema>;
+export type IssueEntry = z.infer<typeof IssueEntrySchema>;
+export type RfiEntry = z.infer<typeof RfiEntrySchema>;
+export type SubmittalEntry = z.infer<typeof SubmittalEntrySchema>;
+

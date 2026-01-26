@@ -20,7 +20,10 @@ import {
   FieldDirective,
   ChangeOrder,
   CanvasNode,
-  ReportLayout
+  ReportLayout,
+  MasterTask,
+  MasterBidItem,
+  TaskBidLink
 } from '@shared/schemas';
 
 // Re-export shared types
@@ -47,7 +50,10 @@ export type {
   FieldDirective,
   ChangeOrder,
   CanvasNode,
-  ReportLayout
+  ReportLayout,
+  MasterTask,
+  MasterBidItem,
+  TaskBidLink
 };
 
 // --- CLIENT SPECIFIC TYPES ---

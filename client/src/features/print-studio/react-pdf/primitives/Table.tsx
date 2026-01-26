@@ -26,11 +26,14 @@ interface TableProps {
   title?: string;
   isContinued?: boolean;
   showHeader?: boolean;
-  keyExtractor?: (item: any, index: number) => string;
+  keyExtractor: (item: any, index: number) => string;
   headerBgColor?: string;
   headerTextColor?: string;
   alternateRowColor?: boolean;
   manualBreaks?: number[]; // Array of row indices to break after
+  // Visual hints for split tables
+  isSplitTop?: boolean;    // This is the top chunk of a split table (flatten bottom)
+  isSplitBottom?: boolean; // This is the bottom chunk of a split table (flatten top)
 }
 
 const tableStyles = StyleSheet.create({
@@ -54,6 +57,17 @@ const tableStyles = StyleSheet.create({
     borderWidth: 1,
     borderColor: COLORS.border,
     borderRadius: 3,
+  },
+  // Split styles: remove borders/radius where the cut happens
+  tableSplitTop: {
+    borderBottomLeftRadius: 0,
+    borderBottomRightRadius: 0,
+    borderBottomWidth: 0,
+  },
+  tableSplitBottom: {
+    borderTopLeftRadius: 0,
+    borderTopRightRadius: 0,
+    borderTopWidth: 0,
   },
   headerRow: {
     flexDirection: 'row',
@@ -113,10 +127,19 @@ export function Table({
   headerTextColor,
   alternateRowColor = true,
   manualBreaks,
+  isSplitTop = false,
+  isSplitBottom = false,
 }: TableProps) {
-  const displayTitle = title
-    ? (isContinued ? `${title} (Continued)` : title)
-    : undefined;
+    const displayTitle = title
+        ? (isContinued ? `${title} (Continued)` : title)
+        : undefined;
+    
+    // Apply split visual styles
+    const tableStyle = [
+        tableStyles.table,
+        isSplitTop ? tableStyles.tableSplitTop : {},
+        isSplitBottom ? tableStyles.tableSplitBottom : {}
+    ];
 
   const getColumnStyle = (col: TableColumn) => {
     const baseStyle: any = {};
@@ -141,7 +164,7 @@ export function Table({
       {displayTitle && (
         <Text style={tableStyles.title}>{displayTitle}</Text>
       )}
-      <View style={tableStyles.table}>
+      <View style={tableStyle}>
         {/* Header Row - uses fixed to repeat on page breaks */}
         {showHeader && (
           <View

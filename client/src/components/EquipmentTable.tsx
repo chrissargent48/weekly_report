@@ -50,7 +50,7 @@ export function EquipmentTable({ entries, onAdd, onUpdateEntries }: Props) {
         const updated = [...entries];
         updated[index] = { 
             ...updated[index], 
-            dates: { ...updated[index].dates, [field]: value } 
+            dates: { ...updated[index].dates, [field]: value } as any
         };
         onUpdateEntries(updated);
     };
@@ -59,7 +59,7 @@ export function EquipmentTable({ entries, onAdd, onUpdateEntries }: Props) {
         const updated = [...entries];
         updated[index] = { 
             ...updated[index], 
-            dailyHours: { ...updated[index].dailyHours, [day]: hours } 
+            dailyHours: { ...updated[index].dailyHours || {}, [day]: hours } as any
         };
         onUpdateEntries(updated);
     };

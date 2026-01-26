@@ -15,24 +15,42 @@
 - **Professional Output:** The "Product" is the PDF report. It must look impeccable.
 - **WYSIWYG:** The "Print Studio" allows users to design and preview reports exactly as they will look in PDF.
 - **Workflow Centric:** The app guides the user through the weekly flow: _Review Schedule -> Update Progress -> Log Issues -> Print_.
+- **IT-Friendly Deployment:** The application runs as a local server script (Node.js) accessed via the browser. This avoids the need for administrative privileges or formal software installation, making it easier to deploy in strict IT environments.
 
 ---
 
 ## 🏗️ Architecture Overview
 
+### Deployment Strategy
+
+To minimize "Shadow IT" friction, this tool is designed to run without a traditional installer:
+
+1.  **Zero-Install**: Runs from a directory on the user's machine.
+2.  **Browser Interface**: Uses the system's approved web browser (Chrome/Edge) as the UI.
+3.  **Local Server**: A lightweight Node.js process handles file operations, bypassing the need for cloud storage or external API approvals.
+
+### PDF Generation Strategy
+
+We use **Client-Side Generation** via `@react-pdf/renderer`.
+
+- **Why?** It keeps the generation logic in React, allowing us to share components between the "Print Studio" preview and the final PDF file.
+- **Tech**: The PDF is built as a React component tree, rendered to a stream/blob in the browser, and saved to disk.
+
 ### Tech Stack
 
-| Layer         | Technology          | Purpose                                         |
-| :------------ | :------------------ | :---------------------------------------------- |
-| **App Shell** | Electron            | Desktop application wrapper                     |
-| **Server**    | Node.js + Express   | Local API, File System Access, orchestration    |
-| **Client**    | React + TypeScript  | Component-based UI logic                        |
-| **Build**     | Vite                | Fast dev server and bundling                    |
-| **Styling**   | Tailwind CSS        | Utility-first styling (RECON Theme)             |
-| **PDF**       | @react-pdf/renderer | Client-side PDF generation (replaced Puppeteer) |
-| **Editor**    | Tiptap              | Rich text editing for summaries                 |
-| **DnD**       | @dnd-kit            | Drag and drop interactions                      |
-| **Data**      | JSON + File System  | Simple, human-readable data storage             |
+| Layer          | Technology           | Purpose                                         |
+| :------------- | :------------------- | :---------------------------------------------- |
+| **App Shell**  | Electron             | Desktop application wrapper                     |
+| **Server**     | Node.js + Express    | Local API, File System Access, orchestration    |
+| **Client**     | React + TypeScript   | Component-based UI logic                        |
+| **Build**      | Vite                 | Fast dev server and bundling                    |
+| **Styling**    | Tailwind, HeadlessUI | Utility-first styling & Accessible components   |
+| **PDF**        | @react-pdf/renderer  | Client-side PDF generation (replaced Puppeteer) |
+| **Editor**     | Tiptap               | Rich text editing for summaries                 |
+| **DnD**        | @dnd-kit             | Drag and drop interactions                      |
+| **Images**     | react-easy-crop      | Image manipulation & cropping                   |
+| **Validation** | Zod                  | Schema validation (Client & Server)             |
+| **Data**       | JSON, xlsx           | File storage & Excel processing                 |
 
 ### Directory Structure
 
@@ -148,3 +166,25 @@ export function ComponentName({ data, onUpdate }: Props) {
 1.  **Respect the Brand**: Do not verifiy from RECON colors.
 2.  **Maintain "Local-First"**: Do not add dependencies that require internet access (cloud DBs, external analytics) without explicit user permission.
 3.  **Electron Awareness**: Remember the app handles local file paths and native windows.
+
+---
+
+## 🙋‍♂️ User Question: How do I ask other AIs for help?
+
+If you need to ask another AI (like ChatGPT, Claude web, etc.) for help, **copy and paste this context block** first. It ensures they understand your unique setup (Local Server + React + Electron Scaffolding) and don't give you generic "Web App" advice that won't work.
+
+**👇 COPY THIS BLOCK:**
+
+> **Context for my coding question:**
+> I am building a "Local-First" Desktop App for construction reporting.
+>
+> - **Stack:** React 18 (Vite) + TypeScript + Tailwind CSS (Client)
+> - **Backend:** Node.js Express server running locally on the user's machine (not a cloud server).
+> - **Deployment:** It's a web app running on `localhost`, but wrapped in Electron scaffolding (though actively just using the browser for now).
+> - **Key Constraints:**
+>   - I have direct access to the local file system via my `DataManager` backend.
+>   - I use `@react-pdf/renderer` to generate PDFs client-side.
+>   - Do not suggest cloud databases (Firebase, AWS) unless explicitly asked.
+>   - Keep solutions compatible with Windows.
+
+**Then ask your question.** (e.g., "How do I create a new photo grid component?")

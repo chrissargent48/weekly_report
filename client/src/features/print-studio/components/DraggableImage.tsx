@@ -10,21 +10,16 @@ interface DraggableImageProps {
   alt: string;
   className?: string;
   containerClassName?: string;
+  onEdit?: () => void;
 }
 
-/**
- * Image component that supports drag-to-pan positioning.
- * The image uses object-fit: cover and the user can drag to change
- * which part of the image is visible (object-position).
- *
- * Uses ImagePositionContext to automatically get/set position based on ID.
- */
 export function DraggableImage({
   id,
   src,
   alt,
   className = '',
   containerClassName = '',
+  onEdit,
 }: DraggableImageProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [isDragging, setIsDragging] = useState(false);
@@ -92,7 +87,7 @@ export function DraggableImage({
   return (
     <div
       ref={containerRef}
-      className={`draggable-image-container relative overflow-hidden ${containerClassName} ${
+      className={`draggable-image-container relative overflow-hidden group ${containerClassName} ${
         selected ? 'ring-2 ring-cyan-500 ring-offset-1' : ''
       } ${isDragging ? 'cursor-grabbing' : 'cursor-grab'}`}
       onMouseDown={handleMouseDown}
@@ -105,11 +100,13 @@ export function DraggableImage({
         className={`w-full h-full object-cover select-none pointer-events-none ${className}`}
         style={{
           objectPosition: `${position.x}% ${position.y}%`,
+          transform: position.zoom ? `scale(${position.zoom})` : 'none',
+          transformOrigin: `${position.x}% ${position.y}%`, // Zoom towards the focus point
         }}
         draggable={false}
       />
 
-      {/* Selection overlay with drag hint */}
+      {/* Selection overlay with Edit button */}
       {selected && (
         <div className="absolute inset-0 pointer-events-none z-10">
           {/* Corner handles */}
@@ -123,15 +120,35 @@ export function DraggableImage({
             Image
           </div>
 
-          {/* Drag hint overlay */}
-          <div className="absolute inset-0 bg-black/10 flex items-center justify-center">
-            <div className="bg-black/60 text-white text-xs px-2 py-1 rounded flex items-center gap-1">
-              <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
-              </svg>
-              Drag to pan
+          {/* Edit Button & Controls (Only if onEdit is provided) */}
+          {onEdit && (
+            <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/20 pointer-events-auto">
+                <button 
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        onEdit();
+                    }}
+                    className="bg-white text-zinc-900 px-3 py-1.5 rounded-md shadow-lg font-bold text-xs flex items-center gap-2 hover:bg-zinc-50 transform hover:scale-105 transition"
+                >
+                    <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                    </svg>
+                    Edit Photo
+                </button>
             </div>
-          </div>
+          )}
+
+          {/* Drag hint - hidden on hover to show Edit button clearly */}
+         {!onEdit && (
+            <div className="absolute inset-0 bg-black/10 flex items-center justify-center">
+                <div className="bg-black/60 text-white text-xs px-2 py-1 rounded flex items-center gap-1">
+                <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
+                </svg>
+                Drag to pan
+                </div>
+            </div>
+         )}
         </div>
       )}
 

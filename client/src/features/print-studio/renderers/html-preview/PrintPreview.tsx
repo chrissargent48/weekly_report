@@ -34,6 +34,7 @@ interface PrintPreviewProps {
   totalPages?: number;
   onUpdateReport?: (data: ReportData) => void;
   onToggleRowBreak?: (sectionId: string, afterRowIndex: number, afterRowId?: string) => void;
+  onEditPhoto?: (photoId: string, url: string) => void;
 }
 
 // Map section IDs to their components
@@ -72,6 +73,7 @@ export const PrintPreview = forwardRef<HTMLDivElement, PrintPreviewProps>(functi
     showPageBreakGuides = false,
     onUpdateReport,
     onToggleRowBreak,
+    onEditPhoto,
   },
   ref
 ) {
@@ -167,6 +169,7 @@ export const PrintPreview = forwardRef<HTMLDivElement, PrintPreviewProps>(functi
                 placement={placement}
                 onUpdateReport={onUpdateReport}
                 onToggleRowBreak={onToggleRowBreak}
+                onEditPhoto={onEditPhoto}
               />
             );
           })}

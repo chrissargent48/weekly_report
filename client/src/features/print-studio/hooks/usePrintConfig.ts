@@ -11,8 +11,12 @@ interface UsePrintConfigReturn {
   reorderSections: (fromIndex: number, toIndex: number) => void;
   resetSections: () => void;
   // Manual row-level breaks
+  // Manual row-level breaks
   toggleRowBreak: (sectionId: string, afterRowIndex: number, afterRowId?: string) => void;
   clearRowBreaks: (sectionId?: string) => void;
+  // Photo manipulation
+  setPhotoZoom: (id: string, zoom: number) => void;
+  setPhotoCrop: (id: string, crop: { x: number; y: number; width: number; height: number }) => void;
   // Spacing
   setSpacing: (type: 'compact' | 'standard' | 'relaxed') => void;
   // Logo
@@ -133,7 +137,7 @@ export function usePrintConfig(projectId: string, initialConfig?: Partial<PrintC
         // Add the break
         return {
           ...prev,
-          manualBreaks: [...existingBreaks, { sectionId, afterRowIndex, afterRowId }],
+          manualBreaks: [...existingBreaks, { sectionId, afterRowIndex, afterRowId, type: 'simple' }],
         };
       }
     });
@@ -231,9 +235,73 @@ export function usePrintConfig(projectId: string, initialConfig?: Partial<PrintC
       ...prev,
       photoPositions: {
         ...prev.photoPositions,
-        [index]: { x: Math.min(100, Math.max(0, x)), y: Math.min(100, Math.max(0, y)) },
+        [index]: { ...prev.photoPositions[index], x: Math.min(100, Math.max(0, x)), y: Math.min(100, Math.max(0, y)) },
       },
     }));
+  }, []);
+
+  const setPhotoZoom = useCallback((id: string, zoom: number) => {
+    setConfig(prev => {
+        if (id === 'hero-image') {
+            return {
+                ...prev,
+                heroPhotoPosition: { ...prev.heroPhotoPosition, zoom }
+            };
+        }
+        if (id.startsWith('strip-photo-')) {
+            const index = parseInt(id.replace('strip-photo-', ''), 10);
+            return {
+                ...prev,
+                stripPhotoPositions: {
+                    ...prev.stripPhotoPositions,
+                    [index]: { ...prev.stripPhotoPositions[index] || { x: 50, y: 50 }, zoom }
+                }
+            };
+        }
+        if (id.startsWith('photo-')) {
+            const index = parseInt(id.replace('photo-', ''), 10);
+             return {
+                ...prev,
+                photoPositions: {
+                    ...prev.photoPositions,
+                    [index]: { ...prev.photoPositions[index] || { x: 50, y: 50 }, zoom }
+                }
+            };
+        }
+        return prev;
+    });
+  }, []);
+
+  const setPhotoCrop = useCallback((id: string, crop: { x: number; y: number; width: number; height: number }) => {
+    setConfig(prev => {
+        if (id === 'hero-image') {
+            return {
+                ...prev,
+                heroPhotoPosition: { ...prev.heroPhotoPosition, crop }
+            };
+        }
+        if (id.startsWith('strip-photo-')) {
+            const index = parseInt(id.replace('strip-photo-', ''), 10);
+            return {
+                ...prev,
+                stripPhotoPositions: {
+                    ...prev.stripPhotoPositions,
+                    [index]: { ...prev.stripPhotoPositions[index] || { x: 50, y: 50 }, crop }
+                }
+            };
+        }
+        if (id.startsWith('photo-')) {
+            const index = parseInt(id.replace('photo-', ''), 10);
+             return {
+                ...prev,
+                photoPositions: {
+                    ...prev.photoPositions,
+                    [index]: { ...prev.photoPositions[index] || { x: 50, y: 50 }, crop }
+                }
+            };
+        }
+        return prev;
+    });
   }, []);
 
   const clearConfig = useCallback(() => {
@@ -259,6 +327,8 @@ export function usePrintConfig(projectId: string, initialConfig?: Partial<PrintC
     setHeroPhotoPosition,
     setStripPhotoPosition,
     setPhotoPosition,
+    setPhotoZoom,
+    setPhotoCrop,
     togglePageNumbers,
     toggleFooter,
     clearConfig,

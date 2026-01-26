@@ -1,5 +1,5 @@
 
-import { WeeklyReport, ReportLayout } from '../../../../server/types';
+import { WeeklyReport, ReportLayout } from '../types';
 
 // We need to fetch from the API port (defaults to 3000 in dev, usually proxied)
 // In this setup, we seem to have server on 3000 and client on 5173.

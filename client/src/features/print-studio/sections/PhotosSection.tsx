@@ -7,9 +7,10 @@ interface Props {
   config: PrintConfig;
   reportData: ReportData;
   placement: PagePlacement;
+  onEditPhoto?: (photoId: string, url: string) => void;
 }
 
-export function PhotosSection({ config, reportData, placement }: Props) {
+export function PhotosSection({ config, reportData, placement, onEditPhoto }: Props) {
   const allPhotos = reportData.photos || [];
   if (allPhotos.length === 0) return null;
 
@@ -35,13 +36,16 @@ export function PhotosSection({ config, reportData, placement }: Props) {
       <div className="grid grid-cols-2 gap-x-6 gap-y-8 flex-1">
         {pagePhotos.map((photo: any, i: number) => {
           const photoIndex = startIndex + i;
+          const photoId = `photo-${photoIndex}`;
+          
           return (
             <div key={i} className="flex flex-col gap-2 break-inside-avoid">
               <DraggableImage
-                id={`photo-${photoIndex}`}
+                id={photoId}
                 src={photo.url}
                 alt={photo.caption || `Photo ${photoIndex + 1}`}
                 containerClassName="aspect-[4/3] bg-zinc-100 rounded-lg border border-zinc-200 shadow-sm"
+                onEdit={() => onEditPhoto?.(photoId, photo.url)}
               />
               <div className="px-1">
                 <p className="font-bold text-zinc-900 text-sm mb-0.5">

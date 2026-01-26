@@ -63,6 +63,7 @@ const progressStyles = StyleSheet.create({
   },
   summaryValuePrimary: {
     color: COLORS.primary,
+    fontWeight: 'bold',
   },
   summarySubtext: {
     fontSize: 6,
@@ -80,6 +81,7 @@ const progressStyles = StyleSheet.create({
     height: '100%',
     backgroundColor: COLORS.primary,
     borderRadius: 2,
+    overflow: 'hidden',
   },
   // Table styles
   table: {
@@ -87,6 +89,16 @@ const progressStyles = StyleSheet.create({
     borderColor: COLORS.border,
     borderRadius: 4,
     overflow: 'hidden',
+  },
+  tableSplitTop: {
+    borderBottomLeftRadius: 0,
+    borderBottomRightRadius: 0,
+    borderBottomWidth: 0,
+  },
+  tableSplitBottom: {
+    borderTopLeftRadius: 0,
+    borderTopRightRadius: 0,
+    borderTopWidth: 0,
   },
   tableHeader: {
     flexDirection: 'row',
@@ -158,6 +170,7 @@ const progressStyles = StyleSheet.create({
     fontWeight: 'bold',
     color: COLORS.textMuted,
     textTransform: 'uppercase',
+    letterSpacing: 0.3,
   },
   footerValue: {
     fontSize: 8,
@@ -399,6 +412,9 @@ export function ProgressSection({
     );
   }
 
+  const isSplitTop = placement?.renderConfig?.isSplitTop;
+  const isSplitBottom = placement?.renderConfig?.isSplitBottom;
+
   return (
     <View style={progressStyles.container}>
       {showHeader && <SectionHeader title={sectionTitle} isContinued={isContinued} />}
@@ -413,7 +429,11 @@ export function ProgressSection({
       )}
 
       {/* Detailed Progress Table */}
-      <View style={progressStyles.table}>
+      <View style={[
+          progressStyles.table,
+          isSplitTop ? progressStyles.tableSplitTop : {},
+          isSplitBottom ? progressStyles.tableSplitBottom : {}
+      ]}>
         <TableHeader />
 
         {visibleItems.map((item, idx) => (

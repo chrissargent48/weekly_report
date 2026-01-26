@@ -4,6 +4,7 @@ import { ProjectSetup } from './components/ProjectSetup';
 import { ReportEditor } from './components/ReportEditor';
 import { ProjectSelector } from './components/ProjectSelector';
 import { PrintView } from './components/PrintView';
+import { PrintStudio } from './pages/PrintStudio'; // [New]
 import { UserProfileModal } from './components/ui/UserProfileModal';
 import { ProjectConfig, WeeklyReport, UserProfile } from './types';
 import { api } from './api';
@@ -55,7 +56,7 @@ const emptyReport = (date: string): WeeklyReport => {
 
 function App() {
   // Routing State
-  const [view, setView] = useState<'selector' | 'dashboard' | 'settings' | 'editor' | 'canvas'>('selector');
+  const [view, setView] = useState<'selector' | 'dashboard' | 'settings' | 'editor' | 'canvas' | 'print-studio'>('selector');
   const [projectId, setProjectId] = useState<string | null>(null);
   
   // Data State
@@ -180,6 +181,9 @@ function App() {
             <button onClick={() => setView('settings')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-bold transition ${view === 'settings' ? 'bg-white/10 text-white' : 'text-brand-text-muted hover:text-white hover:bg-white/5'}`}>
                 Project Setup
             </button>
+            <button onClick={() => setView('print-studio')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-bold transition ${view === 'print-studio' ? 'bg-white/10 text-white' : 'text-brand-text-muted hover:text-white hover:bg-white/5'}`}>
+                Print Studio (NEW BATCH)
+            </button>
          </nav>
          
          <div className="p-4 border-t border-white/10">
@@ -237,6 +241,11 @@ function App() {
                 onClose={() => setView('dashboard')} 
                 projectId={projectId}
              />
+         )}
+         {view === 'print-studio' && (
+             <div className="absolute inset-0 z-50 bg-white">
+                 <PrintStudio onBack={() => setView('dashboard')} />
+             </div>
          )}
 
 
