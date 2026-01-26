@@ -14,6 +14,26 @@
   .form-input {
     @apply w-full rounded-md border-zinc-300 shadow-sm focus:border-brand-primary focus:ring-brand-primary sm:text-sm h-9 px-3;
   }
+
+  /* Nutrient-Inspired Theme Tokens */
+  :root {
+    --color-ps-sidebar: #0f172a; /* Slate 900 */
+    --color-ps-workspace: #e4e4e7; /* Zinc 200 */
+    --color-ps-panel: #ffffff;
+    --color-ps-border: #e2e8f0; /* Slate 200 */
+    --color-ps-accent: #3b82f6; /* Blue 500 */
+  }
+
+  .ps-sidebar {
+    background-color: var(--color-ps-sidebar);
+    color: white;
+  }
+
+  .ps-workspace {
+    background-color: var(--color-ps-workspace);
+    background-image: radial-gradient(#cbd5e1 1px, transparent 1px);
+    background-size: 20px 20px;
+  }
 }
 
 body {

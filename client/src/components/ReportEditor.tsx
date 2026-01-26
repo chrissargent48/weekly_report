@@ -189,8 +189,8 @@ export function ReportEditor({ report, projectConfig, onUpdate, onSave, onClose,
                     />
                 </div>
              </div>
-             <button onClick={() => setShowPrintModal(true)} className="bg-white text-brand-surface-dark border border-zinc-300 px-4 py-2 rounded-lg font-bold flex items-center gap-2 hover:bg-zinc-50 hover:border-brand-primary/30 transition shadow-sm text-sm">
-                 <Printer className="w-4 h-4" /> Print Studio
+             <button onClick={() => setShowPrintModal(true)} className="bg-zinc-100 text-zinc-500 border border-zinc-200 px-4 py-2 rounded-lg font-bold flex items-center gap-2 hover:bg-zinc-200 transition shadow-sm text-sm">
+                 <Printer className="w-4 h-4" /> Legacy Print
              </button>
              <button onClick={onSave} className="btn-primary flex items-center gap-2"><Save size={16} /> Save Changes</button>
          </div>

@@ -181,7 +181,7 @@ function App() {
             <button onClick={() => setView('settings')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-bold transition ${view === 'settings' ? 'bg-white/10 text-white' : 'text-brand-text-muted hover:text-white hover:bg-white/5'}`}>
                 Project Setup
             </button>
-            <button onClick={() => setView('print-studio')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-bold transition ${view === 'print-studio' ? 'bg-white/10 text-white' : 'text-brand-text-muted hover:text-white hover:bg-white/5'}`}>
+            <button onClick={() => setView('print-studio')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-bold transition ${view === 'print-studio' ? 'bg-white/10 text-white' : 'bg-green-600 text-white hover:bg-green-700 shadow-lg animate-pulse'}`}>
                 Print Studio (NEW BATCH)
             </button>
          </nav>

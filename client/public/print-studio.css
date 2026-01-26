@@ -1,0 +1,65 @@
+/* Paged.js specific styles */
+
+@page {
+    size: A4;
+    margin: 20mm;
+}
+
+@page :first {
+    margin: 0; /* Cover page often needs full bleed */
+}
+
+/* Base print styles */
+body {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+}
+
+/* SMART SPLITTING RULES */
+
+/* 1. Avoid breaking headers from their sub-content */
+h1, h2, h3, h4 {
+    break-after: avoid;
+    page-break-after: avoid;
+}
+
+/* 2. Avoid breaking inside a single data row */
+tr {
+    break-inside: avoid;
+    page-break-inside: avoid;
+}
+
+/* 3. Allow table to split between rows (don't force whole table to new page) */
+table {
+    break-inside: auto;
+}
+
+/* 4. Repeat headers on new pages */
+thead {
+    display: table-header-group;
+}
+
+/* 5. Custom "Split Container" logic */
+/* When an element is split, Paged.js adds classes to the fragments */
+.pagedjs_page [data-split-from] {
+    border-top: none !important;
+}
+
+.pagedjs_page [data-split-to] {
+    border-bottom: none !important;
+}
+
+/* 6. Professional Typography for Print */
+body {
+    font-family: 'Inter', sans-serif;
+    color: #1a1a1a;
+}
+
+.cover-page {
+    height: 297mm;
+    width: 210mm;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 20mm;
+}

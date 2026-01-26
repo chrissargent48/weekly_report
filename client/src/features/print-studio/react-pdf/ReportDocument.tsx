@@ -1,6 +1,6 @@
 import React from 'react';
 import { Document, Page, Text, View, StyleSheet } from '@react-pdf/renderer';
-import { ProjectConfig } from '../../../../types';
+import { ProjectConfig } from 'src/types';
 
 // Keep it extremely simple
 const styles = StyleSheet.create({
@@ -17,10 +17,7 @@ const styles = StyleSheet.create({
 
 interface Props {
     projectConfig: ProjectConfig;
-    // We intentionally ignore other props for now to test the "Hollow Frame"
-    config?: any;
-    reportData?: any;
-    baselines?: any;
+    [key: string]: any; // Allow loose typing for legacy props
 }
 
 export function ReportDocument({ projectConfig }: Props) {
@@ -40,3 +37,5 @@ export function ReportDocument({ projectConfig }: Props) {
     </Document>
   );
 }
+
+export default ReportDocument;
