@@ -23,6 +23,21 @@ interface PrintStudioProps {
   projectId?: string;
 }
 
+interface DocumentSettings {
+  defaultMargins: {
+    top: number;
+    bottom: number;
+    left: number;
+    right: number;
+  };
+  applyToAll: boolean;
+  spacing?: Partial<PrintConfig['spacing']>;
+  logoScale?: number;
+  logoAlign?: 'left' | 'center' | 'right';
+  showPageNumbers?: boolean;
+  showFooter?: boolean;
+}
+
 export const PrintStudio: React.FC<PrintStudioProps> = ({ 
   onBack, 
   report,
@@ -53,7 +68,7 @@ export const PrintStudio: React.FC<PrintStudioProps> = ({
   const [selectedSection, setSelectedSection] = useState<string>('document');
   const [saveStatus, setSaveStatus] = useState<'saving' | 'saved' | 'error'>('saved');
 
-  const [documentSettings, setDocumentSettings] = useState(() => 
+  const [documentSettings, setDocumentSettings] = useState<DocumentSettings>(() => 
     report?.printSettings?.documentSettings || {
       defaultMargins: {
         top: 24,
@@ -142,11 +157,10 @@ export const PrintStudio: React.FC<PrintStudioProps> = ({
   const shimPrintConfig: PrintConfig = React.useMemo(() => ({
     sections: [],
     spacing: {
-      type: 'standard' as const,
-      sectionGap: 24,
-      elementGap: 12,
-      tablePadding: 8,
-      ...documentSettings?.spacing,
+      type: documentSettings?.spacing?.type || 'standard',
+      sectionGap: documentSettings?.spacing?.sectionGap ?? 24,
+      elementGap: documentSettings?.spacing?.elementGap ?? 12,
+      tablePadding: documentSettings?.spacing?.tablePadding ?? 8,
     },
     logoScale: documentSettings?.logoScale || 100,
     logoAlign: documentSettings?.logoAlign || 'left',
