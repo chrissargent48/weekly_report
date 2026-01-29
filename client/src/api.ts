@@ -102,6 +102,16 @@ export const api = {
       return res.json();
   },
 
+  // --- LAYOUT ---
+  calculateLayout: async (report: WeeklyReport): Promise<import('./types').ReportLayout> => {
+      const res = await fetch(`${API_BASE}/layout/calculate`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(report)
+      });
+      return res.json();
+  },
+
   // --- MEDIA ---
   uploadImage: async (projectId: string, file: File): Promise<string> => {
       return new Promise((resolve, reject) => {

@@ -3,7 +3,7 @@
   "weekEnding": "2026-01-18",
   "periodStart": "2026-01-12",
   "overview": {
-    "executiveSummary": "This week’s operations focused on site calibration and the commencement of drilling. Early in the week, the team identified a site alignment discrepancy during GPS calibration, traced to an invalid RPLS control mark. Corey spearheaded the resolution, coordinating with our surveying contractor to rectify the control data. This allowed the crew to successfully re-stake the alignment by Tuesday.\n\nFollowing these adjustments, we completed potholing for six vault low spots and received necessary materials for a construction entrance. The drilling crew mobilized mid-week, successfully completing all sump locations—including a field-directed addition at SB-12—and installing all required screen and tee components.  ",
+    "executiveSummary": "This week’s operations focused on site calibration and the commencem ent of drilling. Early in the week, the team identified a site alignment discrepancy during GPS calibration, traced to an invalid RPLS control mark. Corey spearheaded the resolution, coordinating with our surveying contractor to rectify the control data. This allowed the crew to successfully re-stake the alignment by Tuesday.\n\nFollowing these adjustments, we completed potholing for six vault low spots and received necessary materials for a construction entrance. The drilling crew mobilized mid-week, successfully completing all sump locations—including a field-directed addition at SB-12—and installing all required screen and tee components.  ",
     "weather": [
       {
         "date": "2026-01-12",
@@ -126,7 +126,8 @@
           "fri": 0,
           "sat": 0,
           "sun": 0
-        }
+        },
+        "company": "RECON"
       },
       {
         "id": "0.36134090378130934",
@@ -143,7 +144,8 @@
           "fri": 8,
           "sat": 0,
           "sun": 0
-        }
+        },
+        "company": "RECON"
       },
       {
         "id": "0.17175255613202756",
@@ -160,7 +162,8 @@
           "sun": 0
         },
         "location": "onsite",
-        "category": "management"
+        "category": "management",
+        "company": "RECON"
       },
       {
         "id": "0.6911065803214155",
@@ -176,7 +179,8 @@
           "sat": 0,
           "sun": 0
         },
-        "category": "management"
+        "category": "management",
+        "company": "RECON"
       },
       {
         "id": "0.37169239122309206",
@@ -191,7 +195,8 @@
           "fri": 0,
           "sat": 0,
           "sun": 0
-        }
+        },
+        "company": "RECON"
       },
       {
         "id": "0.087006685114843",
@@ -206,7 +211,8 @@
           "fri": 10,
           "sat": 0,
           "sun": 0
-        }
+        },
+        "company": "RECON"
       },
       {
         "id": "0.9463375486123178",
@@ -221,7 +227,8 @@
           "fri": 10,
           "sat": 0,
           "sun": 0
-        }
+        },
+        "company": "RECON"
       },
       {
         "id": "0.1685471307149068",
@@ -236,7 +243,8 @@
           "fri": 10,
           "sat": 0,
           "sun": 0
-        }
+        },
+        "company": "RECON"
       },
       {
         "id": "0.9576609341018101",
@@ -774,15 +782,15 @@
   },
   "photos": [
     {
-      "id": "dc60118a-c057-44eb-86c0-54c80a51d19f",
-      "url": "/uploads/8d22c3bd-6f1d-4630-baad-f89d66122c99/images/079fb09c-0679-4da0-9b4b-61e7a6539eff.jpg",
-      "caption": "IMG_20260119_073915",
-      "directionLooking": "01-19-26 - Crew laying out alignment/locations of sumps"
-    },
-    {
       "id": "7a64749b-9f99-45a4-9eda-62859a2ba0bc",
       "url": "/uploads/8d22c3bd-6f1d-4630-baad-f89d66122c99/images/14c0406f-e4e0-4a95-9478-f15c92cec206.jpg",
       "caption": "IMG_20260119_073921",
+      "directionLooking": "01-19-26 - Crew laying out alignment/locations of sumps"
+    },
+    {
+      "id": "dc60118a-c057-44eb-86c0-54c80a51d19f",
+      "url": "/uploads/8d22c3bd-6f1d-4630-baad-f89d66122c99/images/079fb09c-0679-4da0-9b4b-61e7a6539eff.jpg",
+      "caption": "IMG_20260119_073915",
       "directionLooking": "01-19-26 - Crew laying out alignment/locations of sumps"
     },
     {
@@ -924,5 +932,91 @@
       "scopeImpact": "Addition"
     }
   ],
-  "changeOrders": []
+  "changeOrders": [],
+  "printSettings": {
+    "enabledSections": {
+      "cover": true,
+      "executive": true,
+      "weather": true,
+      "progress": true,
+      "lookahead": true,
+      "photos": true,
+      "personnel": true,
+      "equipment": true,
+      "safety": true,
+      "financials": true
+    },
+    "sectionOrder": [
+      "cover",
+      "executive",
+      "safety",
+      "weather",
+      "personnel",
+      "equipment",
+      "progress",
+      "lookahead",
+      "financials",
+      "photos"
+    ],
+    "sectionConfigs": {
+      "cover": {
+        "subtitle": "2024 Site Improvements",
+        "showPhotoGrid": true,
+        "showSafetyQuote": true,
+        "heroOverlayColor": "#008B8B",
+        "marginTop": 0,
+        "marginBottom": 0,
+        "coverPhotos": [
+          null,
+          null,
+          null
+        ],
+        "dividerLine": {
+          "show": true,
+          "color": "#afa20d",
+          "width": 100,
+          "thickness": 2
+        }
+      },
+      "weather": {
+        "showSummary": true,
+        "tempUnit": "F",
+        "showWorkImpact": true,
+        "marginTop": 0,
+        "marginBottom": 0
+      },
+      "executive": {
+        "marginTop": 0,
+        "marginBottom": 0
+      },
+      "progress": {
+        "showPercent": true,
+        "showNotes": true,
+        "marginTop": 0,
+        "marginBottom": 0
+      },
+      "photos": {
+        "columns": 2,
+        "showCaptions": true,
+        "showDates": true,
+        "marginTop": 0,
+        "marginBottom": 0
+      },
+      "safety": {
+        "showTable": true,
+        "showCards": true,
+        "marginTop": 0,
+        "marginBottom": 0
+      }
+    },
+    "documentSettings": {
+      "defaultMargins": {
+        "top": 24,
+        "bottom": 24,
+        "left": 24,
+        "right": 24
+      },
+      "applyToAll": true
+    }
+  }
 }

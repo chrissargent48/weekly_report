@@ -13,7 +13,7 @@ export function WeatherWidget({ report }: Props) {
         const days = Array(7).fill(null);
         
         // If we have weather entries, map them. 
-        if (report.overview.weather && report.overview.weather.length > 0) {
+        if (report?.overview?.weather && report.overview.weather.length > 0) {
             // Sort by date
             const sorted = [...report.overview.weather].sort((a,b) => a.date.localeCompare(b.date));
             

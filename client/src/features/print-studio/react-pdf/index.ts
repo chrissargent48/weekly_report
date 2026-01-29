@@ -14,7 +14,7 @@
  */
 
 // Main document component
-export { ReportDocument, default as Document } from './ReportDocument';
+export { ReportDocument } from './ReportDocument';
 
 // Preview and download components
 export {

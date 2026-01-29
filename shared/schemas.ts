@@ -255,9 +255,12 @@ export const CanvasNodeSchema = z.object({
   rotation: z.number(),
   zIndex: z.number().optional(),
   content: z.string().optional(),
+  url: z.string().optional(),
   style: z.object({
     fontSize: z.number().optional(),
     fontColor: z.string().optional(),
+    fontFamily: z.string().optional(),
+    fontWeight: z.union([z.string(), z.number()]).optional(),
     backgroundColor: z.string().optional(),
   }).optional(),
 });
@@ -341,6 +344,22 @@ export const WeeklyReportSchema = z.object({
 
   // Custom Layout Data
   layout: ReportLayoutSchema.optional(),
+
+  // Print Studio Settings
+  printSettings: z.object({
+    enabledSections: z.record(z.string(), z.boolean()),
+    sectionOrder: z.array(z.string()),
+    sectionConfigs: z.record(z.string(), z.any()),
+    documentSettings: z.object({
+      defaultMargins: z.object({
+        top: z.number(),
+        bottom: z.number(),
+        left: z.number(),
+        right: z.number(),
+      }),
+      applyToAll: z.boolean(),
+    }).optional(),
+  }).optional(),
 });
 
 

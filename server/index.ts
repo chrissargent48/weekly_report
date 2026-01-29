@@ -3,13 +3,13 @@ import cors from 'cors';
 import bodyParser from 'body-parser';
 import open from 'open';
 import path from 'path';
+import fs from 'fs/promises';
 import { DataManager } from './DataManager';
 import crypto from 'crypto';
-
+import { LayoutEngine } from './services/LayoutEngine';
 const app = express();
 const PORT = process.env.PORT ? parseInt(process.env.PORT) : 3000;
 const dataManager = new DataManager();
-import { LayoutEngine } from './services/LayoutEngine';
 const layoutEngine = new LayoutEngine();
 
 app.use(cors());
@@ -79,6 +79,32 @@ app.post('/api/projects/:id/reports/:date', async (req, res) => {
   res.json({ success: true });
 });
 
+// Save print settings for a report
+app.put('/api/projects/:projectId/reports/:reportDate/print-settings', async (req, res) => {
+  try {
+    const { projectId, reportDate } = req.params;
+    const printSettings = req.body;
+    
+    // Load existing report
+    const report = await dataManager.getReport(projectId, reportDate);
+    if (!report) {
+      return res.status(404).json({ error: 'Report not found' });
+    }
+    
+    // Update with new print settings
+    const updatedReport = {
+      ...report,
+      printSettings,
+    };
+    
+    await dataManager.saveReport(projectId, reportDate, updatedReport);
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Failed to save print settings:', error);
+    res.status(500).json({ error: 'Failed to save' });
+  }
+});
+
 // --- LAYOUT ENGINE API ---
 app.post('/api/layout/calculate', async (req, res) => {
     try {
@@ -97,7 +123,7 @@ app.post('/api/layout/calculate', async (req, res) => {
     }
 });
 
-// PDF generation is now handled client-side via pdfmake
+// PDF generation is now handled client-side via @react-pdf/renderer
 // This endpoint is deprecated but kept for backwards compatibility
 app.post('/api/projects/:id/reports/:date/pdf', async (req, res) => {
     res.status(410).json({ 
@@ -251,7 +277,6 @@ const ensureDir = async (dir: string) => {
         await fs.mkdir(dir, { recursive: true });
     }
 }
-import fs from 'fs/promises';
 
 // --- MEDIA API ---
 app.post('/api/projects/:id/upload', async (req, res) => {

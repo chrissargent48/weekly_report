@@ -11,6 +11,7 @@ import { PDFViewer, PDFDownloadLink, pdf, BlobProvider } from '@react-pdf/render
 import { ReportDocument } from './ReportDocument';
 import { PrintConfig, PageMap } from '../config/printConfig.types';
 import { WeeklyReport, ProjectConfig, ProjectBaselines } from '../../../types';
+import { mapReportData, mapReportToPuckData } from '../utils/dataMapper';
 
 interface PDFPreviewProps {
   config: PrintConfig;
@@ -47,17 +48,24 @@ export function PDFPreview({
   viewerWidth = '100%',
   viewerHeight = '100%',
 }: PDFPreviewProps) {
+  const puckData = useMemo(() => mapReportToPuckData(reportData), [reportData]);
+  
   const document = useMemo(
     () => (
       <ReportDocument
-        config={config}
-        reportData={reportData}
-        projectConfig={projectConfig}
-        baselines={baselines}
-        pageMap={pageMap}
+        data={mapReportData(reportData, projectConfig)}
+        enabledSections={{
+          cover: true,
+          executive: true,
+          weather: true,
+          progress: true,
+          lookahead: true,
+          photos: true,
+          safety: true
+        }}
       />
     ),
-    [config, reportData, projectConfig, baselines, pageMap]
+    [puckData, projectConfig]
   );
 
   if (!showViewer) {
@@ -93,18 +101,25 @@ export function PDFDownloadButton({
   const weekEnding = reportData.weekEnding || 'Report';
   const defaultFilename = `${projectName.replace(/\s+/g, '_')}_Weekly_Report_${weekEnding}.pdf`;
   const actualFilename = filename || defaultFilename;
+  
+  const puckData = useMemo(() => mapReportToPuckData(reportData), [reportData]);
 
   const document = useMemo(
     () => (
       <ReportDocument
-        config={config}
-        reportData={reportData}
-        projectConfig={projectConfig}
-        baselines={baselines}
-        pageMap={pageMap}
+        data={mapReportData(reportData, projectConfig)}
+        enabledSections={{
+          cover: true,
+          executive: true,
+          weather: true,
+          progress: true,
+          lookahead: true,
+          photos: true,
+          safety: true
+        }}
       />
     ),
-    [config, reportData, projectConfig, baselines, pageMap]
+    [puckData, projectConfig]
   );
 
   return (
@@ -147,13 +162,19 @@ export function usePDFGeneration() {
       setError(null);
 
       try {
+        const puckData = mapReportToPuckData(reportData);
         const document = (
           <ReportDocument
-            config={config}
-            reportData={reportData}
-            projectConfig={projectConfig}
-            baselines={baselines}
-            pageMap={pageMap}
+            data={mapReportData(reportData, projectConfig)}
+            enabledSections={{
+              cover: true,
+              executive: true,
+              weather: true,
+              progress: true,
+              lookahead: true,
+              photos: true,
+              safety: true
+            }}
           />
         );
 
@@ -229,17 +250,23 @@ export function PDFBlobProvider({
 }: PDFPreviewProps & {
   children: (props: { blob: Blob | null; url: string | null; loading: boolean; error: Error | null }) => React.ReactNode;
 }) {
+  const puckData = useMemo(() => mapReportToPuckData(reportData), [reportData]);
   const document = useMemo(
     () => (
       <ReportDocument
-        config={config}
-        reportData={reportData}
-        projectConfig={projectConfig}
-        baselines={baselines}
-        pageMap={pageMap}
+        data={mapReportData(reportData, projectConfig)}
+        enabledSections={{
+          cover: true,
+          executive: true,
+          weather: true,
+          progress: true,
+          lookahead: true,
+          photos: true,
+          safety: true
+        }}
       />
     ),
-    [config, reportData, projectConfig, baselines, pageMap]
+    [puckData, projectConfig]
   );
 
   return <BlobProvider document={document}>{children}</BlobProvider>;

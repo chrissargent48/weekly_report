@@ -4,7 +4,10 @@ import { ProjectSetup } from './components/ProjectSetup';
 import { ReportEditor } from './components/ReportEditor';
 import { ProjectSelector } from './components/ProjectSelector';
 import { PrintView } from './components/PrintView';
-import { PrintStudio } from './pages/PrintStudio'; // [New]
+// import { PrintStudio } from './pages/PrintStudio'; // [Old Fabric Version]
+// import { PrintStudio } from './pages/PrintStudio'; // [Old Fabric Version]
+// import { StudioContainer as PrintStudio } from './features/print-studio/StudioContainer'; // [New Puck Version]
+import { PrintStudio } from './features/print-studio/PrintStudio'; // [New 3-Panel Version]
 import { UserProfileModal } from './components/ui/UserProfileModal';
 import { ProjectConfig, WeeklyReport, UserProfile } from './types';
 import { api } from './api';
@@ -181,9 +184,6 @@ function App() {
             <button onClick={() => setView('settings')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-bold transition ${view === 'settings' ? 'bg-white/10 text-white' : 'text-brand-text-muted hover:text-white hover:bg-white/5'}`}>
                 Project Setup
             </button>
-            <button onClick={() => setView('print-studio')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-bold transition ${view === 'print-studio' ? 'bg-white/10 text-white' : 'bg-green-600 text-white hover:bg-green-700 shadow-lg animate-pulse'}`}>
-                Print Studio (NEW BATCH)
-            </button>
          </nav>
          
          <div className="p-4 border-t border-white/10">
@@ -239,12 +239,19 @@ function App() {
                 onUpdate={setCurrentReport} 
                 onSave={() => handleSaveReport(currentReport)}
                 onClose={() => setView('dashboard')} 
+                onDesign={() => setView('print-studio')}
                 projectId={projectId}
              />
          )}
-         {view === 'print-studio' && (
+         {view === 'print-studio' && currentReport && config && (
              <div className="absolute inset-0 z-50 bg-white">
-                 <PrintStudio onBack={() => setView('dashboard')} />
+                 <PrintStudio 
+                    report={currentReport}
+                    projectConfig={config}
+                    onBack={() => setView('editor')} 
+                    projectId={projectId || undefined}
+                    onUpdate={setCurrentReport}
+                 />
              </div>
          )}
 

@@ -1,139 +1,147 @@
-/**
- * Photos Section for @react-pdf/renderer
- *
- * Grid layout of site photos with captions
- */
-
 import React from 'react';
 import { View, Text, Image, StyleSheet } from '@react-pdf/renderer';
-import { COLORS, PAGE } from '../styles';
-import { SectionHeader } from '../primitives';
-import { PrintConfig, PagePlacement } from '../../config/printConfig.types';
-import { WeeklyReport, PhotoEntry } from '../../../../types';
+import { ReportData } from '../../utils/dataMapper';
 
-interface PhotosSectionProps {
-  config: PrintConfig;
-  reportData: WeeklyReport;
-  placement?: PagePlacement;
-}
-
-const photosStyles = StyleSheet.create({
+const styles = StyleSheet.create({
   container: {
-    marginBottom: 16,
+    padding: 30,
+    flex: 1,
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 15,
+    paddingBottom: 8,
+    borderBottomWidth: 2,
+    borderBottomColor: '#008B8B',
+  },
+  headerTitle: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: '#111827',
   },
   grid: {
-    flexDirection: 'column', // Vertical stack
-    gap: 16,
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 10,
   },
-  photoContainer: {
-    width: '100%',
-    marginBottom: 16,
-    breakInside: 'avoid', // Prevent breaking inside a photo card
-  },
-  photoImage: {
-    width: '100%',
-    height: 240, // Increased height for larger photos
-    objectFit: 'cover',
-    borderRadius: 3,
-    backgroundColor: COLORS.borderLight,
-  },
-  photoPlaceholder: {
-    width: '100%',
-    height: 240,
-    borderRadius: 3,
-    backgroundColor: COLORS.borderLight,
+  photoItem: {
+    marginBottom: 15,
     borderWidth: 1,
-    borderColor: COLORS.border,
-    borderStyle: 'dashed',
-    justifyContent: 'center',
+    borderColor: '#E5E7EB',
+    backgroundColor: '#FFFFFF',
+  },
+  image: {
+    width: '100%',
+    height: 150,
+    objectFit: 'cover',
+  },
+  placeholder: {
+    width: '100%',
+    height: 150,
+    backgroundColor: '#F3F4F6',
     alignItems: 'center',
+    justifyContent: 'center',
+    fontSize: 10,
+    color: '#9CA3AF',
   },
-  placeholderText: {
-    fontSize: 8,
-    color: COLORS.textLight,
-  },
-  captionContainer: {
-    marginTop: 4,
+  photoDetails: {
+    padding: 8,
   },
   caption: {
-    fontSize: 8,
-    fontWeight: 'bold',
-    color: COLORS.text,
-  },
-  description: {
-    fontSize: 7,
-    color: COLORS.textMuted,
-    marginTop: 2,
-  },
-  direction: {
-    fontSize: 7,
-    color: COLORS.textLight,
-    marginTop: 1,
-  },
-  emptyText: {
-    fontSize: 8,
-    color: COLORS.textMuted,
+    fontSize: 9,
     fontStyle: 'italic',
-    textAlign: 'center',
-    paddingVertical: 12,
+    color: '#374151',
+    marginBottom: 4,
   },
+  date: {
+    fontSize: 8,
+    color: '#9CA3AF',
+  },
+  noPhotos: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 20,
+    backgroundColor: '#F9FAFB',
+    borderRadius: 4,
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+  },
+  noPhotosText: {
+    fontSize: 10,
+    color: '#9CA3AF',
+    fontStyle: 'italic',
+  }
 });
 
-// Photos per page constant
-const PHOTOS_PER_PAGE = 2;
+interface PhotosSectionProps {
+  data: ReportData;
+  config?: {
+    columns?: number;
+    showCaptions?: boolean;
+    showDates?: boolean;
+    marginTop?: number;
+    marginBottom?: number;
+  };
+  documentSettings?: any;
+}
 
-export function PhotosSection({ config, reportData, placement }: PhotosSectionProps) {
-  const isContinued = placement?.continuesFromPrevious ?? false;
-  const photos = reportData.photos || [];
+export const PhotosSection: React.FC<PhotosSectionProps> = ({ data, config = {}, documentSettings }) => {
+  const {
+      columns = 2,
+      showCaptions = true,
+      showDates = true,
+      marginTop: configMarginTop,
+      marginBottom: configMarginBottom
+  } = config;
 
-  // Exclude photos used for cover (hero and strip)
-  const heroIndex = config.heroPhotoIndex ?? 0;
-  const stripIndexes = config.stripPhotoIndexes || [1, 2, 3];
-  const coverIndexes = new Set([heroIndex, ...stripIndexes]);
+  const margins = documentSettings?.defaultMargins || { top: 24, bottom: 24, left: 24, right: 24 };
+  const applyToAll = documentSettings?.applyToAll || false;
 
-  const availablePhotos = photos.filter((_, idx) => !coverIndexes.has(idx));
+  const marginTop = applyToAll ? margins.top : (configMarginTop ?? margins.top);
+  const marginBottom = applyToAll ? margins.bottom : (configMarginBottom ?? margins.bottom);
+  const paddingLeft = margins.left;
+  const paddingRight = margins.right;
 
-  // Handle data slicing for pagination
-  const startIdx = placement?.dataRange?.start ?? 0;
-  const endIdx = placement?.dataRange?.end ?? availablePhotos.length;
-  const visiblePhotos = availablePhotos.slice(startIdx, endIdx);
-
-  if (visiblePhotos.length === 0) {
-    return (
-      <View style={photosStyles.container}>
-        <SectionHeader title="Site Photos" isContinued={isContinued} />
-        <Text style={photosStyles.emptyText}>No photos available.</Text>
-      </View>
-    );
-  }
+  // Calculate widths based on columns
+  const gap = 10;
+  // Available width is 612 (LETTER width) - margins
+  const availableContentWidth = 612 - paddingLeft - paddingRight;
+  const itemWidth = (availableContentWidth - (gap * (columns - 1))) / columns;
 
   return (
-    <View style={photosStyles.container}>
-      <SectionHeader title="Site Photos" isContinued={isContinued} />
-      <View style={photosStyles.grid}>
-        {visiblePhotos.map((photo, i) => (
-          <View key={photo.id || i} style={photosStyles.photoContainer} wrap={false}>
-            {photo.url ? (
-              <Image src={photo.url} style={photosStyles.photoImage} />
-            ) : (
-              <View style={photosStyles.photoPlaceholder}>
-                <Text style={photosStyles.placeholderText}>No image</Text>
-              </View>
-            )}
-            <View style={photosStyles.captionContainer}>
-              {photo.caption && (
-                <Text style={photosStyles.caption}>{photo.caption}</Text>
+    <View style={[styles.container, { marginTop, marginBottom, paddingLeft, paddingRight }]}>
+      <View style={styles.header}>
+        <Text style={styles.headerTitle}>Progress Photos</Text>
+      </View>
+
+      <View style={styles.grid}>
+        {data.photos.length > 0 ? (
+          data.photos.map((photo, i) => (
+            <View key={i} style={[styles.photoItem, { width: itemWidth }]}>
+              {photo.url ? (
+                <Image src={photo.url} style={styles.image} />
+              ) : (
+                <View style={styles.placeholder}>
+                    <Text>No Image</Text>
+                </View>
               )}
-              {photo.description && (
-                <Text style={photosStyles.description}>{photo.description}</Text>
-              )}
-              {photo.directionLooking && (
-                <Text style={photosStyles.direction}>Looking {photo.directionLooking}</Text>
+              
+              {(showCaptions || showDates) && (
+                <View style={styles.photoDetails}>
+                  {showCaptions && <Text style={styles.caption}>{photo.caption || 'No caption'}</Text>}
+                  {showDates && <Text style={styles.date}>{photo.date}</Text>}
+                </View>
               )}
             </View>
+          ))
+        ) : (
+          <View style={styles.noPhotos}>
+            <Text style={styles.noPhotosText}>No photos uploaded for this week.</Text>
           </View>
-        ))}
+        )}
       </View>
     </View>
   );
-}
+};

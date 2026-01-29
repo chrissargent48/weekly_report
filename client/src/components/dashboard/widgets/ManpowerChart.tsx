@@ -17,7 +17,8 @@ export function ManpowerChart({ report }: Props) {
             let remote = 0;
             let sub = 0;
 
-            report.resources.manpower.forEach(m => {
+            const manpower = report?.resources?.manpower || [];
+            manpower.forEach(m => {
                 const hours = m.dailyHours?.[day] || 0;
                 
                 if (m.type === 'subcontractor') {

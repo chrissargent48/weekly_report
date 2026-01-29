@@ -213,7 +213,8 @@ export class DataManager {
     try {
       const data = await fs.readFile(filePath, 'utf-8');
       return JSON.parse(data);
-    } catch {
+    } catch (e) {
+      console.error(`[DataManager] Failed to read report: ${filePath}`, e);
       return null;
     }
   }

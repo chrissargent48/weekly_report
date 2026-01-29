@@ -4,7 +4,7 @@ import { Save, ArrowLeft, Plus, Trash2, Camera, AlertTriangle, CloudRain, Clock,
 import { DocumentArrowDownIcon } from '@heroicons/react/24/outline';
 import { api } from '../api';
 // import { PrintPreviewModal } from './PrintPreviewModal'; 
-import { PrintStudioModal } from '../features/print-studio/components/PrintStudioModal';
+// import { PrintStudioModal } from '../features/print-studio/components/PrintStudioModal';
 import { ManpowerTable } from './ManpowerTable';
 import { EquipmentTable } from './EquipmentTable';
 import { MaterialTable } from './MaterialTable';
@@ -24,14 +24,32 @@ interface Props {
   onUpdate: (r: WeeklyReport) => void;
   onSave: () => void;
   onClose: () => void;
+  onDesign: () => void;
   projectId: string;
 }
 
-export function ReportEditor({ report, projectConfig, onUpdate, onSave, onClose, projectId }: Props) {
+export function ReportEditor({ report: rawReport, projectConfig, onUpdate, onSave, onClose, onDesign, projectId }: Props) {
+  // EXTREME DEFENSE: Normalize report data to prevent crashes
+  const report = useMemo(() => {
+      const r = { ...rawReport };
+      if (!r.overview) r.overview = { executiveSummary: "", weather: [], kpis: { percentComplete: 0, schedulePerformanceIndex: 0, manHoursWeek: 0, manHoursTotal: 0, safetyIncidents: 0, weatherDaysLost: 0 } };
+      if (!r.overview.kpis) r.overview.kpis = { percentComplete: 0, schedulePerformanceIndex: 0, manHoursWeek: 0, manHoursTotal: 0, safetyIncidents: 0, weatherDaysLost: 0 };
+      if (!r.safety) r.safety = { stats: { nearMisses: {week:0, ytd:0}, firstAids: {week:0, ytd:0}, recordables: {week:0, ytd:0}, lostTime: {week:0, ytd:0}, stopWorks: {week:0, ytd:0}, hofs: {week:0, ytd:0}, safetyAudits: {week:0, ytd:0} }, narrative: "" };
+      if (!r.safety.stats) r.safety.stats = { nearMisses: {week:0, ytd:0}, firstAids: {week:0, ytd:0}, recordables: {week:0, ytd:0}, lostTime: {week:0, ytd:0}, stopWorks: {week:0, ytd:0}, hofs: {week:0, ytd:0}, safetyAudits: {week:0, ytd:0} };
+      if (!r.resources) r.resources = { manpower: [], equipment: { onSite: [], mobilized: [], demobilized: [] }, materials: [], procurement: [] };
+      if (!r.resources.manpower) r.resources.manpower = [];
+      if (!r.resources.equipment) r.resources.equipment = { onSite: [], mobilized: [], demobilized: [] };
+      if (!r.progress) r.progress = { bidItems: [], activitiesThisWeek: [], lookAheadThreeWeek: [] };
+      if (!r.financials) r.financials = { invoices: [], summary: { earnedToDate: 0, remainingContractValue: 0, totalBilled: 0 } };
+      if (!r.schedule) r.schedule = { milestones: [], analysis: "" };
+      if (!r.photos) r.photos = [];
+      if (!r.issues) r.issues = [];
+      return r;
+  }, [rawReport]);
+
   const [tab, setTab] = useState<'overview' | 'safety' | 'manpower' | 'equipment' | 'materials' | 'procurement' | 'progress' | 'financials' | 'schedule' | 'photos' | 'weather' | 'issues' | 'lookahead' | 'documents'>('overview');
   const [baselines, setBaselines] = useState<ProjectBaselines | null>(null);
   const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set());
-  const [showPrintModal, setShowPrintModal] = useState(false);
 
   useEffect(() => {
       api.getBaselines(projectId).then(setBaselines);
@@ -189,8 +207,8 @@ export function ReportEditor({ report, projectConfig, onUpdate, onSave, onClose,
                     />
                 </div>
              </div>
-             <button onClick={() => setShowPrintModal(true)} className="bg-zinc-100 text-zinc-500 border border-zinc-200 px-4 py-2 rounded-lg font-bold flex items-center gap-2 hover:bg-zinc-200 transition shadow-sm text-sm">
-                 <Printer className="w-4 h-4" /> Legacy Print
+             <button onClick={onDesign} className="bg-zinc-800 text-white px-4 py-2 rounded-lg font-bold flex items-center gap-2 hover:bg-zinc-700 transition shadow-lg text-sm">
+                 <Printer className="w-4 h-4" /> Design & Print
              </button>
              <button onClick={onSave} className="btn-primary flex items-center gap-2"><Save size={16} /> Save Changes</button>
          </div>
@@ -668,16 +686,6 @@ export function ReportEditor({ report, projectConfig, onUpdate, onSave, onClose,
               )}
           </div>
       </div>
-      {/* Print Preview Modal */}
-      {/* Print Studio Modal (New Layered Architecture) */}
-      <PrintStudioModal 
-          open={showPrintModal} 
-          onClose={() => setShowPrintModal(false)}
-          reportData={report}
-          projectConfig={projectConfig}
-          baselines={baselines}
-          onUpdateReport={onUpdate}
-      />
     </div>
   );
 }

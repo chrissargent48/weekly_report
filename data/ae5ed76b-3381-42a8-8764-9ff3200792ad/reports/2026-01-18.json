@@ -45,7 +45,7 @@
         "ytd": 0
       }
     },
-    "narrative": ""
+    "narrative": "No safety incidents reported this week."
   },
   "resources": {
     "manpower": [],
@@ -53,7 +53,9 @@
       "onSite": [],
       "mobilized": [],
       "demobilized": []
-    }
+    },
+    "procurement": [],
+    "materials": []
   },
   "progress": {
     "bidItems": [],

@@ -1,454 +1,111 @@
-/**
- * Progress Section for @react-pdf/renderer
- *
- * Displays project progress with:
- * - Executive summary cards (Contract Value, Earned to Date, Project Progress)
- * - Detailed bid items table with circular progress indicators
- *
- * Matches the HTML preview's visual structure.
- */
-
 import React from 'react';
 import { View, Text, StyleSheet } from '@react-pdf/renderer';
-import { COLORS } from '../styles';
-import { SectionHeader, CircularProgress } from '../primitives';
-import { PrintConfig, PagePlacement } from '../../config/printConfig.types';
-import { WeeklyReport, ProjectBaselines, ProjectConfig } from '../../../../types';
+import { ReportData } from '../../utils/dataMapper';
 
-interface ProgressSectionProps {
-  config: PrintConfig;
-  reportData: WeeklyReport;
-  projectConfig?: ProjectConfig;
-  baselines?: ProjectBaselines | null;
-  placement?: PagePlacement;
-}
-
-const progressStyles = StyleSheet.create({
+const styles = StyleSheet.create({
   container: {
-    marginBottom: 16,
-  },
-  // Executive Summary Cards Grid
-  summaryGrid: {
-    flexDirection: 'row',
-    gap: 8,
-    marginBottom: 12,
-  },
-  // Individual summary card
-  summaryCard: {
+    padding: 30,
     flex: 1,
-    backgroundColor: '#FFFFFF',
-    borderWidth: 1,
-    borderColor: COLORS.border,
-    borderRadius: 4,
-    padding: 10,
-    borderLeftWidth: 3,
-    borderLeftColor: COLORS.primary,
   },
-  summaryCardBlue: {
-    borderLeftColor: COLORS.blue,
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 15,
+    paddingBottom: 8,
+    borderBottomWidth: 2,
+    borderBottomColor: '#008B8B',
   },
-  summaryLabel: {
-    fontSize: 6,
+  headerTitle: {
+    fontSize: 14,
     fontWeight: 'bold',
-    color: COLORS.textMuted,
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
-    marginBottom: 4,
+    color: '#111827',
   },
-  summaryValue: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: COLORS.text,
-    marginBottom: 2,
-  },
-  summaryValuePrimary: {
-    color: COLORS.primary,
-    fontWeight: 'bold',
-  },
-  summarySubtext: {
-    fontSize: 6,
-    color: COLORS.textLight,
-  },
-  // Progress bar for overall progress card
-  progressBarContainer: {
-    marginTop: 6,
-    height: 4,
-    backgroundColor: COLORS.borderLight,
-    borderRadius: 2,
-    overflow: 'hidden',
-  },
-  progressBarFill: {
-    height: '100%',
-    backgroundColor: COLORS.primary,
-    borderRadius: 2,
-    overflow: 'hidden',
-  },
-  // Table styles
   table: {
-    borderWidth: 1,
-    borderColor: COLORS.border,
-    borderRadius: 4,
-    overflow: 'hidden',
-  },
-  tableSplitTop: {
-    borderBottomLeftRadius: 0,
-    borderBottomRightRadius: 0,
-    borderBottomWidth: 0,
-  },
-  tableSplitBottom: {
-    borderTopLeftRadius: 0,
-    borderTopRightRadius: 0,
-    borderTopWidth: 0,
+    width: '100%',
+    marginBottom: 20,
   },
   tableHeader: {
     flexDirection: 'row',
-    backgroundColor: COLORS.primary,
-    paddingVertical: 6,
-    paddingHorizontal: 4,
+    backgroundColor: '#008B8B',
+    padding: 6,
   },
-  headerCell: {
-    fontSize: 6,
-    fontWeight: 'bold',
+  tableHeaderCell: {
     color: '#FFFFFF',
-    textTransform: 'uppercase',
-    letterSpacing: 0.3,
-    textAlign: 'center',
-  },
-  headerCellLeft: {
-    textAlign: 'left',
+    fontSize: 8,
+    fontWeight: 'bold',
   },
   tableRow: {
     flexDirection: 'row',
-    paddingVertical: 5,
-    paddingHorizontal: 4,
+    padding: 6,
     borderBottomWidth: 1,
-    borderBottomColor: COLORS.borderLight,
+    borderBottomColor: '#F3F4F6',
   },
-  tableRowAlt: {
-    backgroundColor: COLORS.backgroundAlt,
-  },
-  cell: {
-    fontSize: 7,
-    color: COLORS.text,
-    textAlign: 'center',
-  },
-  cellLeft: {
-    textAlign: 'left',
-  },
-  cellMono: {
-    fontFamily: 'Courier',
-    color: COLORS.textMuted,
-  },
-  cellBold: {
-    fontWeight: 'bold',
-  },
-  cellPrimary: {
-    color: COLORS.primary,
-    fontWeight: 'bold',
-  },
-  cellHighlight: {
-    backgroundColor: COLORS.backgroundAlt,
-    fontWeight: 'bold',
-    color: COLORS.text,
-  },
-  // Progress cell with CircularProgress
-  progressCell: {
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  // Table footer
-  tableFooter: {
-    flexDirection: 'row',
-    backgroundColor: COLORS.backgroundAlt,
-    paddingVertical: 6,
-    paddingHorizontal: 4,
-    borderTopWidth: 1,
-    borderTopColor: COLORS.border,
-  },
-  footerLabel: {
-    fontSize: 7,
-    fontWeight: 'bold',
-    color: COLORS.textMuted,
-    textTransform: 'uppercase',
-    letterSpacing: 0.3,
-  },
-  footerValue: {
+  tableCell: {
     fontSize: 8,
-    fontWeight: 'bold',
-    color: COLORS.text,
-    textAlign: 'right',
+    color: '#374151',
   },
-  // Empty state
   emptyText: {
-    fontSize: 8,
-    color: COLORS.textMuted,
+    fontSize: 10,
+    color: '#9CA3AF',
     fontStyle: 'italic',
-    textAlign: 'center',
-    paddingVertical: 12,
-  },
+    padding: 10,
+  }
 });
 
-// Column widths
-const COLUMNS = {
-  item: '8%',
-  description: '25%',
-  unit: '7%',
-  qty: '10%',
-  prev: '10%',
-  thisPrd: '10%',
-  toDate: '10%',
-  remain: '10%',
-  percent: '10%',
-};
-
-/**
- * Format currency
- */
-function formatCurrency(amount: number): string {
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
-    maximumFractionDigits: 0,
-    minimumFractionDigits: 0,
-  }).format(amount);
-}
-
-/**
- * Format number with commas
- */
-function formatNumber(num: number): string {
-  return new Intl.NumberFormat('en-US').format(num);
-}
-
-/**
- * Executive Summary Cards (only shown on first page)
- */
-function SummaryCards({
-  contractValue,
-  earnedToDate,
-  percentComplete,
-}: {
-  contractValue: number;
-  earnedToDate: number;
-  percentComplete: number;
-}) {
-  return (
-    <View style={progressStyles.summaryGrid}>
-      {/* Contract Value Card */}
-      <View style={progressStyles.summaryCard}>
-        <Text style={progressStyles.summaryLabel}>Contract Value</Text>
-        <Text style={progressStyles.summaryValue}>{formatCurrency(contractValue)}</Text>
-        <Text style={progressStyles.summarySubtext}>Original Contract Sum</Text>
-      </View>
-
-      {/* Earned to Date Card */}
-      <View style={progressStyles.summaryCard}>
-        <Text style={progressStyles.summaryLabel}>Earned to Date</Text>
-        <Text style={progressStyles.summaryValue}>{formatCurrency(earnedToDate)}</Text>
-        <Text style={progressStyles.summarySubtext}>Completed Work Value</Text>
-      </View>
-
-      {/* Project Progress Card */}
-      <View style={[progressStyles.summaryCard, progressStyles.summaryCardBlue]}>
-        <Text style={progressStyles.summaryLabel}>Project Progress</Text>
-        <Text style={[progressStyles.summaryValue, progressStyles.summaryValuePrimary]}>
-          {percentComplete.toFixed(1)}%
-        </Text>
-        <Text style={progressStyles.summarySubtext}>Complete</Text>
-        <View style={progressStyles.progressBarContainer}>
-          <View
-            style={[progressStyles.progressBarFill, { width: `${Math.min(percentComplete, 100)}%` }]}
-          />
-        </View>
-      </View>
-    </View>
-  );
-}
-
-/**
- * Table header row
- */
-function TableHeader() {
-  return (
-    <View style={progressStyles.tableHeader}>
-      <Text style={[progressStyles.headerCell, progressStyles.headerCellLeft, { width: COLUMNS.item }]}>
-        Item
-      </Text>
-      <Text style={[progressStyles.headerCell, progressStyles.headerCellLeft, { width: COLUMNS.description }]}>
-        Description
-      </Text>
-      <Text style={[progressStyles.headerCell, { width: COLUMNS.unit }]}>Unit</Text>
-      <Text style={[progressStyles.headerCell, { width: COLUMNS.qty }]}>Qty</Text>
-      <Text style={[progressStyles.headerCell, { width: COLUMNS.prev }]}>Prev</Text>
-      <Text style={[progressStyles.headerCell, { width: COLUMNS.thisPrd }]}>This Prd</Text>
-      <Text style={[progressStyles.headerCell, { width: COLUMNS.toDate }]}>To Date</Text>
-      <Text style={[progressStyles.headerCell, { width: COLUMNS.remain }]}>Remain</Text>
-      <Text style={[progressStyles.headerCell, { width: COLUMNS.percent }]}>%</Text>
-    </View>
-  );
-}
-
-/**
- * Table data row
- */
-function TableRow({
-  item,
-  isAlt,
-}: {
-  item: {
-    itemNumber: string;
-    description: string;
-    unit: string;
-    contractQty: number;
-    prevQty: number;
-    thisWeekQty: number;
-    toDateQty: number;
-    remainingQty: number;
-    percentComplete: number;
+interface ProgressSectionProps {
+  data: ReportData;
+  config?: {
+    showPercent?: boolean;
+    showNotes?: boolean;
+    marginTop?: number;
+    marginBottom?: number;
   };
-  isAlt: boolean;
-}) {
-  return (
-    <View style={isAlt ? [progressStyles.tableRow, progressStyles.tableRowAlt] : progressStyles.tableRow} wrap={false}>
-      <Text style={[progressStyles.cell, progressStyles.cellLeft, progressStyles.cellMono, { width: COLUMNS.item }]}>
-        {item.itemNumber}
-      </Text>
-      <Text style={[progressStyles.cell, progressStyles.cellLeft, progressStyles.cellBold, { width: COLUMNS.description }]}>
-        {item.description}
-      </Text>
-      <Text style={[progressStyles.cell, { width: COLUMNS.unit, fontSize: 6, textTransform: 'uppercase' }]}>
-        {item.unit}
-      </Text>
-      <Text style={[progressStyles.cell, progressStyles.cellMono, { width: COLUMNS.qty }]}>
-        {formatNumber(item.contractQty)}
-      </Text>
-      <Text style={[progressStyles.cell, progressStyles.cellMono, { width: COLUMNS.prev, color: COLORS.textLight }]}>
-        {formatNumber(item.prevQty)}
-      </Text>
-      <Text style={[progressStyles.cell, progressStyles.cellPrimary, { width: COLUMNS.thisPrd }]}>
-        {formatNumber(item.thisWeekQty)}
-      </Text>
-      <Text style={[progressStyles.cell, progressStyles.cellHighlight, { width: COLUMNS.toDate }]}>
-        {formatNumber(item.toDateQty)}
-      </Text>
-      <Text style={[progressStyles.cell, progressStyles.cellMono, { width: COLUMNS.remain }]}>
-        {formatNumber(item.remainingQty)}
-      </Text>
-      <View style={[progressStyles.progressCell, { width: COLUMNS.percent }]}>
-        <CircularProgress
-          percent={item.percentComplete}
-          size={18}
-          strokeWidth={2}
-        />
-      </View>
-    </View>
-  );
+  documentSettings?: any;
 }
 
-export function ProgressSection({
-  config,
-  reportData,
-  projectConfig,
-  baselines,
-  placement,
-}: ProgressSectionProps) {
-  const isContinued = placement?.continuesFromPrevious ?? false;
-  const showHeader = placement?.renderConfig?.showHeader ?? true;
+export const ProgressSection: React.FC<ProgressSectionProps> = ({ data, config = {}, documentSettings }) => {
+  const {
+    showPercent = true,
+    showNotes = true,
+    marginTop: configMarginTop,
+    marginBottom: configMarginBottom
+  } = config;
 
-  // Get bid items from baselines and weekly progress
-  const masterItems = baselines?.bidItems || [];
-  const weeklyProgress = reportData.progress?.bidItems || [];
+  const margins = documentSettings?.defaultMargins || { top: 24, bottom: 24, left: 24, right: 24 };
+  const applyToAll = documentSettings?.applyToAll || false;
 
-  // Calculate table data and totals
-  let totalContractValue = 0;
-  let totalEarnedToDate = 0;
-
-  const tableData = masterItems.map((item) => {
-    const weeklyEntry = weeklyProgress.find((w) => w.itemId === item.id) || {
-      thisWeekQty: 0,
-      toDateQty: 0,
-    };
-
-    const toDateQty = weeklyEntry.toDateQty || 0;
-    const thisWeekQty = weeklyEntry.thisWeekQty || 0;
-    const prevQty = toDateQty - thisWeekQty;
-    const remainingQty = item.contractQty - toDateQty;
-    const percentComplete = item.contractQty > 0 ? (toDateQty / item.contractQty) * 100 : 0;
-
-    const earnedValue = toDateQty * item.unitPrice;
-    const itemTotalValue = item.contractQty * item.unitPrice;
-
-    totalContractValue += itemTotalValue;
-    totalEarnedToDate += earnedValue;
-
-    return {
-      ...item,
-      prevQty,
-      thisWeekQty,
-      toDateQty,
-      remainingQty,
-      percentComplete,
-      earnedValue,
-      itemTotalValue,
-    };
-  });
-
-  const overallPercent = totalContractValue > 0 ? (totalEarnedToDate / totalContractValue) * 100 : 0;
-
-  // Handle data slicing for pagination
-  const startIdx = placement?.dataRange?.start ?? 0;
-  const endIdx = placement?.dataRange?.end ?? tableData.length;
-  const visibleItems = tableData.slice(startIdx, endIdx);
-
-  const sectionTitle = isContinued ? 'Progress Report (Continued)' : 'Progress Report';
-
-  // Empty state
-  if (tableData.length === 0) {
-    return (
-      <View style={progressStyles.container}>
-        {showHeader && <SectionHeader title={sectionTitle} isContinued={isContinued} />}
-        <Text style={progressStyles.emptyText}>No bid items to display.</Text>
-      </View>
-    );
-  }
-
-  const isSplitTop = placement?.renderConfig?.isSplitTop;
-  const isSplitBottom = placement?.renderConfig?.isSplitBottom;
+  const marginTop = applyToAll ? margins.top : (configMarginTop ?? margins.top);
+  const marginBottom = applyToAll ? margins.bottom : (configMarginBottom ?? margins.bottom);
+  const paddingLeft = margins.left;
+  const paddingRight = margins.right;
 
   return (
-    <View style={progressStyles.container}>
-      {showHeader && <SectionHeader title={sectionTitle} isContinued={isContinued} />}
+    <View style={[styles.container, { marginTop, marginBottom, paddingLeft, paddingRight }]}>
+      <View style={styles.header}>
+        <Text style={styles.headerTitle}>Progress Update</Text>
+      </View>
 
-      {/* Executive Summary Cards - Only on first page */}
-      {!isContinued && (
-        <SummaryCards
-          contractValue={totalContractValue}
-          earnedToDate={totalEarnedToDate}
-          percentComplete={overallPercent}
-        />
-      )}
-
-      {/* Detailed Progress Table */}
-      <View style={[
-          progressStyles.table,
-          isSplitTop ? progressStyles.tableSplitTop : {},
-          isSplitBottom ? progressStyles.tableSplitBottom : {}
-      ]}>
-        <TableHeader />
-
-        {visibleItems.map((item, idx) => (
-          <TableRow key={item.id || idx} item={item} isAlt={idx % 2 === 1} />
-        ))}
-
-        {/* Table Footer with totals */}
-        <View style={progressStyles.tableFooter}>
-          <Text style={[progressStyles.footerLabel, { width: '33%' }]}>Total Earned Value</Text>
-          <View style={{ width: '33%' }} />
-          <Text style={[progressStyles.footerValue, { width: '34%' }]}>
-            {formatCurrency(totalEarnedToDate)}
-          </Text>
+      <View style={styles.table}>
+        <View style={styles.tableHeader}>
+          <Text style={[styles.tableHeaderCell, { flex: 3 }]}>Activity</Text>
+          <Text style={[styles.tableHeaderCell, { flex: 1 }]}>Status</Text>
+          {showPercent && <Text style={[styles.tableHeaderCell, { flex: 1, textAlign: 'center' }]}>% Complete</Text>}
+          {showNotes && <Text style={[styles.tableHeaderCell, { flex: 2 }]}>Notes</Text>}
         </View>
+
+        {data.activitiesThisWeek.length > 0 ? (
+          data.activitiesThisWeek.map((item, i) => (
+            <View key={i} style={[styles.tableRow, { backgroundColor: i % 2 === 0 ? '#FFFFFF' : '#F9FAFB' }]}>
+              <Text style={[styles.tableCell, { flex: 3 }]}>{item.activity}</Text>
+              <Text style={[styles.tableCell, { flex: 1 }]}>{item.status}</Text>
+              {showPercent && <Text style={[styles.tableCell, { flex: 1, textAlign: 'center' }]}>{item.percentComplete}</Text>}
+              {showNotes && <Text style={[styles.tableCell, { flex: 2 }]}>{item.notes}</Text>}
+            </View>
+          ))
+        ) : (
+          <Text style={styles.emptyText}>No activities recorded for this week.</Text>
+        )}
       </View>
     </View>
   );
-}
+};

@@ -1,296 +1,183 @@
-/**
- * Safety Section for @react-pdf/renderer
- */
-
 import React from 'react';
 import { View, Text, StyleSheet } from '@react-pdf/renderer';
-import { COLORS } from '../styles';
-import { SectionHeader, Table, TableColumn } from '../primitives';
-import { PrintConfig, PagePlacement } from '../../config/printConfig.types';
-import { WeeklyReport, SafetyObservation } from '../../../../types';
+import { ReportData } from '../../utils/dataMapper';
 
-interface SafetySectionProps {
-  config: PrintConfig;
-  reportData: WeeklyReport;
-  placement?: PagePlacement;
-}
-
-const safetyStyles = StyleSheet.create({
+const styles = StyleSheet.create({
   container: {
-    marginBottom: 16,
+    padding: 30,
+    flex: 1,
   },
-  // Weekly Topic Card
-  topicCard: {
-    borderWidth: 1,
-    borderColor: COLORS.border,
-    borderRadius: 4,
-    marginBottom: 10,
-    overflow: 'hidden',
-  },
-  topicHeader: {
+  header: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 6,
-    paddingVertical: 5,
-    paddingHorizontal: 10,
-    backgroundColor: COLORS.greenLight,
-    borderBottomWidth: 1,
-    borderBottomColor: '#bbf7d0',
+    marginBottom: 15,
+    paddingBottom: 8,
+    borderBottomWidth: 2,
+    borderBottomColor: '#008B8B',
   },
-  topicHeaderText: {
-    fontSize: 8,
+  headerTitle: {
+    fontSize: 14,
     fontWeight: 'bold',
-    color: COLORS.green,
-    textTransform: 'uppercase',
-    letterSpacing: 0.3,
+    color: '#111827',
   },
-  topicBody: {
+  statGrid: {
+    flexDirection: 'row',
+    gap: 10,
+    marginBottom: 20,
+  },
+  statCard: {
+    flex: 1,
     padding: 10,
+    borderRadius: 4,
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+    alignItems: 'center',
+    backgroundColor: '#F9FAFB',
   },
-  topicTitle: {
-    fontSize: 10,
+  statValue: {
+    fontSize: 18,
     fontWeight: 'bold',
-    color: COLORS.text,
-    marginBottom: 4,
+    marginBottom: 2,
+    color: '#111827',
   },
-  topicNotes: {
-    fontSize: 8,
-    color: COLORS.textMuted,
-    lineHeight: 1.4,
+  statLabel: {
+    fontSize: 7,
+    color: '#6B7280',
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+    textAlign: 'center',
   },
-  // Stats Table
-  statsContainer: {
-    marginBottom: 10,
-  },
-  // Observations
-  observationsContainer: {
-    marginBottom: 10,
-  },
-  obsSubtitle: {
-    fontSize: 8,
-    color: COLORS.textMuted,
-    marginLeft: 4,
-  },
-  obsTypeBadge: {
-    paddingVertical: 2,
-    paddingHorizontal: 5,
-    borderRadius: 8,
+  statYtd: {
     fontSize: 6,
-    fontWeight: 'bold',
-    textTransform: 'uppercase',
+    color: '#9CA3AF',
+    marginTop: 2,
   },
-  obsTypePositive: {
-    backgroundColor: COLORS.greenLight,
-    color: COLORS.green,
-  },
-  obsTypeCorrective: {
-    backgroundColor: COLORS.amberLight,
-    color: COLORS.amber,
-  },
-  obsTypeNearMiss: {
-    backgroundColor: COLORS.redLight,
-    color: COLORS.red,
-  },
-  // Narrative Card
-  narrativeCard: {
+  table: {
+    width: '100%',
+    marginTop: 10,
     borderWidth: 1,
-    borderColor: COLORS.border,
-    borderRadius: 4,
-    overflow: 'hidden',
+    borderColor: '#E5E7EB',
   },
-  narrativeHeader: {
+  tableHeader: {
     flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    paddingVertical: 5,
-    paddingHorizontal: 10,
-    backgroundColor: COLORS.blueLight,
+    backgroundColor: '#F9FAFB',
     borderBottomWidth: 1,
-    borderBottomColor: '#bfdbfe',
+    borderBottomColor: '#E5E7EB',
+    padding: 8,
   },
-  narrativeHeaderText: {
-    fontSize: 8,
+  tableHeaderCell: {
+    fontSize: 9,
     fontWeight: 'bold',
-    color: COLORS.blue,
-    textTransform: 'uppercase',
-    letterSpacing: 0.3,
+    color: '#374151',
+    flex: 1,
+    textAlign: 'center',
   },
-  narrativeBody: {
-    padding: 10,
+  tableRow: {
+    flexDirection: 'row',
+    borderBottomWidth: 1,
+    borderBottomColor: '#E5E7EB',
+    padding: 8,
   },
-  narrativeText: {
+  tableCell: {
+    fontSize: 9,
+    color: '#374151',
+    flex: 1,
+    textAlign: 'center',
+  },
+  rowLabel: {
+    textAlign: 'left',
+    fontWeight: 'medium',
+    flex: 2,
+  },
+  footerInfo: {
+    marginTop: 20,
+    paddingTop: 10,
+    borderTopWidth: 1,
+    borderTopColor: '#E5E7EB',
+  },
+  footerText: {
     fontSize: 8,
-    color: COLORS.textMuted,
-    lineHeight: 1.4,
+    color: '#6B7280',
+    textAlign: 'center',
   },
 });
 
-export function SafetySection({ config, reportData, placement }: SafetySectionProps) {
-  const isContinued = placement?.continuesFromPrevious ?? false;
-  const showHeader = placement?.renderConfig?.showHeader ?? true;
-  const showFooter = placement?.renderConfig?.showFooter ?? true;
-
-  const safety = reportData.safety;
-  if (!safety) return null;
-
-  const stats = safety.stats || {
-    nearMisses: { week: 0, ytd: 0 },
-    firstAids: { week: 0, ytd: 0 },
-    recordables: { week: 0, ytd: 0 },
-    lostTime: { week: 0, ytd: 0 },
-    stopWorks: { week: 0, ytd: 0 },
-    hofs: { week: 0, ytd: 0 },
-    safetyAudits: { week: 0, ytd: 0 },
+interface SafetySectionProps {
+  data: ReportData;
+  config?: {
+    showTable?: boolean;
+    showCards?: boolean;
+    marginTop?: number;
+    marginBottom?: number;
   };
+  documentSettings?: any;
+}
 
-  // Handle observations slicing
-  const allObservations = safety.observations || [];
-  const startIdx = placement?.dataRange?.start ?? 0;
-  const endIdx = placement?.dataRange?.end ?? allObservations.length;
-  const visibleObservations = allObservations.slice(startIdx, endIdx);
+export const SafetySection: React.FC<SafetySectionProps> = ({ data, config = {}, documentSettings }) => {
+  const {
+      showTable = true,
+      showCards = true,
+      marginTop: configMarginTop,
+      marginBottom: configMarginBottom
+  } = config;
 
-  // Stats table data
-  const statRows = [
-    { label: 'Near Misses', week: stats.nearMisses?.week || 0, ytd: stats.nearMisses?.ytd || 0 },
-    { label: 'First Aids', week: stats.firstAids?.week || 0, ytd: stats.firstAids?.ytd || 0 },
-    { label: 'Recordable Incidents', week: stats.recordables?.week || 0, ytd: stats.recordables?.ytd || 0 },
-    { label: 'Lost Time / Restricted', week: stats.lostTime?.week || 0, ytd: stats.lostTime?.ytd || 0 },
-    { label: 'Stop Works', week: stats.stopWorks?.week || 0, ytd: stats.stopWorks?.ytd || 0 },
-    { label: "HOF's", week: stats.hofs?.week || 0, ytd: stats.hofs?.ytd || 0 },
-    { label: 'Safety Audits', week: stats.safetyAudits?.week || 0, ytd: stats.safetyAudits?.ytd || 0 },
-  ];
+  const margins = documentSettings?.defaultMargins || { top: 24, bottom: 24, left: 24, right: 24 };
+  const applyToAll = documentSettings?.applyToAll || false;
 
-  const statsColumns: TableColumn[] = [
-    { key: 'label', header: 'Key Performance Indicator', width: 4 },
-    {
-      key: 'week',
-      header: 'Current Week',
-      width: 2,
-      align: 'center',
-      render: (value) => (
-        <Text style={{ fontSize: 9, fontWeight: 'bold', color: COLORS.text }}>{value}</Text>
-      ),
-    },
-    {
-      key: 'ytd',
-      header: 'Year to Date',
-      width: 2,
-      align: 'center',
-      render: (value) => (
-        <Text style={{ fontSize: 8, color: COLORS.textMuted }}>{value}</Text>
-      ),
-    },
-  ];
+  const marginTop = applyToAll ? margins.top : (configMarginTop ?? margins.top);
+  const marginBottom = applyToAll ? margins.bottom : (configMarginBottom ?? margins.bottom);
+  const paddingLeft = margins.left;
+  const paddingRight = margins.right;
 
-  // Observations columns
-  const obsColumns: TableColumn[] = [
-    {
-      key: 'date',
-      header: 'Date',
-      width: '15%',
-      render: (value) => (
-        <Text style={{ fontSize: 7, fontFamily: 'Courier', color: COLORS.textMuted }}>{value}</Text>
-      ),
-    },
-    {
-      key: 'type',
-      header: 'Type',
-      width: '15%',
-      render: (value: string) => {
-        const style = value === 'Positive'
-          ? safetyStyles.obsTypePositive
-          : value === 'Corrective'
-          ? safetyStyles.obsTypeCorrective
-          : safetyStyles.obsTypeNearMiss;
-        return <Text style={[safetyStyles.obsTypeBadge, style]}>{value}</Text>;
-      },
-    },
-    {
-      key: 'description',
-      header: 'Description',
-      width: '35%',
-      render: (value) => (
-        <Text style={{ fontSize: 7, color: COLORS.text }}>{value || '-'}</Text>
-      ),
-    },
-    {
-      key: 'actionTaken',
-      header: 'Action Taken',
-      width: '35%',
-      render: (value) => (
-        <Text style={{ fontSize: 7, color: COLORS.textMuted, fontStyle: 'italic' }}>{value || '-'}</Text>
-      ),
-    },
+  const stats = [
+    { label: 'Lost Time', val: data.safetyStats.lostTime },
+    { label: 'Recordable', val: data.safetyStats.recordables },
+    { label: 'First Aid', val: data.safetyStats.firstAids },
+    { label: 'Near Miss', val: data.safetyStats.nearMisses },
+    { label: 'Stop Work', val: data.safetyStats.stopWorks },
   ];
 
   return (
-    <View style={safetyStyles.container}>
-      <SectionHeader title="Safety Management" isContinued={isContinued} />
+    <View style={[styles.container, { marginTop, marginBottom, paddingLeft, paddingRight }]}>
+      <View style={styles.header}>
+        <Text style={styles.headerTitle}>Safety Statistics & Performance</Text>
+      </View>
 
-      {/* Weekly Safety Topic */}
-      {showHeader && (
-        <View style={safetyStyles.topicCard} wrap={false}>
-          <View style={safetyStyles.topicHeader}>
-            <Text style={safetyStyles.topicHeaderText}>Weekly Safety Topic</Text>
-          </View>
-          <View style={safetyStyles.topicBody}>
-            <Text style={safetyStyles.topicTitle}>
-              {safety.weeklyTopic || 'No Topic Selected'}
-            </Text>
-            <Text style={safetyStyles.topicNotes}>
-              {safety.weeklyTopicNotes || 'No notes available.'}
-            </Text>
-          </View>
+      {showCards && (
+        <View style={styles.statGrid}>
+          {stats.map((stat, i) => (
+            <View key={i} style={styles.statCard}>
+               <Text style={[styles.statValue, { color: stat.val.week > 0 ? '#DC2626' : '#111827' }]}>{stat.val.week}</Text>
+               <Text style={styles.statLabel}>{stat.label}</Text>
+               <Text style={styles.statYtd}>YTD: {stat.val.ytd}</Text>
+            </View>
+          ))}
         </View>
       )}
 
-      {/* Stats Table */}
-      {showHeader && (
-        <View style={safetyStyles.statsContainer}>
-          <Table
-            columns={statsColumns}
-            data={statRows}
-            keyExtractor={(item) => item.label}
-            alternateRowColor={true}
-          />
-        </View>
-      )}
+      {showTable && (
+        <View style={styles.table}>
+          <View style={styles.tableHeader}>
+            <Text style={[styles.tableHeaderCell, { flex: 2, textAlign: 'left' }]}>Indicator</Text>
+            <Text style={[styles.tableHeaderCell, { flex: 1, textAlign: 'center' }]}>This Week</Text>
+            <Text style={[styles.tableHeaderCell, { flex: 1, textAlign: 'center' }]}>Year to Date</Text>
+          </View>
 
-      {/* Observations */}
-      {visibleObservations.length > 0 && (
-        <View style={safetyStyles.observationsContainer}>
-          <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 4 }}>
-            <Text style={{ fontSize: 9, fontWeight: 'bold', color: COLORS.textMuted, textTransform: 'uppercase' }}>
-              Safety Observations
-            </Text>
-            {visibleObservations.length !== allObservations.length && (
-              <Text style={safetyStyles.obsSubtitle}>
-                ({startIdx + 1}-{endIdx} of {allObservations.length})
+          {stats.map((stat, i) => (
+            <View key={i} style={[styles.tableRow, { backgroundColor: i % 2 === 0 ? '#FFFFFF' : '#F9FAFB' }]}>
+              <Text style={[styles.tableCell, { flex: 2, textAlign: 'left', fontWeight: 'medium' }]}>{stat.label}</Text>
+              <Text style={[styles.tableCell, { flex: 1, textAlign: 'center', fontWeight: stat.val.week > 0 ? 'bold' : 'normal', color: stat.val.week > 0 ? '#DC2626' : '#374151' }]}>
+                {stat.val.week}
               </Text>
-            )}
-          </View>
-          <Table
-            columns={obsColumns}
-            data={visibleObservations}
-            keyExtractor={(item) => item.id}
-            headerBgColor={COLORS.backgroundAlt}
-            headerTextColor={COLORS.textMuted}
-            alternateRowColor={false}
-          />
+              <Text style={[styles.tableCell, { flex: 1, textAlign: 'center' }]}>{stat.val.ytd}</Text>
+            </View>
+          ))}
         </View>
       )}
 
-      {/* Narrative */}
-      {showFooter && safety.narrative && (
-        <View style={safetyStyles.narrativeCard} wrap={false}>
-          <View style={safetyStyles.narrativeHeader}>
-            <Text style={safetyStyles.narrativeHeaderText}>Safety Narrative</Text>
-          </View>
-          <View style={safetyStyles.narrativeBody}>
-            <Text style={safetyStyles.narrativeText}>{safety.narrative}</Text>
-          </View>
-        </View>
-      )}
+      <View style={styles.footerInfo}>
+        <Text style={styles.footerText}>Reported safety data is subject to verification upon project completion.</Text>
+      </View>
     </View>
   );
-}
+};

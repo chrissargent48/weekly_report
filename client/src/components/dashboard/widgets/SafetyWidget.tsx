@@ -7,18 +7,29 @@ interface Props {
 }
 
 export function SafetyWidget({ report }: Props) {
-    const stats = report.safety.stats;
-    const incidents = stats.recordables.week + stats.nearMisses.week + stats.lostTime.week + stats.firstAids.week;
+    // Default stats to zeros if missing (Invisible Fix)
+    const stats = report?.safety?.stats || {
+        nearMisses: { week: 0 },
+        firstAids: { week: 0 },
+        recordables: { week: 0 },
+        lostTime: { week: 0 }
+    };
+
+    const incidents = (stats.recordables?.week || 0) + 
+                      (stats.nearMisses?.week || 0) + 
+                      (stats.lostTime?.week || 0) + 
+                      (stats.firstAids?.week || 0);
     
-    // Calculate total hours this week
-    const safeManHours = report.resources.manpower.reduce((sum, m) => {
+    // Calculate total hours this week (Defensive)
+    const safeManHours = (report?.resources?.manpower || []).reduce((sum, m) => {
         const dh = m.dailyHours || { mon: 0, tue: 0, wed: 0, thu: 0, fri: 0, sat: 0, sun: 0 };
         return sum + dh.mon + dh.tue + dh.wed + dh.thu + dh.fri + dh.sat + dh.sun;
     }, 0);
 
     // Extract first line of narrative
-    const safetyTopic = report.safety.narrative 
-        ? report.safety.narrative.split('\n')[0].substring(0, 100) + (report.safety.narrative.length > 100 ? '...' : '')
+    const narrative = report?.safety?.narrative || "";
+    const safetyTopic = narrative 
+        ? narrative.split('\n')[0].substring(0, 100) + (narrative.length > 100 ? '...' : '')
         : "General Site Safety Awareness";
 
     return (

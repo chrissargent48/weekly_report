@@ -38,19 +38,20 @@ We use **Client-Side Generation** via `@react-pdf/renderer`.
 
 ### Tech Stack
 
-| Layer          | Technology           | Purpose                                         |
-| :------------- | :------------------- | :---------------------------------------------- |
-| **App Shell**  | Electron             | Desktop application wrapper                     |
-| **Server**     | Node.js + Express    | Local API, File System Access, orchestration    |
-| **Client**     | React + TypeScript   | Component-based UI logic                        |
-| **Build**      | Vite                 | Fast dev server and bundling                    |
-| **Styling**    | Tailwind, HeadlessUI | Utility-first styling & Accessible components   |
-| **PDF**        | @react-pdf/renderer  | Client-side PDF generation (replaced Puppeteer) |
-| **Editor**     | Tiptap               | Rich text editing for summaries                 |
-| **DnD**        | @dnd-kit             | Drag and drop interactions                      |
-| **Images**     | react-easy-crop      | Image manipulation & cropping                   |
-| **Validation** | Zod                  | Schema validation (Client & Server)             |
-| **Data**       | JSON, xlsx           | File storage & Excel processing                 |
+| Layer         | Technology           | Purpose                                       |
+| :------------ | :------------------- | :-------------------------------------------- |
+| **App Shell** | Electron             | Desktop application wrapper                   |
+| **Server**    | Node.js + Express    | Local API, File System Access, orchestration  |
+| **Client**    | React + TypeScript   | Component-based UI logic                      |
+| **Build**     | Vite                 | Fast dev server and bundling                  |
+| **Styling**   | Tailwind, HeadlessUI | Utility-first styling & Accessible components |
+| **PDF**       | @react-pdf/renderer  | Client-side PDF generation (fully migrated)   |
+| **Schemas**   | Zod + Shared Types   | Unified validation for Client & Server        |
+| **Layout**    | Server Layout Engine | Yoga-based positioning for complex reports    |
+| **Editor**    | Tiptap               | Rich text editing for summaries               |
+| **DnD**       | @dnd-kit             | Drag and drop interactions                    |
+| **Images**    | react-easy-crop      | Image manipulation & cropping                 |
+| **Data**      | JSON, xlsx           | File storage & Excel processing               |
 
 ### Directory Structure
 
@@ -60,16 +61,19 @@ We use **Client-Side Generation** via `@react-pdf/renderer`.
 │   ├── src/
 │   │   ├── features/       # Feature-based architecture (e.g., print-studio)
 │   │   ├── components/     # Shared UI Components
-│   │   └── types.ts        # Client-side Type Definitions
+│   │   └── types.ts        # Client-specific UI types
 │   └── package.json
 ├── server/                 # Node.js Backend
 │   ├── index.ts            # Express App & API Routes
-│   ├── DataManager.ts      # File System Persistence Layer
-│   └── types.ts            # Server-side Type Definitions
+│   ├── DataManager.ts      # File System Persistence Layer (Atomic Writes)
+│   ├── services/           # Layout Engine & internal services
+│   └── types.ts            # Server-side exports of shared schemas
+├── shared/                 # Unified Schemas & Logic
+│   └── schemas.ts          # Zod schemas used by both Client & Server
 ├── electron/               # Electron Main Process layer
 ├── data/                   # Local Database (JSON files)
 │   ├── projects.json       # Index of projects
-│   └── [project-id]/       # Per-project data (reports.json, images/)
+│   └── [project-id]/       # Per-project data (reports, images, config)
 └── AGENTS.md               # This file
 ```
 
@@ -133,9 +137,10 @@ export function ComponentName({ data, onUpdate }: Props) {
 
 ### Refactoring Rules
 
-1.  **The "Print" Test:** Never merge a UI refactor without verifying that `print:break-inside-avoid` and other print-specific classes are preserved.
-2.  **Type Safety:** `client/src/types.ts` and `server/types.ts` have diverged. When modifying data structures, ensure BOTH are updated to match until they are unified.
+1.  **Unified Search & Validation:** Use `shared/schemas.ts` for all data structures. Changes to the data model MUST be made there first.
+2.  **Type Safety:** `client/src/types.ts` and `server/types.ts` both import from `shared/schemas.ts`. Ensure you use the inferred types (`z.infer<typeof ...>`).
 3.  **No "Magic" Logic:** Logic belongs in `DataManager` (server) or React Hooks (client). Do not put business logic inside JSX rendering blocks.
+4.  **Local-First Integrity:** Use `DataManager` methods to ensure atomic writes (writes to `.tmp` then rename).
 
 ---
 
@@ -143,13 +148,22 @@ export function ComponentName({ data, onUpdate }: Props) {
 
 ### 1. Data Integrity
 
-- **Server-Side Validation:** Ensure `DataManager` checks for file existence before reading.
-- **Atomic Writes:** (Goal) Prevent partial writes to JSON files.
+- **Atomic Writes:** `DataManager` writes to a temporary file and renames it to prevent corruption during crashes.
+- **Index Recovery:** The server can rebuild `projects.json` by scanning project directories for `config.json` files.
 
 ### 2. Print Safety
 
 - **PDF Fidelity:** We use `@react-pdf/renderer` in the "Print Studio". This allows for a precise PREVIEW of the PDF before generation.
-- **Font Loading:** Ensure fonts are loaded via `Font.register` in React PDF components.
+- **Client-Side Generation:** PDF generation is entirely client-side to ensure what the user sees in the preview is exactly what they get in the file.
+
+---
+
+## 🚀 Current Status & Milestones (Jan 2026)
+
+- **Print Studio v2**: Fully functional WYSIWYG editor with drag-and-drop report items.
+- **Unified Schema Layer**: All project and report data is validated via shared `Zod` schemas.
+- **Smart Weather**: Multi-source API that automatically switches between historical data (Open-Meteo) and forecasts (NWS).
+- **Golden Triangle Integration**: Tight coupling between Project Schedule, Weekly Progress, and Financial Tracking.
 
 ---
 
