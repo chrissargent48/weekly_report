@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Document, Page, StyleSheet } from '@react-pdf/renderer';
 import { ReportData } from '../utils/dataMapper';
+import { marginsPxToPt } from '../utils/layoutUtils';
 import { CoverPage } from './sections/CoverPage';
 import { WeatherSection } from './sections/WeatherSection';
 import { ExecutiveSection } from './sections/ExecutiveSection';
@@ -31,6 +32,16 @@ export const ReportDocument: React.FC<ReportDocumentProps> = ({
   sectionOrder = ['cover', 'executive', 'weather', 'progress', 'lookahead', 'photos', 'safety'],
   documentSettings = {}
 }) => {
+  // Convert CSS-pixel margins (96 DPI) → PDF points (72 DPI) so the PDF
+  // matches the Canvas preview exactly.
+  const pdfDocSettings = useMemo(() => {
+    const raw = documentSettings?.defaultMargins || { top: 24, bottom: 24, left: 24, right: 24 };
+    return {
+      ...documentSettings,
+      defaultMargins: marginsPxToPt(raw),
+    };
+  }, [documentSettings]);
+
   return (
     <Document>
       {sectionOrder.map(sectionId => {
@@ -40,43 +51,43 @@ export const ReportDocument: React.FC<ReportDocumentProps> = ({
           case 'cover':
             return (
               <Page key="cover" size="LETTER" style={styles.page}>
-                <CoverPage data={data} config={sectionConfigs.cover} documentSettings={documentSettings} />
+                <CoverPage data={data} config={sectionConfigs.cover} documentSettings={pdfDocSettings} />
               </Page>
             );
           case 'executive':
             return (
               <Page key="executive" size="LETTER" style={styles.page}>
-                <ExecutiveSection data={data} config={sectionConfigs.executive} documentSettings={documentSettings} />
+                <ExecutiveSection data={data} config={sectionConfigs.executive} documentSettings={pdfDocSettings} />
               </Page>
             );
           case 'weather':
             return (
               <Page key="weather" size="LETTER" style={styles.page}>
-                <WeatherSection data={data} config={sectionConfigs.weather} documentSettings={documentSettings} />
+                <WeatherSection data={data} config={sectionConfigs.weather} documentSettings={pdfDocSettings} />
               </Page>
             );
           case 'progress':
             return (
               <Page key="progress" size="LETTER" style={styles.page}>
-                <ProgressSection data={data} config={sectionConfigs.progress} documentSettings={documentSettings} />
+                <ProgressSection data={data} config={sectionConfigs.progress} documentSettings={pdfDocSettings} />
               </Page>
             );
           case 'lookahead':
             return (
               <Page key="lookahead" size="LETTER" style={styles.page}>
-                <LookAheadSection data={data} config={sectionConfigs.lookahead} documentSettings={documentSettings} />
+                <LookAheadSection data={data} config={sectionConfigs.lookahead} documentSettings={pdfDocSettings} />
               </Page>
             );
           case 'photos':
             return (
               <Page key="photos" size="LETTER" style={styles.page}>
-                <PhotosSection data={data} config={sectionConfigs.photos} documentSettings={documentSettings} />
+                <PhotosSection data={data} config={sectionConfigs.photos} documentSettings={pdfDocSettings} />
               </Page>
             );
           case 'safety':
             return (
               <Page key="safety" size="LETTER" style={styles.page}>
-                <SafetySection data={data} config={sectionConfigs.safety} documentSettings={documentSettings} />
+                <SafetySection data={data} config={sectionConfigs.safety} documentSettings={pdfDocSettings} />
               </Page>
             );
           default:

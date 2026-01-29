@@ -2,11 +2,7 @@ import React, { useMemo } from 'react';
 import { ProjectConfig, WeeklyReport } from '../../../types';
 import { PrintConfig } from '../config/printConfig.types';
 import { AlertTriangle } from 'lucide-react';
-import { ImagePositionProvider } from '../context/ImagePositionContext';
-import { SelectionProvider } from '../context/SelectionContext';
-
 // Section Components
-// ... (rest of imports unchanged)
 import { CoverSection } from '../sections/CoverSection';
 import { ExecutiveSummary } from '../sections/ExecutiveSummary';
 import { WeatherSection } from '../sections/WeatherSection';
@@ -72,9 +68,6 @@ export const Canvas: React.FC<CanvasProps> = ({
   // Calculate pixel dimensions based on zoom percentage
   const width = (BASE_WIDTH * zoom) / 100;
   const height = (BASE_HEIGHT * zoom) / 100;
-
-  // Helpers for ImagePositionProvider (No-op for preview)
-  const noOp = () => {};
 
   // --- DATA NORMALIZATION & DEBUGGING ---
   const normalizedReport = useMemo(() => {
@@ -222,46 +215,35 @@ export const Canvas: React.FC<CanvasProps> = ({
                     renderConfig: { showHeader: true, showFooter: true }
                   };
 
-                   return (
-                     <SelectionProvider>
-                       {(() => {
+                   return (() => {
                          switch(sectionId) {
                            case 'cover':
                              return (
-                               <ImagePositionProvider
-                                 config={shimConfig}
-                                 setHeroPhotoPosition={noOp}
-                                 setStripPhotoPosition={noOp}
-                                 setPhotoPosition={noOp}
-                                 setPhotoZoom={noOp}
-                                 setPhotoCrop={noOp}
-                               >
-                                  <CoverSection 
-                                    config={shimConfig} 
-                                    reportData={data} 
+                                  <CoverSection
+                                    config={shimConfig}
+                                    reportData={data}
                                     projectConfig={safeProjectConfig}
                                   />
-                               </ImagePositionProvider>
                              );
                            case 'executive':
                              return (
-                                <ExecutiveSummary 
-                                  config={shimConfig} 
-                                  reportData={data} 
+                                <ExecutiveSummary
+                                  config={shimConfig}
+                                  reportData={data}
                                 />
                              );
                            case 'weather':
                              return (
-                                <WeatherSection 
-                                  config={shimConfig} 
-                                  reportData={data} 
+                                <WeatherSection
+                                  config={shimConfig}
+                                  reportData={data}
                                   placement={mockPlacement}
                                 />
                              );
                            case 'progress':
                              return (
-                                <ProgressSection 
-                                  config={shimConfig} 
+                                <ProgressSection
+                                  config={shimConfig}
                                   reportData={data}
                                   placement={mockPlacement}
                                   projectConfig={safeProjectConfig}
@@ -270,34 +252,25 @@ export const Canvas: React.FC<CanvasProps> = ({
                              );
                            case 'lookahead':
                              return (
-                                <LookAheadSection 
-                                  config={shimConfig} 
-                                  reportData={data} 
+                                <LookAheadSection
+                                  config={shimConfig}
+                                  reportData={data}
                                   placement={mockPlacement}
                                 />
                              );
                            case 'photos':
                              return (
-                               <ImagePositionProvider
-                                 config={shimConfig}
-                                 setHeroPhotoPosition={noOp}
-                                 setStripPhotoPosition={noOp}
-                                 setPhotoPosition={noOp}
-                                 setPhotoZoom={noOp}
-                                 setPhotoCrop={noOp}
-                               >
-                                  <PhotosSection 
-                                    config={shimConfig} 
-                                    reportData={data} 
+                                  <PhotosSection
+                                    config={shimConfig}
+                                    reportData={data}
                                     placement={mockPlacement}
                                   />
-                               </ImagePositionProvider>
                              );
                            case 'safety':
                              return (
-                                <SafetySection 
-                                  config={shimConfig} 
-                                  reportData={data} 
+                                <SafetySection
+                                  config={shimConfig}
+                                  reportData={data}
                                   placement={mockPlacement}
                                 />
                              );
@@ -309,9 +282,7 @@ export const Canvas: React.FC<CanvasProps> = ({
                                </div>
                              );
                          }
-                       })()}
-                     </SelectionProvider>
-                   );
+                       })();
                 })()}
               </SectionErrorBoundary>
             </div>

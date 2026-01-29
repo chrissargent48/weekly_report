@@ -11,6 +11,9 @@ import { WeeklyReport, ProjectConfig } from '../../types';
 import { ReportDocument } from './react-pdf/ReportDocument'; 
 import { mapReportData } from './utils/dataMapper'; 
 import { useAutoSave } from './hooks/useAutoSave';
+import { SelectionProvider } from './context/SelectionContext';
+import { ImagePositionProvider } from './context/ImagePositionContext';
+import { PrintConfig } from './config/printConfig.types';
 
 interface PrintStudioProps {
   onBack?: () => void;
@@ -134,6 +137,31 @@ export const PrintStudio: React.FC<PrintStudioProps> = ({
       }
     }
   );
+
+  // --- Stable PrintConfig for the hoisted ImagePositionProvider ---
+  const shimPrintConfig: PrintConfig = React.useMemo(() => ({
+    sections: [],
+    spacing: {
+      type: 'standard' as const,
+      sectionGap: 24,
+      elementGap: 12,
+      tablePadding: 8,
+      ...documentSettings?.spacing,
+    },
+    logoScale: documentSettings?.logoScale || 100,
+    logoAlign: documentSettings?.logoAlign || 'left',
+    heroPhotoIndex: sectionConfigs?.cover?.heroPhotoId ? 0 : null,
+    heroPhotoPosition: { x: 50, y: 50 },
+    stripPhotoIndexes: [],
+    stripPhotoPositions: {},
+    photoPositions: {},
+    showPageNumbers: documentSettings?.showPageNumbers ?? true,
+    showFooter: documentSettings?.showFooter ?? true,
+    showCoverPhotos: sectionConfigs?.cover?.showPhotoGrid ?? true,
+  }), [documentSettings, sectionConfigs]);
+
+  // No-op setters for the hoisted ImagePositionProvider (Canvas is read-only preview)
+  const noOp = React.useCallback(() => {}, []);
 
   // Combine settings into single object for the hook
   const printSettings = React.useMemo(() => ({
@@ -333,8 +361,17 @@ export const PrintStudio: React.FC<PrintStudioProps> = ({
   };
 
   return (
+    <SelectionProvider>
+    <ImagePositionProvider
+      config={shimPrintConfig}
+      setHeroPhotoPosition={noOp}
+      setStripPhotoPosition={noOp}
+      setPhotoPosition={noOp}
+      setPhotoZoom={noOp}
+      setPhotoCrop={noOp}
+    >
     <div className="h-screen flex flex-col bg-gray-100 text-gray-900 text-sm overflow-hidden font-sans">
-      
+
       {/* 1. Top Toolbar */}
       <div className="h-11 bg-white border-b border-gray-200 flex items-center px-3 gap-1.5 shrink-0 z-20 shadow-sm">
         
@@ -485,5 +522,7 @@ export const PrintStudio: React.FC<PrintStudioProps> = ({
 
       </div>
     </div>
+    </ImagePositionProvider>
+    </SelectionProvider>
   );
 };
