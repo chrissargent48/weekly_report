@@ -1,4 +1,5 @@
 import { ProjectConfig, WeeklyReport } from '../../../types';
+import { resolveImageUrl } from './resolveImageUrl';
 
 export interface ReportData {
   // Cover
@@ -79,19 +80,13 @@ export function mapReportData(
     return config.personnel.client.company || 'Client Name';
   };
 
-  console.log('[dataMapper] logoUrl from config:', config.identity?.logoUrl);
-
   return {
     // Cover Page Data
     projectName: config.identity?.projectName || 'Project Name',
     clientName: getClientName(),
     projectAddress: config.identity?.location || '',
     jobNumber: config.identity?.jobNumber || 'N/A',
-    logoUrl: (() => {
-      const url = config.identity?.logoUrl;
-      console.log('dataMapper: logoUrl from config:', url ? 'YES' : 'NO', url?.substring(0, 80));
-      return url;
-    })(),
+    logoUrl: resolveImageUrl(config.identity?.logoUrl),
     reportDate: report.weekEnding,
     reportNumber: 1, // TODO: Calculate this based on report history if needed
     periodStart: report.periodStart,
@@ -116,9 +111,9 @@ export function mapReportData(
        // date: 'Upcoming' // No date in string array
     })),
 
-    // Photos
+    // Photos – resolve all URLs to absolute before they touch the UI or PDF
     photos: (report.photos || []).map(p => ({
-      url: p.url,
+      url: resolveImageUrl(p.url),
       caption: p.caption,
       date: p.date ? new Date(p.date).toLocaleDateString() : ''
     })),
@@ -147,7 +142,7 @@ export function mapReportData(
 
     availablePhotos: (report.photos || []).map(p => ({
       id: p.id,
-      url: p.url,
+      url: resolveImageUrl(p.url),
       caption: p.caption || ''
     })),
 
