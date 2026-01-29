@@ -1,6 +1,22 @@
 import { ProjectConfig, WeeklyReport } from './types';
 
-const API_BASE = 'http://localhost:3000/api';
+const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:3000/api';
+
+export class ApiError extends Error {
+  constructor(public status: number, message: string) {
+    super(message);
+    this.name = 'ApiError';
+  }
+}
+
+async function apiFetch<T>(url: string, options?: RequestInit): Promise<T> {
+  const res = await fetch(url, options);
+  if (!res.ok) {
+    const errorBody = await res.json().catch(() => ({}));
+    throw new ApiError(res.status, errorBody.error || `Request failed: ${res.status}`);
+  }
+  return res.json();
+}
 
 export interface ProjectIndex {
   id: string;
@@ -12,59 +28,65 @@ export interface ProjectIndex {
 export const api = {
   // --- PROJECTS ---
   listProjects: async (): Promise<ProjectIndex[]> => {
-      const res = await fetch(`${API_BASE}/projects`);
-      return res.json();
+      return apiFetch<ProjectIndex[]>(`${API_BASE}/projects`);
   },
 
   createProject: async (name: string, location: string): Promise<ProjectIndex> => {
-      const res = await fetch(`${API_BASE}/projects`, { 
-          method: 'POST', 
+      return apiFetch<ProjectIndex>(`${API_BASE}/projects`, {
+          method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ name, location })
       });
-      return res.json();
   },
 
   deleteProject: async (id: string): Promise<void> => {
-      await fetch(`${API_BASE}/projects/${id}`, { method: 'DELETE' });
+      const res = await fetch(`${API_BASE}/projects/${id}`, { method: 'DELETE' });
+      if (!res.ok) {
+          const errorBody = await res.json().catch(() => ({}));
+          throw new ApiError(res.status, errorBody.error || `Request failed: ${res.status}`);
+      }
   },
 
   // --- SCOPED ---
   getConfig: async (projectId: string): Promise<ProjectConfig> => {
-    const res = await fetch(`${API_BASE}/projects/${projectId}/config`);
-    return res.json();
+      return apiFetch<ProjectConfig>(`${API_BASE}/projects/${projectId}/config`);
   },
 
   saveConfig: async (projectId: string, config: ProjectConfig): Promise<void> => {
-    await fetch(`${API_BASE}/projects/${projectId}/config`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(config),
-    });
+      const res = await fetch(`${API_BASE}/projects/${projectId}/config`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(config),
+      });
+      if (!res.ok) {
+          const errorBody = await res.json().catch(() => ({}));
+          throw new ApiError(res.status, errorBody.error || `Request failed: ${res.status}`);
+      }
   },
 
   listReports: async (projectId: string): Promise<string[]> => {
-    const res = await fetch(`${API_BASE}/projects/${projectId}/reports`);
-    return res.json();
+      return apiFetch<string[]>(`${API_BASE}/projects/${projectId}/reports`);
   },
 
   getReport: async (projectId: string, date: string): Promise<WeeklyReport> => {
-    const res = await fetch(`${API_BASE}/projects/${projectId}/reports/${date}`);
-    return res.json();
+      return apiFetch<WeeklyReport>(`${API_BASE}/projects/${projectId}/reports/${date}`);
   },
 
   async saveReport(projectId: string, date: string, data: WeeklyReport) {
-      const res = await fetch(`${API_BASE}/projects/${projectId}/reports/${date}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
-      return res.json();
-  },
-  
-  async downloadPDF(projectId: string, date: string, options?: import('./types').PrintOptions) {
-      const res = await fetch(`${API_BASE}/projects/${projectId}/reports/${date}/pdf`, { 
+      return apiFetch(`${API_BASE}/projects/${projectId}/reports/${date}`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ options }) 
+          body: JSON.stringify(data)
       });
-      if (!res.ok) throw new Error("Failed to generate PDF");
+  },
+
+  async downloadPDF(projectId: string, date: string, options?: import('./types').PrintOptions) {
+      const res = await fetch(`${API_BASE}/projects/${projectId}/reports/${date}/pdf`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ options })
+      });
+      if (!res.ok) throw new ApiError(res.status, "Failed to generate PDF");
       const blob = await res.blob();
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
@@ -79,15 +101,23 @@ export const api = {
   getBaselines: async (projectId: string): Promise<import('./types').ProjectBaselines | null> => {
       const res = await fetch(`${API_BASE}/projects/${projectId}/baselines`);
       if (res.status === 404) return null;
+      if (!res.ok) {
+          const errorBody = await res.json().catch(() => ({}));
+          throw new ApiError(res.status, errorBody.error || `Request failed: ${res.status}`);
+      }
       return res.json();
   },
 
   saveBaselines: async (projectId: string, data: import('./types').ProjectBaselines) => {
-      await fetch(`${API_BASE}/projects/${projectId}/baselines`, {
+      const res = await fetch(`${API_BASE}/projects/${projectId}/baselines`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(data)
       });
+      if (!res.ok) {
+          const errorBody = await res.json().catch(() => ({}));
+          throw new ApiError(res.status, errorBody.error || `Request failed: ${res.status}`);
+      }
   },
 
   // --- WEATHER (NWS + Census Bureau geocoding) ---
@@ -98,18 +128,16 @@ export const api = {
       error?: string;
   }> => {
       const params = new URLSearchParams({ address, startDate, endDate });
-      const res = await fetch(`${API_BASE}/weather?${params}`);
-      return res.json();
+      return apiFetch(`${API_BASE}/weather?${params}`);
   },
 
   // --- LAYOUT ---
   calculateLayout: async (report: WeeklyReport): Promise<import('./types').ReportLayout> => {
-      const res = await fetch(`${API_BASE}/layout/calculate`, {
+      return apiFetch(`${API_BASE}/layout/calculate`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(report)
       });
-      return res.json();
   },
 
   // --- MEDIA ---
@@ -125,10 +153,10 @@ export const api = {
                       headers: { 'Content-Type': 'application/json' },
                       body: JSON.stringify({ image: base64, filename: file.name })
                   });
-                  
+
                   if (!res.ok) {
                       const errorData = await res.json().catch(() => ({}));
-                      throw new Error(errorData.error || `Upload failed with status ${res.status}`);
+                      throw new ApiError(res.status, errorData.error || `Upload failed with status ${res.status}`);
                   }
                   const data = await res.json();
                   resolve(data.url);
