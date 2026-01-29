@@ -151,14 +151,14 @@ interface CoverPageProps {
 }
 
 export const CoverPage: React.FC<CoverPageProps> = ({ data, config = {}, documentSettings }) => {
-  console.log('[CoverPage] PDF Render Start', { 
-    hasLogoUrl: !!data.logoUrl, 
+  console.log('[CoverPage] PDF Render Start', {
+    hasLogoUrl: !!data.logoUrl,
     logoUrl: data.logoUrl,
     heroPhotoId: config.heroPhotoId,
     heroOverlayOpacity: config.heroOverlayOpacity,
     configKeys: Object.keys(config)
   });
-  
+
   const {
     subtitle = '2024 Site Improvements',
     showPhotoGrid = true,
@@ -267,9 +267,9 @@ export const CoverPage: React.FC<CoverPageProps> = ({ data, config = {}, documen
         {/* Logo or Text */}
         <View style={logoPosStyle}>
            {absoluteLogoUrl ? (
-             <Image 
-               src={absoluteLogoUrl} 
-               style={{ height: logoHeight }}
+             <Image
+               src={absoluteLogoUrl}
+               style={{ maxHeight: logoHeight, maxWidth: 180, objectFit: 'contain' }}
              />
            ) : (
              <Text style={styles.logoText}>RECON</Text>

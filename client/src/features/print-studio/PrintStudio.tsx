@@ -183,26 +183,26 @@ export const PrintStudio: React.FC<PrintStudioProps> = ({
     setIsSaving(true);
     try {
       console.log('Starting PDF generation...');
-      
+
       // Helper to convert image URL to base64
       const imageUrlToBase64 = async (url: string): Promise<string | null> => {
         if (!url) return null;
         if (url.startsWith('data:')) return url;
-        
+
         try {
           // If it's a relative URL starting with /uploads, prepend the server base
           // This is needed because the frontend runs on port 5173 but images are on port 3000
           const API_BASE = 'http://localhost:3000';
           const fetchUrl = url.startsWith('/uploads') ? `${API_BASE}${url}` : url;
-          
+
           console.log('[PDF] Fetching image:', fetchUrl.substring(0, 80) + '...');
           const response = await fetch(fetchUrl);
-          
+
           if (!response.ok) {
             console.warn('[PDF] Failed to fetch image, status:', response.status);
             return null;
           }
-          
+
           const blob = await response.blob();
           return new Promise((resolve, reject) => {
             const reader = new FileReader();
@@ -222,9 +222,8 @@ export const PrintStudio: React.FC<PrintStudioProps> = ({
 
       if (originalLogoUrl) {
          console.log('Converting logo to base64...');
-         // Force conversion for blobs or relative paths
          const logoBase64 = await imageUrlToBase64(originalLogoUrl);
-         
+
          if (logoBase64) {
            pdfProjectConfig = {
              ...projectConfig,
@@ -250,7 +249,7 @@ export const PrintStudio: React.FC<PrintStudioProps> = ({
              url: base64Url || p.url
            };
         }));
-        
+
         pdfReport = {
           ...report,
           photos: processedPhotos
@@ -259,7 +258,7 @@ export const PrintStudio: React.FC<PrintStudioProps> = ({
       }
 
       console.log('Sections enabled:', enabledSections);
-      
+
       const reportData = mapReportData(pdfReport, pdfProjectConfig, sectionConfigs);
       console.log('Report Data mapped:', {
         projectName: reportData.projectName,
