@@ -967,16 +967,18 @@
         "marginTop": 0,
         "marginBottom": 0,
         "coverPhotos": [
-          null,
-          null,
-          null
+          "76c180e7-5d32-47d3-ba76-7a3a96cb5a37",
+          "ff311474-8a4d-4b99-a957-f62627ad3202",
+          "1ceafede-b0c3-4f62-b2bb-e2a44eaed607"
         ],
         "dividerLine": {
           "show": true,
           "color": "#afa20d",
-          "width": 100,
+          "width": 62,
           "thickness": 2
-        }
+        },
+        "heroPhotoId": "5d5b8540-24d7-4757-bae9-bdea9d27117b",
+        "logoSize": "small"
       },
       "weather": {
         "showSummary": true,

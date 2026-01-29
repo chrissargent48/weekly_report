@@ -58,6 +58,7 @@ export interface ReportData {
 
   configs: Record<string, any>;
   jobNumber: string;
+  logoUrl?: string;
   availablePhotos: Array<{
     id: string;
     url: string;
@@ -83,6 +84,7 @@ export function mapReportData(
     clientName: getClientName(),
     projectAddress: config.identity?.location || '',
     jobNumber: config.identity?.jobNumber || 'N/A',
+    logoUrl: config.identity?.logoUrl,
     reportDate: report.weekEnding,
     reportNumber: 1, // TODO: Calculate this based on report history if needed
     periodStart: report.periodStart,

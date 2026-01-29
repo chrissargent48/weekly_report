@@ -136,8 +136,14 @@ interface CoverPageProps {
       color: string;
       width: number;
       thickness: number;
+      alignment?: 'left' | 'center' | 'right';
     };
     coverPhotos?: (string | null)[];
+    heroPhotoId?: string | null;
+    heroOverlayOpacity?: number;
+    logoPosition?: 'top-left' | 'top-center' | 'top-right';
+    logoSize?: 'small' | 'medium' | 'large';
+    safetySlogan?: string;
   };
   documentSettings?: any;
 }
@@ -150,8 +156,13 @@ export const CoverPage: React.FC<CoverPageProps> = ({ data, config = {}, documen
     heroOverlayColor = '#008B8B',
     marginTop: configMarginTop,
     marginBottom: configMarginBottom,
-    dividerLine = { show: true, color: '#008B8B', width: 100, thickness: 2 },
-    coverPhotos = [null, null, null]
+    dividerLine = { show: true, color: '#008B8B', width: 100, thickness: 2, alignment: 'center' },
+    coverPhotos = [null, null, null],
+    heroPhotoId = null,
+    heroOverlayOpacity = 70, // Default 70% opacity
+    logoPosition = 'top-left',
+    logoSize = 'medium',
+    safetySlogan = 'Safety is a core value',
   } = config;
 
   const margins = documentSettings?.defaultMargins || { top: 24, bottom: 24, left: 24, right: 24 };
@@ -162,20 +173,75 @@ export const CoverPage: React.FC<CoverPageProps> = ({ data, config = {}, documen
   const paddingLeft = margins.left;
   const paddingRight = margins.right;
 
+  // Divider Alignment Logic
+  const dividerAlignMap: Record<string, 'flex-start' | 'center' | 'flex-end'> = {
+    'left': 'flex-start',
+    'center': 'center',
+    'right': 'flex-end'
+  };
+
   const dividerStyle = {
     backgroundColor: dividerLine.color || '#008B8B',
     width: `${dividerLine.width || 100}%`,
     height: dividerLine.thickness || 2,
     marginVertical: 8,
-    alignSelf: 'center' as const,
+    alignSelf: dividerAlignMap[dividerLine.alignment as string] || 'center',
   };
+
+  // Hero Photo Logic
+  const heroPhoto = heroPhotoId ? data.availablePhotos.find(p => p.id === heroPhotoId) : null;
+  const overlayOpacity = (heroOverlayOpacity ?? 70) / 100;
+
+  // Logo Logic
+  const logoHeightMap = { small: 40, medium: 60, large: 90 };
+  const logoHeight = logoHeightMap[logoSize as keyof typeof logoHeightMap] || 60;
+  
+  const logoPosStyle: any = { position: 'absolute', zIndex: 20 };
+  switch (logoPosition) {
+    case 'top-center':
+      logoPosStyle.top = 24;
+      logoPosStyle.left = 0;
+      logoPosStyle.right = 0;
+      logoPosStyle.justifyContent = 'center';
+      logoPosStyle.alignItems = 'center';
+      break;
+    case 'top-right':
+      logoPosStyle.top = 24;
+      logoPosStyle.right = 30;
+      break;
+    case 'top-left':
+    default:
+      logoPosStyle.top = 24;
+      logoPosStyle.left = 30;
+      break;
+  }
 
   return (
     <View style={[styles.page, { marginTop, marginBottom }]}>
       {/* Hero Section */}
       <View style={[styles.hero, { backgroundColor: heroOverlayColor }]}>
-        <View style={[styles.heroOverlay, { backgroundColor: heroOverlayColor }]} />
-        <Text style={styles.logoText}>RECON</Text>
+        {/* Background Photo */}
+        {heroPhoto && (
+           <Image 
+             src={heroPhoto.url} 
+             style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover' }} 
+           />
+        )}
+        
+        {/* Overlay */}
+        <View style={[styles.heroOverlay, { backgroundColor: heroOverlayColor, opacity: overlayOpacity }]} />
+        
+        {/* Logo or Text */}
+        <View style={logoPosStyle}>
+           {data.logoUrl ? (
+             <Image 
+               src={data.logoUrl} 
+               style={{ height: logoHeight, objectFit: 'contain' }}
+             />
+           ) : (
+             <Text style={styles.logoText}>RECON</Text>
+           )}
+        </View>
       </View>
 
       {/* Main Content */}
@@ -229,7 +295,7 @@ export const CoverPage: React.FC<CoverPageProps> = ({ data, config = {}, documen
         {/* Footer Quote */}
         {showSafetyQuote && (
           <View style={[styles.footerQuote, { backgroundColor: heroOverlayColor }]}>
-              <Text style={styles.quoteText}>"Safety is a core value — not a priority that changes."</Text>
+              <Text style={styles.quoteText}>"{safetySlogan || 'Safety is a core value'}"</Text>
           </View>
         )}
       </View>
