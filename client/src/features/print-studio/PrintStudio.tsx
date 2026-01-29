@@ -180,8 +180,10 @@ export const PrintStudio: React.FC<PrintStudioProps> = ({
     setIsSaving(true);
     try {
       console.log('Starting PDF generation...');
+      console.log('PrintStudio: projectConfig.identity?.logoUrl:', projectConfig.identity?.logoUrl ? 'YES' : 'NO', projectConfig.identity?.logoUrl?.substring(0, 80));
       const reportData = mapReportData(report, projectConfig, sectionConfigs);
       console.log('Report data mapped:', reportData.projectName);
+      console.log('PrintStudio: reportData.logoUrl:', reportData.logoUrl ? 'YES' : 'NO', reportData.logoUrl?.substring(0, 80));
       
       const blob = await pdf(
         <ReportDocument 

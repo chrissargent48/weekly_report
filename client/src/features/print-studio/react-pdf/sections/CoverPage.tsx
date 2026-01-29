@@ -149,6 +149,8 @@ interface CoverPageProps {
 }
 
 export const CoverPage: React.FC<CoverPageProps> = ({ data, config = {}, documentSettings }) => {
+  console.log('CoverPage: logo prop received:', data.logoUrl ? 'YES' : 'NO', data.logoUrl?.substring(0, 80));
+
   const {
     subtitle = '2024 Site Improvements',
     showPhotoGrid = true,
@@ -234,9 +236,9 @@ export const CoverPage: React.FC<CoverPageProps> = ({ data, config = {}, documen
         {/* Logo or Text */}
         <View style={logoPosStyle}>
            {data.logoUrl ? (
-             <Image 
-               src={data.logoUrl} 
-               style={{ height: logoHeight, objectFit: 'contain' }}
+             <Image
+               src={data.logoUrl}
+               style={{ maxHeight: logoHeight, maxWidth: 180, objectFit: 'contain' }}
              />
            ) : (
              <Text style={styles.logoText}>RECON</Text>

@@ -84,7 +84,11 @@ export function mapReportData(
     clientName: getClientName(),
     projectAddress: config.identity?.location || '',
     jobNumber: config.identity?.jobNumber || 'N/A',
-    logoUrl: config.identity?.logoUrl,
+    logoUrl: (() => {
+      const url = config.identity?.logoUrl;
+      console.log('dataMapper: logoUrl from config:', url ? 'YES' : 'NO', url?.substring(0, 80));
+      return url;
+    })(),
     reportDate: report.weekEnding,
     reportNumber: 1, // TODO: Calculate this based on report history if needed
     periodStart: report.periodStart,
