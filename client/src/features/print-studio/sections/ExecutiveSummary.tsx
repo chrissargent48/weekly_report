@@ -1,15 +1,16 @@
 import React from 'react';
-import { PrintConfig, ReportData } from '../config/printConfig.types';
+import { PrintConfig, ReportData, PagePlacement } from '../config/printConfig.types';
 import { SectionWrapper } from './SectionWrapper';
 import { RichTextEditor } from '../components/RichTextEditor';
 
 interface Props {
   config: PrintConfig;
   reportData: ReportData;
+  placement?: PagePlacement;
   onUpdateReport?: (data: ReportData) => void;
 }
 
-export function ExecutiveSummary({ config, reportData, onUpdateReport }: Props) {
+export function ExecutiveSummary({ config, reportData, placement, onUpdateReport }: Props) {
   // Use WeeklyReport structure
   const overview = reportData.overview;
   if (!overview) return null;
@@ -64,8 +65,11 @@ export function ExecutiveSummary({ config, reportData, onUpdateReport }: Props) 
   const hoursPerDay = 10;
   const daysLost = totalHoursLost / hoursPerDay; // Convert hours to fractional days
 
+  const isContinued = placement?.continuesFromPrevious ?? false;
+  const sectionTitle = isContinued ? 'Weekly Summary (Continued)' : 'Weekly Summary';
+
   return (
-    <SectionWrapper config={config} title="Weekly Summary">
+    <SectionWrapper config={config} title={sectionTitle}>
       <div className="flex flex-col md:flex-row gap-6 items-stretch">
         {/* Left Column: Executive Summary Narrative */}
         <div className="flex-1 flex flex-col">
