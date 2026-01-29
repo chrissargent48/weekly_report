@@ -333,6 +333,7 @@ export const WeeklyReportSchema = z.object({
   }),
 
   photos: z.array(PhotoEntrySchema),
+  coverPhoto: z.string().optional(),
   
   issues: z.array(IssueEntrySchema),
   rfis: z.array(RfiEntrySchema),
