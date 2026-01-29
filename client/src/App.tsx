@@ -4,10 +4,7 @@ import { ProjectSetup } from './components/ProjectSetup';
 import { ReportEditor } from './components/ReportEditor';
 import { ProjectSelector } from './components/ProjectSelector';
 import { PrintView } from './components/PrintView';
-// import { PrintStudio } from './pages/PrintStudio'; // [Old Fabric Version]
-// import { PrintStudio } from './pages/PrintStudio'; // [Old Fabric Version]
-// import { StudioContainer as PrintStudio } from './features/print-studio/StudioContainer'; // [New Puck Version]
-import { PrintStudio } from './features/print-studio/PrintStudio'; // [New 3-Panel Version]
+import { PrintStudio } from './features/print-studio/PrintStudio';
 import { UserProfileModal } from './components/ui/UserProfileModal';
 import { ProjectConfig, WeeklyReport, UserProfile } from './types';
 import { api } from './api';

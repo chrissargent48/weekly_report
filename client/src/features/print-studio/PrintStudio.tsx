@@ -1,6 +1,4 @@
 import React, { useState, useRef, useEffect } from 'react';
-// import { useParams } from 'react-router-dom'; // Router not available yet
-// import { useReportData } from './hooks/useReportData';
 import { 
   Undo, Redo, ZoomOut, ZoomIn, Grid3X3, Eye, Check, Download,
   ChevronLeft, AlertCircle
@@ -29,23 +27,11 @@ export const PrintStudio: React.FC<PrintStudioProps> = ({
   onUpdate,
   projectId
 }) => {
-  // const { projectId, reportId } = useParams<{ projectId: string; reportId: string }>();
-  // const { report, projectConfig, isLoading, error } = useReportData({ 
-  //   projectId, 
-  //   reportDate: reportId 
-  // });
-  const isLoading = false;
-  const error = null;
-
-  // --- State ---
   // --- State ---
   const containerRef = useRef<HTMLDivElement>(null);
   const [zoom, setZoom] = useState(65);
   
   React.useEffect(() => {
-    console.error("!!! DEBUG LOG TEST - IF YOU SEE THIS, LOGS ARE WORKING !!!");
-    console.log("PrintStudio mounted with props:", { projectId, report: !!report });
-    
     // Auto-zoom to fit page on mount
     if (containerRef.current) {
       const availableWidth = containerRef.current.clientWidth;
@@ -457,19 +443,7 @@ export const PrintStudio: React.FC<PrintStudioProps> = ({
           ref={containerRef}
           className="bg-gray-400/20 overflow-hidden relative flex flex-col items-center"
         >
-             {isLoading ? (
-               <div className="mt-20 flex flex-col items-center gap-2 text-gray-500">
-                 <div className="w-8 h-8 border-4 border-gray-300 border-t-teal-600 rounded-full animate-spin" />
-                 <span className="text-xs font-medium">Loading Report Data...</span>
-               </div>
-             ) : error ? (
-               <div className="mt-20 p-4 bg-red-50 text-red-600 rounded-lg border border-red-200 max-w-md text-center">
-                 <h3 className="font-bold mb-1">Failed to Load Report</h3>
-                 <p className="text-xs">{error}</p>
-                 <button onClick={() => window.location.reload()} className="mt-3 px-3 py-1.5 bg-white border border-red-200 rounded text-xs hover:bg-red-50">Retry</button>
-               </div>
-             ) : (
-               <Canvas 
+             <Canvas
                  zoom={zoom}
                  showGrid={showGrid}
                  enabledSections={enabledSections}
@@ -480,7 +454,6 @@ export const PrintStudio: React.FC<PrintStudioProps> = ({
                   sectionOrder={sectionOrder}
                   documentSettings={documentSettings}
                 />
-             )}
         </div>
 
         {/* Right Panel: Properties */}
