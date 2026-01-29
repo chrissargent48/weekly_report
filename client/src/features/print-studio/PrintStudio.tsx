@@ -1,19 +1,20 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { 
+import React, { useState, useRef, useEffect, useMemo } from 'react';
+import {
   Undo, Redo, ZoomOut, ZoomIn, Grid3X3, Eye, Check, Download,
   ChevronLeft, AlertCircle
 } from 'lucide-react';
-import { pdf } from '@react-pdf/renderer'; 
+import { pdf } from '@react-pdf/renderer';
 import { SectionPalette } from './components/SectionPalette';
-import { Canvas } from './components/Canvas';
 import { PropertiesPanel } from './components/PropertiesPanel';
 import { WeeklyReport, ProjectConfig } from '../../types';
-import { ReportDocument } from './react-pdf/ReportDocument'; 
-import { mapReportData } from './utils/dataMapper'; 
+import { ReportDocument } from './react-pdf/ReportDocument';
+import { mapReportData } from './utils/dataMapper';
 import { useAutoSave } from './hooks/useAutoSave';
 import { SelectionProvider } from './context/SelectionContext';
 import { ImagePositionProvider } from './context/ImagePositionContext';
-import { PrintConfig } from './config/printConfig.types';
+import { PrintConfig, PrintSection } from './config/printConfig.types';
+import { PrintPreview } from './renderers/html-preview/PrintPreview';
+import { calculatePageMap } from './layout-engine/calculatePageMap';
 
 interface PrintStudioProps {
   onBack?: () => void;
@@ -138,9 +139,26 @@ export const PrintStudio: React.FC<PrintStudioProps> = ({
     }
   );
 
-  // --- Stable PrintConfig for the hoisted ImagePositionProvider ---
+  // --- Build PrintSection[] from UI state for the layout engine ---
+  const printSections: PrintSection[] = useMemo(() => {
+    // Map section IDs used in the UI to the IDs the layout engine expects
+    const sectionIdMap: Record<string, string> = {
+      executive: 'overview',
+      personnel: 'key_personnel',
+    };
+    return sectionOrder
+      .filter((id: string) => id !== 'cover') // Cover is handled separately by the layout engine
+      .map((id: string, idx: number) => ({
+        id: sectionIdMap[id] || id,
+        label: id,
+        included: !!enabledSections[id],
+        order: idx,
+      }));
+  }, [sectionOrder, enabledSections]);
+
+  // --- Stable PrintConfig for the layout engine + ImagePositionProvider ---
   const shimPrintConfig: PrintConfig = React.useMemo(() => ({
-    sections: [],
+    sections: printSections,
     spacing: {
       type: 'standard' as const,
       sectionGap: 24,
@@ -158,7 +176,56 @@ export const PrintStudio: React.FC<PrintStudioProps> = ({
     showPageNumbers: documentSettings?.showPageNumbers ?? true,
     showFooter: documentSettings?.showFooter ?? true,
     showCoverPhotos: sectionConfigs?.cover?.showPhotoGrid ?? true,
-  }), [documentSettings, sectionConfigs]);
+  }), [printSections, documentSettings, sectionConfigs]);
+
+  // --- Normalize report data for rendering ---
+  const normalizedReport = useMemo(() => {
+    if (!report) return undefined;
+    const rawPhotos = report.photos || (report as any).photoLog || (report as any).media?.photos || [];
+    const safePhotos = Array.isArray(rawPhotos) ? rawPhotos.map((p: any) => ({
+      ...p,
+      url: p.url || p.path || p.src || '',
+      caption: p.caption || p.description || '',
+      includedInReport: p.includedInReport ?? true,
+    })) : [];
+    return {
+      ...report,
+      photos: safePhotos,
+      coverPhoto: report.coverPhoto || safePhotos[0]?.url,
+    } as WeeklyReport;
+  }, [report]);
+
+  // --- Shim baselines for Progress section ---
+  const shimBaselines = useMemo(() => {
+    if (!normalizedReport?.progress?.bidItems) return null;
+    const bidItems = normalizedReport.progress.bidItems.map((item: any) => ({
+      id: item.itemId,
+      itemNumber: item.itemNumber || '00',
+      description: item.description || 'Activity',
+      unit: 'LS',
+      contractQty: 0,
+      unitPrice: 0,
+      category: 'General',
+    }));
+    return {
+      id: 'shim-baselines',
+      projectId: 'shim',
+      bidItems,
+      createdAt: '',
+      updatedAt: '',
+    } as any;
+  }, [normalizedReport]);
+
+  // --- Calculate the PageMap (the core pagination engine) ---
+  const pageMap = useMemo(() => {
+    if (!normalizedReport) return null;
+    return calculatePageMap(
+      shimPrintConfig,
+      normalizedReport,
+      projectConfig || undefined,
+      shimBaselines,
+    );
+  }, [shimPrintConfig, normalizedReport, projectConfig, shimBaselines]);
 
   // No-op setters for the hoisted ImagePositionProvider (Canvas is read-only preview)
   const noOp = React.useCallback(() => {}, []);
@@ -475,22 +542,26 @@ export const PrintStudio: React.FC<PrintStudioProps> = ({
           />
         </div>
 
-        {/* Center Panel: Canvas */}
-        <div 
+        {/* Center Panel: Paginated Preview */}
+        <div
           ref={containerRef}
-          className="bg-gray-400/20 overflow-hidden relative flex flex-col items-center"
+          className="bg-gray-400/20 overflow-auto relative flex flex-col items-center py-8"
+          style={{ transform: `scale(${zoom / 100})`, transformOrigin: 'top center' }}
         >
-             <Canvas
-                 zoom={zoom}
-                 showGrid={showGrid}
-                 enabledSections={enabledSections}
-                  onSelectSection={setSelectedSection}
-                  report={report || undefined}
-                  projectConfig={projectConfig || undefined}
-                  sectionConfigs={sectionConfigs}
-                  sectionOrder={sectionOrder}
-                  documentSettings={documentSettings}
-                />
+          {normalizedReport && pageMap && projectConfig ? (
+            <PrintPreview
+              config={shimPrintConfig}
+              pageMap={pageMap}
+              reportData={normalizedReport}
+              projectConfig={projectConfig}
+              baselines={shimBaselines}
+              showPageBreakGuides={showGrid}
+            />
+          ) : (
+            <div className="flex items-center justify-center h-full text-gray-400">
+              No report data available
+            </div>
+          )}
         </div>
 
         {/* Right Panel: Properties */}
