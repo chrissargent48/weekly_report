@@ -64,6 +64,7 @@ export interface ReportData {
     url: string;
     caption: string;
   }>;
+  originalReport: WeeklyReport;
 }
 
 export function mapReportData(
@@ -151,6 +152,7 @@ export function mapReportData(
     })),
 
     configs: sectionConfigs || {},
+    originalReport: report,
   };
 }
 

@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet } from '@react-pdf/renderer';
 import { ReportData } from '../../utils/dataMapper';
+import { WeatherDay } from '../../../../../../shared/schemas';
 
 const styles = StyleSheet.create({
   container: {
@@ -97,18 +98,71 @@ export const WeatherSection: React.FC<WeatherSectionProps> = ({ data, config = {
   const paddingLeft = margins.left;
   const paddingRight = margins.right;
 
+  // Use originalReport data source if available
+  const report = data.originalReport;
+  const rawWeather = report?.overview?.weather || [];
+  
+  if (rawWeather.length === 0) return null;
+
+  // Date Calculation Logic (Replicated from HTML Preview)
+  let startDate: Date;
+  if (report.periodStart) {
+    const [y, m, d] = report.periodStart.split('-').map(Number);
+    startDate = new Date(y, m - 1, d);
+  } else if (report.weekEnding) {
+    const [y, m, d] = report.weekEnding.split('-').map(Number);
+    const end = new Date(y, m - 1, d);
+    startDate = new Date(end);
+    startDate.setDate(end.getDate() - 6);
+  } else {
+    startDate = new Date();
+  }
+
+  // Generate 7-day array
+  const weatherDays = Array.from({ length: 7 }).map((_, index) => {
+    const d = new Date(startDate);
+    d.setDate(startDate.getDate() + index);
+
+    // Find matching data from rawWeather (index based)
+    const dayData = rawWeather[index] || {};
+    
+    // Day Name
+    const dayName = d.toLocaleDateString('en-US', { weekday: 'short' });
+    const monthDay = d.toLocaleDateString('en-US', { month: 'numeric', day: 'numeric' });
+
+    return {
+      dateObj: d,
+      displayDate: `${dayName} ${monthDay}`,
+      condition: dayData.condition || 'Sunny',
+      tempHigh: dayData.tempHigh || '-',
+      tempLow: dayData.tempLow || '-',
+      precipitation: Number(dayData.hoursLost) || 0, // In schema "precipitation" isn't explicitly hoursLost but we map it here? 
+      // Wait, in schema WeatherDaySchema: { hoursLost: number, precipitation: ??? }
+      // Dashboard uses hoursLost. Let's assume precipitation field is just visual here or we map hoursLost?
+      // HTML preview shows "hoursLost" as impact.
+      // We'll stick to displaying hoursLost as "Hours Lost" column if showWorkImpact is true.
+      hoursLost: Number(dayData.hoursLost) || 0,
+      notes: dayData.notes
+    };
+  });
+
   // Helper for temp conversion
-  const formatTemp = (tempF: number) => {
+  const formatTemp = (val: number | string) => {
+    if (typeof val !== 'number') return '-';
     if (tempUnit === 'C') {
-      return `${Math.round((tempF - 32) * 5/9)}°C`;
+      return `${Math.round((val - 32) * 5/9)}°C`;
     }
-    return `${tempF}°F`;
+    return `${val}°F`;
   };
 
   // Helpers for summary
-  const avgHigh = Math.round(data.weatherDays.reduce((acc, d) => acc + d.tempHigh, 0) / data.weatherDays.length) || 0;
-  const avgLow = Math.round(data.weatherDays.reduce((acc, d) => acc + d.tempLow, 0) / data.weatherDays.length) || 0;
-  const totalPrecip = data.weatherDays.reduce((acc, d) => acc + d.precipitation, 0);
+  const validHighs = weatherDays.filter(d => typeof d.tempHigh === 'number').map(d => d.tempHigh as number);
+  const validLows = weatherDays.filter(d => typeof d.tempLow === 'number').map(d => d.tempLow as number);
+  
+  const avgHigh = validHighs.length ? Math.round(validHighs.reduce((a, b) => a + b, 0) / validHighs.length) : 0;
+  const avgLow = validLows.length ? Math.round(validLows.reduce((a, b) => a + b, 0) / validLows.length) : 0;
+  const totalHoursLost = weatherDays.reduce((acc, d) => acc + d.hoursLost, 0);
+  const daysWorked = weatherDays.filter(d => d.hoursLost === 0).length;
 
   return (
     <View style={[styles.container, { marginTop, marginBottom, paddingLeft, paddingRight }]}>
@@ -122,20 +176,18 @@ export const WeatherSection: React.FC<WeatherSectionProps> = ({ data, config = {
           <Text style={[styles.tableHeaderCell, { flex: 2 }]}>Conditions</Text>
           <Text style={[styles.tableHeaderCell, { flex: 1, textAlign: 'center' }]}>High</Text>
           <Text style={[styles.tableHeaderCell, { flex: 1, textAlign: 'center' }]}>Low</Text>
-          <Text style={[styles.tableHeaderCell, { flex: 1, textAlign: 'center' }]}>Precip</Text>
-          {showWorkImpact && <Text style={[styles.tableHeaderCell, { flex: 2 }]}>Work Impact</Text>}
+          {showWorkImpact && <Text style={[styles.tableHeaderCell, { flex: 2, textAlign: 'right' }]}>Impact</Text>}
         </View>
 
-        {data.weatherDays.map((day, i) => (
+        {weatherDays.map((day, i) => (
           <View key={i} style={[styles.tableRow, { backgroundColor: i % 2 === 0 ? '#FFFFFF' : '#F9FAFB' }]}>
-            <Text style={[styles.tableCell, { flex: 2, fontWeight: 'medium' }]}>{day.day} {new Date(day.date).toLocaleDateString(undefined, {month:'numeric', day:'numeric'})}</Text>
+            <Text style={[styles.tableCell, { flex: 2, fontWeight: 'medium' }]}>{day.displayDate}</Text>
             <Text style={[styles.tableCell, { flex: 2 }]}>{day.condition}</Text>
             <Text style={[styles.tableCell, { flex: 1, textAlign: 'center' }]}>{formatTemp(day.tempHigh)}</Text>
             <Text style={[styles.tableCell, { flex: 1, textAlign: 'center' }]}>{formatTemp(day.tempLow)}</Text>
-            <Text style={[styles.tableCell, { flex: 1, textAlign: 'center' }]}>{day.precipitation > 0 ? `${day.precipitation}"` : '0"'}</Text>
             {showWorkImpact && (
-              <Text style={[styles.tableCell, { flex: 2, color: day.workImpact !== 'None' ? '#DC2626' : '#059669' }]}>
-                {day.workImpact}
+              <Text style={[styles.tableCell, { flex: 2, textAlign: 'right', color: day.hoursLost > 0 ? '#DC2626' : '#059669' }]}>
+                {day.hoursLost > 0 ? `${day.hoursLost} hrs lost` : 'None'}
               </Text>
             )}
           </View>
@@ -153,11 +205,11 @@ export const WeatherSection: React.FC<WeatherSectionProps> = ({ data, config = {
               <Text style={styles.summaryLabel}>Avg Low</Text>
           </View>
           <View style={styles.summaryCard}>
-              <Text style={[styles.summaryValue, { color: '#3B82F6' }]}>{totalPrecip.toFixed(1)}"</Text>
-              <Text style={styles.summaryLabel}>Total Precip</Text>
+              <Text style={[styles.summaryValue, { color: '#DC2626' }]}>{totalHoursLost}</Text>
+              <Text style={styles.summaryLabel}>Hours Lost</Text>
           </View>
           <View style={[styles.summaryCard, { backgroundColor: '#ECFDF5' }]}>
-              <Text style={[styles.summaryValue, { color: '#059669' }]}>{data.weatherDays.filter(d => d.workImpact === 'None').length}</Text>
+              <Text style={[styles.summaryValue, { color: '#059669' }]}>{daysWorked}</Text>
               <Text style={styles.summaryLabel}>Days Worked</Text>
           </View>
         </View>
