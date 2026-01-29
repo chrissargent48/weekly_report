@@ -978,8 +978,9 @@
           "thickness": 2,
           "alignment": "left"
         },
-        "heroPhotoId": "5d5b8540-24d7-4757-bae9-bdea9d27117b",
-        "logoSize": "small"
+        "heroPhotoId": "dc60118a-c057-44eb-86c0-54c80a51d19f",
+        "logoSize": "small",
+        "logoPosition": "top-left"
       },
       "weather": {
         "showSummary": true,
