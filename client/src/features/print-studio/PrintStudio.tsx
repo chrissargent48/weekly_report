@@ -43,6 +43,9 @@ export const PrintStudio: React.FC<PrintStudioProps> = ({
   const [zoom, setZoom] = useState(65);
   
   React.useEffect(() => {
+    console.error("!!! DEBUG LOG TEST - IF YOU SEE THIS, LOGS ARE WORKING !!!");
+    console.log("PrintStudio mounted with props:", { projectId, report: !!report });
+    
     // Auto-zoom to fit page on mount
     if (containerRef.current) {
       const availableWidth = containerRef.current.clientWidth;
@@ -180,10 +183,89 @@ export const PrintStudio: React.FC<PrintStudioProps> = ({
     setIsSaving(true);
     try {
       console.log('Starting PDF generation...');
-      console.log('PrintStudio: projectConfig.identity?.logoUrl:', projectConfig.identity?.logoUrl ? 'YES' : 'NO', projectConfig.identity?.logoUrl?.substring(0, 80));
-      const reportData = mapReportData(report, projectConfig, sectionConfigs);
-      console.log('Report data mapped:', reportData.projectName);
-      console.log('PrintStudio: reportData.logoUrl:', reportData.logoUrl ? 'YES' : 'NO', reportData.logoUrl?.substring(0, 80));
+
+      // Helper to convert image URL to base64
+      const imageUrlToBase64 = async (url: string): Promise<string | null> => {
+        if (!url) return null;
+        if (url.startsWith('data:')) return url;
+
+        try {
+          // If it's a relative URL starting with /uploads, prepend the server base
+          // This is needed because the frontend runs on port 5173 but images are on port 3000
+          const API_BASE = 'http://localhost:3000';
+          const fetchUrl = url.startsWith('/uploads') ? `${API_BASE}${url}` : url;
+
+          console.log('[PDF] Fetching image:', fetchUrl.substring(0, 80) + '...');
+          const response = await fetch(fetchUrl);
+
+          if (!response.ok) {
+            console.warn('[PDF] Failed to fetch image, status:', response.status);
+            return null;
+          }
+
+          const blob = await response.blob();
+          return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onloadend = () => resolve(reader.result as string);
+            reader.onerror = reject;
+            reader.readAsDataURL(blob);
+          });
+        } catch (e) {
+          console.warn('[PDF] Failed to convert image to base64:', url, e);
+          return null;
+        }
+      };
+
+      // 1. Prepare Project Config with Base64 Logo
+      let pdfProjectConfig = { ...projectConfig };
+      const originalLogoUrl = projectConfig.identity?.logoUrl;
+
+      if (originalLogoUrl) {
+         console.log('Converting logo to base64...');
+         const logoBase64 = await imageUrlToBase64(originalLogoUrl);
+
+         if (logoBase64) {
+           pdfProjectConfig = {
+             ...projectConfig,
+             identity: {
+               ...projectConfig.identity,
+               logoUrl: logoBase64
+             }
+           };
+           console.log('[PDF] Logo converted successfully, length:', logoBase64.length);
+         } else {
+           console.warn('[PDF] Logo conversion returned null, using original');
+         }
+      }
+
+      // 2. Prepare Report with Base64 Photos
+      let pdfReport = { ...report };
+      if (report.photos && report.photos.length > 0) {
+        console.log(`Converting ${report.photos.length} photos to base64...`);
+        const processedPhotos = await Promise.all(report.photos.map(async (p) => {
+           const base64Url = await imageUrlToBase64(p.url);
+           return {
+             ...p,
+             url: base64Url || p.url
+           };
+        }));
+
+        pdfReport = {
+          ...report,
+          photos: processedPhotos
+        };
+        console.log('Photos converted successfully');
+      }
+
+      console.log('Sections enabled:', enabledSections);
+
+      const reportData = mapReportData(pdfReport, pdfProjectConfig, sectionConfigs);
+      console.log('Report Data mapped:', {
+        projectName: reportData.projectName,
+        logoUrlLength: reportData.logoUrl?.length || 0,
+        logoUrlStart: reportData.logoUrl?.substring(0, 30),
+        heroPhotoId: sectionConfigs.cover?.heroPhotoId
+      });
       
       const blob = await pdf(
         <ReportDocument 
@@ -201,11 +283,11 @@ export const PrintStudio: React.FC<PrintStudioProps> = ({
         throw new Error('Generated PDF blob is empty');
       }
       
-      // Open PDF in new tab (more reliable than download)
+      // Open PDF in new tab
       const url = URL.createObjectURL(blob);
       window.open(url, '_blank');
 
-      // Also provide download option (console log for debug)
+      // Console log for debug
       const filename = `${reportData.projectName.replace(/[^a-z0-9]/gi, '_')}_${report.weekEnding}.pdf`;
       console.log('PDF ready:', filename, blob.size, 'bytes');
       
