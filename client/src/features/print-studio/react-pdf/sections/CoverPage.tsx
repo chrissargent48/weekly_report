@@ -37,10 +37,12 @@ const styles = StyleSheet.create({
     position: 'relative',
   },
   title: {
-    fontSize: 22,
+    fontSize: 20,
     fontWeight: 'bold',
     color: '#111827', // Gray-900
     marginBottom: 4,
+    maxLines: 2,
+    textOverflow: 'ellipsis',
   },
   subtitle: {
     fontSize: 14,
@@ -149,6 +151,14 @@ interface CoverPageProps {
 }
 
 export const CoverPage: React.FC<CoverPageProps> = ({ data, config = {}, documentSettings }) => {
+  console.log('[CoverPage] PDF Render Start', { 
+    hasLogoUrl: !!data.logoUrl, 
+    logoUrl: data.logoUrl,
+    heroPhotoId: config.heroPhotoId,
+    heroOverlayOpacity: config.heroOverlayOpacity,
+    configKeys: Object.keys(config)
+  });
+  
   const {
     subtitle = '2024 Site Improvements',
     showPhotoGrid = true,
@@ -173,19 +183,28 @@ export const CoverPage: React.FC<CoverPageProps> = ({ data, config = {}, documen
   const paddingLeft = margins.left;
   const paddingRight = margins.right;
 
-  // Divider Alignment Logic
-  const dividerAlignMap: Record<string, 'flex-start' | 'center' | 'flex-end'> = {
-    'left': 'flex-start',
-    'center': 'center',
-    'right': 'flex-end'
+  // Divider Alignment Logic - use margins for reliable positioning
+  const getDividerMargins = (alignment: string) => {
+    switch (alignment) {
+      case 'left':
+        return { marginLeft: 0, marginRight: 'auto' };
+      case 'right':
+        return { marginLeft: 'auto', marginRight: 0 };
+      case 'center':
+      default:
+        return { marginLeft: 'auto', marginRight: 'auto' };
+    }
   };
+
+  const dividerMargins = getDividerMargins(dividerLine.alignment || 'center');
 
   const dividerStyle = {
     backgroundColor: dividerLine.color || '#008B8B',
     width: `${dividerLine.width || 100}%`,
     height: dividerLine.thickness || 2,
-    marginVertical: 8,
-    alignSelf: dividerAlignMap[dividerLine.alignment as string] || 'center',
+    marginTop: 8,
+    marginBottom: 8,
+    ...dividerMargins, 
   };
 
   // Hero Photo Logic
@@ -216,6 +235,20 @@ export const CoverPage: React.FC<CoverPageProps> = ({ data, config = {}, documen
       break;
   }
 
+  // Helper to ensure absolute URL for PDF
+  const getAbsoluteUrl = (url: string | undefined) => {
+    if (!url) return null;
+    if (url.startsWith('data:') || url.startsWith('http')) return url;
+    // Convert relative path to absolute
+    if (typeof window !== 'undefined') {
+       return `${window.location.origin}${url}`;
+    }
+    return url;
+  };
+
+  const absoluteLogoUrl = getAbsoluteUrl(data.logoUrl);
+  console.log('[CoverPage] Logo URL processed:', { original: data.logoUrl, absolute: absoluteLogoUrl });
+
   return (
     <View style={[styles.page, { marginTop, marginBottom }]}>
       {/* Hero Section */}
@@ -233,10 +266,10 @@ export const CoverPage: React.FC<CoverPageProps> = ({ data, config = {}, documen
         
         {/* Logo or Text */}
         <View style={logoPosStyle}>
-           {data.logoUrl ? (
+           {absoluteLogoUrl ? (
              <Image 
-               src={data.logoUrl} 
-               style={{ height: logoHeight, objectFit: 'contain' }}
+               src={absoluteLogoUrl} 
+               style={{ height: logoHeight }}
              />
            ) : (
              <Text style={styles.logoText}>RECON</Text>

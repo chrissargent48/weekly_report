@@ -101,7 +101,7 @@
         "ytd": 0
       },
       "hofs": {
-        "ytd": 2,
+        "ytd": 10,
         "week": 2
       }
     },
@@ -975,7 +975,8 @@
           "show": true,
           "color": "#afa20d",
           "width": 62,
-          "thickness": 2
+          "thickness": 2,
+          "alignment": "left"
         },
         "heroPhotoId": "5d5b8540-24d7-4757-bae9-bdea9d27117b",
         "logoSize": "small"

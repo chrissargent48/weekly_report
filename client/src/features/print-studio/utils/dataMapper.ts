@@ -78,6 +78,8 @@ export function mapReportData(
     return config.personnel.client.company || 'Client Name';
   };
 
+  console.log('[dataMapper] logoUrl from config:', config.identity?.logoUrl);
+
   return {
     // Cover Page Data
     projectName: config.identity?.projectName || 'Project Name',
