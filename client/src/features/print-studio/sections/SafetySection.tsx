@@ -9,6 +9,7 @@ interface Props {
   config: PrintConfig;
   reportData: ReportData;
   placement?: PagePlacement;
+  sectionConfig?: any;
   onUpdateReport?: (data: ReportData) => void;
   onToggleRowBreak?: (sectionId: string, afterRowIndex: number, afterRowId?: string) => void;
 }
@@ -47,7 +48,8 @@ const AutoResizeTextarea = ({
   );
 };
 
-export function SafetySection({ config, reportData, placement, onUpdateReport, onToggleRowBreak }: Props) {
+export function SafetySection({ config, reportData, placement, sectionConfig, onUpdateReport, onToggleRowBreak }: Props) {
+  const sc = sectionConfig || {};
   const safety = reportData.safety;
   if (!safety) return null;
 
@@ -132,8 +134,8 @@ export function SafetySection({ config, reportData, placement, onUpdateReport, o
                       </div>
                   </div>
 
-                  {/* 2. Middle: Safety Stats Table (HEADER) */}
-                  <div className="border border-zinc-200 rounded-lg overflow-hidden">
+                  {/* 2. Middle: Safety Stats Table (HEADER) - conditional on showCards */}
+                  {(sc.showCards ?? true) && <div className="border border-zinc-200 rounded-lg overflow-hidden">
                      <table className="w-full text-sm">
                         <thead className="bg-brand-primary text-white">
                            <tr>
@@ -156,12 +158,12 @@ export function SafetySection({ config, reportData, placement, onUpdateReport, o
                            ))}
                         </tbody>
                      </table>
-                  </div>
+                  </div>}
               </>
           )}
 
           {/* 3. Observations Log (Conditional Slicing) */}
-          {visibleObservations.length > 0 && (
+          {(sc.showTable ?? true) && visibleObservations.length > 0 && (
              <div className="border border-zinc-200 rounded-lg overflow-hidden">
                 <div className="bg-zinc-50 border-b border-zinc-200 px-4 py-2">
                    <span className="text-xs font-bold uppercase text-zinc-500 tracking-wider">

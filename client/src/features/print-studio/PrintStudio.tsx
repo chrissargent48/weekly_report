@@ -66,7 +66,6 @@ export const PrintStudio: React.FC<PrintStudioProps> = ({
   }, []);
 
   const [showGrid, setShowGrid] = useState(false);
-  const [showGrid, setShowGrid] = useState(false);
   const [selectedSection, setSelectedSection] = useState<string>('document');
   const [selectedElementId, setSelectedElementId] = useState<string | null>(null);
   const [saveStatus, setSaveStatus] = useState<'saving' | 'saved' | 'error'>('saved');
@@ -174,6 +173,23 @@ export const PrintStudio: React.FC<PrintStudioProps> = ({
   }, [sectionOrder, enabledSections]);
 
   // --- Stable PrintConfig for the layout engine + ImagePositionProvider ---
+  // Build sectionPadding from all sectionConfigs' marginTop/marginBottom values
+  // Map UI section IDs to layout-engine IDs
+  const sectionPaddingMap = React.useMemo(() => {
+    const uiToLayoutId: Record<string, string> = { executive: 'overview', personnel: 'key_personnel' };
+    const result: Record<string, { top: number; bottom: number }> = {};
+    for (const [uiId, cfg] of Object.entries(sectionConfigs)) {
+      if (!cfg) continue;
+      const layoutId = uiToLayoutId[uiId] || uiId;
+      const top = cfg.marginTop || cfg.sectionPadding?.[uiId]?.top || 0;
+      const bottom = cfg.marginBottom || cfg.sectionPadding?.[uiId]?.bottom || 0;
+      if (top || bottom) {
+        result[layoutId] = { top, bottom };
+      }
+    }
+    return result;
+  }, [sectionConfigs]);
+
   const shimPrintConfig: PrintConfig = React.useMemo(() => ({
     sections: printSections,
     spacing: {
@@ -192,7 +208,8 @@ export const PrintStudio: React.FC<PrintStudioProps> = ({
     showPageNumbers: documentSettings?.showPageNumbers ?? true,
     showFooter: documentSettings?.showFooter ?? true,
     showCoverPhotos: sectionConfigs?.cover?.showPhotoGrid ?? true,
-  }), [printSections, documentSettings, sectionConfigs]);
+    sectionPadding: Object.keys(sectionPaddingMap).length > 0 ? sectionPaddingMap : undefined,
+  }), [printSections, documentSettings, sectionConfigs, sectionPaddingMap]);
 
   // --- Normalize report data for rendering ---
   const normalizedReport = useMemo(() => {
@@ -384,6 +401,7 @@ export const PrintStudio: React.FC<PrintStudioProps> = ({
           projectConfig={pdfProjectConfig}
           config={shimPrintConfig}
           report={pdfReport as WeeklyReport}
+          pageMap={pageMap || undefined}
         />
       ).toBlob();
       
@@ -587,6 +605,7 @@ export const PrintStudio: React.FC<PrintStudioProps> = ({
                 reportData={normalizedReport}
                 projectConfig={projectConfig}
                 baselines={shimBaselines}
+                sectionConfigs={sectionConfigs}
                 showPageBreakGuides={showGrid}
                 selectedSection={selectedSection}
                 onSelectSection={handleSelectSection}

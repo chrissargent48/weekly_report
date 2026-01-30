@@ -56,6 +56,7 @@ interface CoverSectionProps {
   config: PrintConfig;
   reportData: WeeklyReport;
   projectConfig: ProjectConfig;
+  sectionConfig?: any;
 }
 
 const coverStyles = StyleSheet.create({
@@ -275,33 +276,64 @@ const coverStyles = StyleSheet.create({
   },
 });
 
-export function CoverSection({ config, reportData, projectConfig }: CoverSectionProps) {
+export function CoverSection({ config, reportData, projectConfig, sectionConfig }: CoverSectionProps) {
+  const sc = sectionConfig || {};
+
   // ===== DATA EXTRACTION =====
 
-  // Hero photo (main background image)
-  const heroIndex = config.heroPhotoIndex ?? 0;
-  const heroPhoto = reportData.photos?.[heroIndex];
+  // Hero photo - user-selected by ID or fallback to index
+  const heroPhoto = sc.heroPhotoId
+    ? reportData.photos?.find((p: any) => p.id === sc.heroPhotoId)
+    : reportData.photos?.[config.heroPhotoIndex ?? 0];
   const hasHeroImage = heroPhoto?.url && heroPhoto.url.length > 0;
 
-  // Strip photos - get available photos and stretch them
-  const stripIndexes = config.stripPhotoIndexes || [1, 2, 3];
-  const stripPhotos = stripIndexes
-    .map((idx) => reportData.photos?.[idx])
-    .filter((photo): photo is NonNullable<typeof photo> => Boolean(photo?.url));
-  const showStrip = config.showCoverPhotos !== false && stripPhotos.length > 0;
+  // Strip photos - user-selected by coverPhotos IDs or fallback to index
+  let stripPhotos: any[] = [];
+  if (sc.coverPhotos && sc.coverPhotos.some((id: any) => id != null)) {
+    for (const photoId of sc.coverPhotos) {
+      if (photoId) {
+        const found = reportData.photos?.find((p: any) => p.id === photoId);
+        if (found) stripPhotos.push(found);
+      }
+    }
+  } else {
+    const stripIndexes = config.stripPhotoIndexes || [1, 2, 3];
+    stripPhotos = stripIndexes
+      .map((idx) => reportData.photos?.[idx])
+      .filter((photo): photo is NonNullable<typeof photo> => Boolean(photo?.url));
+  }
+  const showStrip = (sc.showPhotoGrid ?? config.showCoverPhotos !== false) && stripPhotos.length > 0;
 
   // Logo configuration
   const logoUrl = projectConfig.identity?.logoUrl;
   const hasLogo = logoUrl && logoUrl.length > 0;
-  const logoScale = (config.logoScale || 100) / 100;
+
+  // Logo size from sectionConfig (small/medium/large) or config.logoScale
+  const logoSizeMap: Record<string, number> = { small: 0.7, medium: 1.0, large: 1.3 };
+  const logoScale = logoSizeMap[sc.logoSize || 'medium'] ?? ((config.logoScale || 100) / 100);
 
   // Calculate scaled logo dimensions
   const scaledLogoHeight = 60 * logoScale;
   const scaledLogoWidth = 180 * logoScale;
 
+  // Hero overlay color and opacity from sectionConfig
+  const heroOverlayColor = sc.heroOverlayColor || COLORS.primary;
+  const heroOverlayOpacity = (sc.heroOverlayOpacity ?? 85) / 100;
+
+  // Safety banner
+  const showSafetyQuote = sc.showSafetyQuote ?? true;
+  const safetySlogan = sc.safetySlogan || 'Safety is a core value';
+
+  // Subtitle
+  const subtitle = sc.subtitle || '';
+
+  // Logo alignment from sectionConfig or config
+  const logoAlignMap: Record<string, string> = { 'top-left': 'left', 'top-center': 'center', 'top-right': 'right' };
+  const effectiveLogoAlign = logoAlignMap[sc.logoPosition] || config.logoAlign || 'left';
+
   // Logo alignment style
   const getLogoContainerStyle = () => {
-    switch (config.logoAlign) {
+    switch (effectiveLogoAlign) {
       case 'center':
         return coverStyles.logoContainerCenter;
       case 'right':
@@ -344,11 +376,14 @@ export function CoverSection({ config, reportData, projectConfig }: CoverSection
                 },
               ]}
             />
-            {/* Semi-transparent teal overlay */}
-            <View style={coverStyles.headerOverlay} />
+            {/* Semi-transparent overlay - uses configured color and opacity */}
+            <View style={[coverStyles.headerOverlay, {
+              backgroundColor: heroOverlayColor,
+              opacity: heroOverlayOpacity,
+            }]} />
           </>
         ) : (
-          <View style={coverStyles.headerFallback} />
+          <View style={[coverStyles.headerFallback, { backgroundColor: heroOverlayColor }]} />
         )}
 
         {/* Logo */}
@@ -380,12 +415,15 @@ export function CoverSection({ config, reportData, projectConfig }: CoverSection
         {/* Title Block */}
         <View style={coverStyles.titleBlock}>
           <Text style={coverStyles.projectName}>{projectName}</Text>
+          {subtitle ? (
+            <Text style={{ fontSize: 10, color: COLORS.textMuted, marginBottom: 6 }}>{subtitle}</Text>
+          ) : null}
           <AccentLine width={100} height={3} marginBottom={12} />
           {location && (
             <Text style={coverStyles.projectLocation}>{location}</Text>
           )}
           <Text style={coverStyles.reportType}>Weekly Progress Report</Text>
-          <Text style={coverStyles.weekEnding}>Week Ending: {weekEnding}</Text>
+          <Text style={[coverStyles.weekEnding, { color: heroOverlayColor }]}>Week Ending: {weekEnding}</Text>
         </View>
 
         {/* Photo Strip - stretches available photos */}
@@ -415,9 +453,11 @@ export function CoverSection({ config, reportData, projectConfig }: CoverSection
       </View>
 
       {/* ===== SAFETY BANNER ===== */}
-      <View style={coverStyles.safetyBanner}>
-        <Text style={coverStyles.safetyText}>Safety is a core value</Text>
-      </View>
+      {showSafetyQuote && (
+        <View style={[coverStyles.safetyBanner, { backgroundColor: heroOverlayColor }]}>
+          <Text style={coverStyles.safetyText}>{safetySlogan}</Text>
+        </View>
+      )}
 
       {/* ===== FOOTER ===== */}
       {showFooter && (

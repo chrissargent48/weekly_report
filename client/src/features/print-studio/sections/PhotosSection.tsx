@@ -7,10 +7,12 @@ interface Props {
   config: PrintConfig;
   reportData: ReportData;
   placement: PagePlacement;
+  sectionConfig?: any;
   onEditPhoto?: (photoId: string, url: string) => void;
 }
 
-export function PhotosSection({ config, reportData, placement, onEditPhoto }: Props) {
+export function PhotosSection({ config, reportData, placement, sectionConfig, onEditPhoto }: Props) {
+  const sc = sectionConfig || {};
   const allPhotos = reportData.photos || [];
   if (allPhotos.length === 0) return null;
 
@@ -33,11 +35,19 @@ export function PhotosSection({ config, reportData, placement, onEditPhoto }: Pr
       title={placement.continuesFromPrevious ? 'Site Photos (Continued)' : 'Site Photos'}
       className="h-full flex flex-col"
     >
-      <div className="grid grid-cols-2 gap-x-6 gap-y-8 flex-1">
+      <div
+        className="gap-x-6 gap-y-8 flex-1"
+        style={{
+          display: 'grid',
+          gridTemplateColumns: `repeat(${sc.columns || 2}, 1fr)`,
+        }}
+      >
         {pagePhotos.map((photo: any, i: number) => {
           const photoIndex = startIndex + i;
           const photoId = `photo-${photoIndex}`;
-          
+          const showCaptions = sc.showCaptions ?? true;
+          const showDates = sc.showDates ?? true;
+
           return (
             <div key={i} className="flex flex-col gap-2 break-inside-avoid">
               <DraggableImage
@@ -48,13 +58,15 @@ export function PhotosSection({ config, reportData, placement, onEditPhoto }: Pr
                 onEdit={() => onEditPhoto?.(photoId, photo.url)}
               />
               <div className="px-1">
-                <p className="font-bold text-zinc-900 text-sm mb-0.5">
-                  {photo.caption || 'Untitled Photo'}
-                </p>
-                {photo.date && (
+                {showCaptions && (
+                  <p className="font-bold text-zinc-900 text-sm mb-0.5">
+                    {photo.caption || 'Untitled Photo'}
+                  </p>
+                )}
+                {showDates && photo.date && (
                   <p className="text-xs text-zinc-400 font-mono">Taken: {photo.date}</p>
                 )}
-                {photo.description && (
+                {showCaptions && photo.description && (
                   <p className="text-xs text-zinc-500 mt-1 line-clamp-2">{photo.description}</p>
                 )}
               </div>

@@ -11,6 +11,7 @@ interface Props {
   projectConfig: ProjectConfig;
   baselines?: ProjectBaselines | null;
   placement: PagePlacement;
+  sectionConfig?: any;
   onToggleRowBreak?: (sectionId: string, afterRowIndex: number, afterRowId?: string) => void;
 }
 
@@ -74,7 +75,8 @@ const CircularProgress = ({ percentage }: { percentage: number }) => {
   );
 };
 
-export function ProgressSection({ config, reportData, projectConfig, baselines, placement, onToggleRowBreak }: Props) {
+export function ProgressSection({ config, reportData, projectConfig, baselines, placement, sectionConfig, onToggleRowBreak }: Props) {
+  const sc = sectionConfig || {};
   // Combine Master Items with Weekly Progress
   const { tableData, totals } = useMemo(() => {
     // USE BASELINES FOR MASTER ITEMS
@@ -191,7 +193,7 @@ export function ProgressSection({ config, reportData, projectConfig, baselines, 
               <th className="py-2 px-2 w-16 text-white/90">This Prd</th>
               <th className="py-2 px-2 w-16 text-white/90">To Date</th>
               <th className="py-2 px-2 w-16 text-white/90">Remain</th>
-              <th className="py-2 px-2 w-14 text-white/90">%</th>
+              {(sc.showPercent ?? true) && <th className="py-2 px-2 w-14 text-white/90">%</th>}
             </tr>
           </thead>
           <tbody className="divide-y divide-zinc-100">
@@ -213,9 +215,11 @@ export function ProgressSection({ config, reportData, projectConfig, baselines, 
                     <td className="py-2 px-2 text-center font-mono text-xs font-bold text-brand-primary">{formatNumber(item.thisWeekQty)}</td>
                     <td className="py-2 px-2 text-center font-mono text-xs font-bold text-zinc-900 bg-zinc-50">{formatNumber(item.toDateQty)}</td>
                     <td className="py-2 px-2 text-center font-mono text-xs text-zinc-500">{formatNumber(item.remainingQty)}</td>
-                    <td className="py-1 px-2 flex justify-center">
-                      <CircularProgress percentage={item.percentComplete} />
-                    </td>
+                    {(sc.showPercent ?? true) && (
+                      <td className="py-1 px-2 flex justify-center">
+                        <CircularProgress percentage={item.percentComplete} />
+                      </td>
+                    )}
                     
                     {/* Hover Split Control */}
                     {onToggleRowBreak && (

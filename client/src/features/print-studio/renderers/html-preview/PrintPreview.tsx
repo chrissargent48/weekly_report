@@ -30,6 +30,7 @@ interface PrintPreviewProps {
   reportData: ReportData;
   projectConfig: ProjectConfig;
   baselines?: ProjectBaselines | null;
+  sectionConfigs?: Record<string, any>;
   showPageBreakGuides?: boolean;
   totalPages?: number;
   onUpdateReport?: (data: ReportData) => void;
@@ -43,6 +44,12 @@ interface PrintPreviewProps {
 import { KeyPersonnelSection } from '../../sections/KeyPersonnelSection';
 
 // ... (existing imports)
+
+// Map layout-engine section IDs back to sectionConfigs keys
+const SECTION_CONFIG_KEY_MAP: Record<string, string> = {
+  overview: 'executive',
+  key_personnel: 'personnel',
+};
 
 const SECTION_COMPONENTS: Record<string, React.ComponentType<any>> = {
   key_personnel: KeyPersonnelSection,
@@ -72,6 +79,7 @@ export const PrintPreview = forwardRef<HTMLDivElement, PrintPreviewProps>(functi
     reportData,
     projectConfig,
     baselines,
+    sectionConfigs,
     showPageBreakGuides = false,
     onUpdateReport,
     onToggleRowBreak,
@@ -148,6 +156,7 @@ export const PrintPreview = forwardRef<HTMLDivElement, PrintPreviewProps>(functi
               config={config}
               reportData={reportData}
               projectConfig={projectConfig}
+              sectionConfig={sectionConfigs?.cover}
             />
           )}
 
@@ -201,6 +210,7 @@ export const PrintPreview = forwardRef<HTMLDivElement, PrintPreviewProps>(functi
                     projectConfig={projectConfig}
                     baselines={baselines}
                     placement={placement}
+                    sectionConfig={sectionConfigs?.[SECTION_CONFIG_KEY_MAP[baseId] || baseId]}
                     onUpdateReport={onUpdateReport}
                     onToggleRowBreak={onToggleRowBreak}
                     onEditPhoto={onEditPhoto}
