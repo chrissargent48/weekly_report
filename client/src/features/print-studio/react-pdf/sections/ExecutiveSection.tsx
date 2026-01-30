@@ -4,7 +4,6 @@ import { ReportData } from '../../utils/dataMapper';
 
 const styles = StyleSheet.create({
   container: {
-    padding: 30,
     flex: 1,
   },
   header: {
@@ -60,7 +59,7 @@ export const ExecutiveSection: React.FC<ExecutiveSectionProps> = ({ data, config
   const paddingRight = margins.right;
 
   return (
-    <View style={[styles.container, { marginTop, marginBottom, paddingLeft, paddingRight }]}>
+    <View style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Executive Summary Project Status</Text>
       </View>

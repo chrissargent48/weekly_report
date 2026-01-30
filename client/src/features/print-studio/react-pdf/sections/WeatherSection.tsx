@@ -5,7 +5,6 @@ import { WeatherDay } from '../../../../../../shared/schemas';
 
 const styles = StyleSheet.create({
   container: {
-    padding: 30,
     flex: 1,
   },
   header: {
@@ -165,7 +164,7 @@ export const WeatherSection: React.FC<WeatherSectionProps> = ({ data, config = {
   const daysWorked = weatherDays.filter(d => d.hoursLost === 0).length;
 
   return (
-    <View style={[styles.container, { marginTop, marginBottom, paddingLeft, paddingRight }]}>
+    <View style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Weather Conditions</Text>
       </View>
