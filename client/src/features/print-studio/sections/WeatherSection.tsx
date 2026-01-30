@@ -9,9 +9,11 @@ interface Props {
   config: PrintConfig;
   reportData: ReportData;
   placement?: PagePlacement;
+  sectionConfig?: any;
 }
 
-export function WeatherSection({ config, reportData, placement }: Props) {
+export function WeatherSection({ config, reportData, placement, sectionConfig }: Props) {
+  const sc = sectionConfig || {};
   const rawWeather = reportData.overview?.weather || [];
   
   if (rawWeather.length === 0) return null;
@@ -135,9 +137,13 @@ export function WeatherSection({ config, reportData, placement }: Props) {
               {/* Stats */}
               <div className="w-full flex flex-col items-center mt-auto">
                  <div className="flex items-center gap-1 text-[10px] leading-tight">
-                    <span className="font-bold text-zinc-900">{day.tempHigh}°</span>
+                    <span className="font-bold text-zinc-900">
+                      {sc.tempUnit === 'C' ? Math.round((Number(day.tempHigh) - 32) * 5/9) : day.tempHigh}°
+                    </span>
                     <span className="text-zinc-400 font-light">|</span>
-                    <span className="text-zinc-500">{day.tempLow}°</span>
+                    <span className="text-zinc-500">
+                      {sc.tempUnit === 'C' ? Math.round((Number(day.tempLow) - 32) * 5/9) : day.tempLow}°
+                    </span>
                  </div>
               </div>
             </div>

@@ -65,6 +65,12 @@ function getBaseSectionId(sectionId: string): string {
   return sectionId.replace(/_continued_\d+$/, '').replace(/_footer$/, '');
 }
 
+/** Map layout-engine IDs back to sectionConfigs keys */
+const SECTION_CONFIG_KEY_MAP: Record<string, string> = {
+  overview: 'executive',
+  key_personnel: 'personnel',
+};
+
 export const ReportDocument: React.FC<ReportDocumentProps> = ({
   reportData,
   enabledSections,
@@ -102,6 +108,7 @@ export const ReportDocument: React.FC<ReportDocumentProps> = ({
                   config={config}
                   reportData={report}
                   projectConfig={projectConfig}
+                  sectionConfig={sectionConfigs.cover}
                 />
               </Page>
             );
@@ -129,7 +136,7 @@ export const ReportDocument: React.FC<ReportDocumentProps> = ({
                   >
                     <Component
                       data={reportData}
-                      config={sectionConfigs[baseId]}
+                      config={sectionConfigs[SECTION_CONFIG_KEY_MAP[baseId] || baseId]}
                       documentSettings={pdfDocSettings}
                       placement={placement}
                     />
@@ -173,6 +180,7 @@ export const ReportDocument: React.FC<ReportDocumentProps> = ({
                     } as PrintConfig}
                     reportData={report}
                     projectConfig={projectConfig}
+                    sectionConfig={sectionConfigs.cover}
                   />
                 </Page>
               );
