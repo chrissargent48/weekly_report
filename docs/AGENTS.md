@@ -156,6 +156,10 @@ export function ComponentName({ data, onUpdate }: Props) {
 - **PDF Fidelity:** We use `@react-pdf/renderer` in the "Print Studio". This allows for a precise PREVIEW of the PDF before generation.
 - **Client-Side Generation:** PDF generation is entirely client-side to ensure what the user sees in the preview is exactly what they get in the file.
 
+### 3. Local Connectivity
+
+- **Server Health Check**: Always verify that the backend is responsive before running browser-based tasks. If you encounter a `localhost` connection error, verify the process is active.
+
 ---
 
 ## 🚀 Current Status & Milestones (Jan 2026)
@@ -180,6 +184,7 @@ export function ComponentName({ data, onUpdate }: Props) {
 1.  **Respect the Brand**: Do not verifiy from RECON colors.
 2.  **Maintain "Local-First"**: Do not add dependencies that require internet access (cloud DBs, external analytics) without explicit user permission.
 3.  **Electron Awareness**: Remember the app handles local file paths and native windows.
+4.  **Local Server Continuity**: If `localhost:5173` (or the configured port) is unreachable, **STOP** and check if the server is running. Use `run_command` with `npm start` or `npm run dev` before assuming a browser or code bug.
 
 ---
 

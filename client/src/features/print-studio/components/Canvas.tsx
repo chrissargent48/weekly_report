@@ -21,6 +21,7 @@ interface CanvasProps {
   sectionConfigs?: Record<string, any>;
   sectionOrder?: string[];
   documentSettings?: any;
+  selectedSection?: string; // Added for highlighting
 }
 
 // Simple Error Boundary for Sections
@@ -57,7 +58,8 @@ export const Canvas: React.FC<CanvasProps> = ({
   projectConfig,
   sectionConfigs = {},
   sectionOrder = ['cover', 'executive', 'weather', 'progress', 'lookahead', 'photos', 'safety'],
-  documentSettings = {}
+  documentSettings = {},
+  selectedSection
 }) => {
   
   // Apply standard letter size
@@ -125,11 +127,21 @@ export const Canvas: React.FC<CanvasProps> = ({
         // Only render enabled sections
         if (!enabledSections[sectionId]) return null;
 
+        const isSelected = selectedSection === sectionId;
+
         return (
           <div
             key={sectionId}
-            onClick={() => onSelectSection(sectionId)}
-            className="bg-white shadow-2xl relative cursor-pointer transition-all duration-200 hover:ring-4 hover:ring-teal-400/50 shrink-0 overflow-hidden"
+            onClick={(e) => {
+              e.stopPropagation(); // Prevent bubbling if needed
+              onSelectSection(sectionId);
+            }}
+            className={`bg-white relative cursor-pointer transition-all duration-200 shrink-0 overflow-hidden group
+              ${isSelected 
+                ? 'ring-4 ring-offset-4 shadow-2xl z-10' 
+                : 'hover:ring-4 hover:ring-opacity-50 shadow-lg hover:shadow-xl'
+              }
+            `}
             style={{
               width: `${width}px`,
               height: `${height}px`,
@@ -137,6 +149,8 @@ export const Canvas: React.FC<CanvasProps> = ({
               paddingBottom: `${(documentSettings?.defaultMargins?.bottom || 24) * zoom / 100}px`,
               paddingLeft: `${(documentSettings?.defaultMargins?.left || 24) * zoom / 100}px`,
               paddingRight: `${(documentSettings?.defaultMargins?.right || 24) * zoom / 100}px`,
+              // Dynamic brand color for ring
+              ['--tw-ring-color' as any]: documentSettings?.branding?.primaryColor || '#2dd4bf' // Default teal-400
             }}
           >
             {/* Grid Overlay */}
@@ -152,7 +166,7 @@ export const Canvas: React.FC<CanvasProps> = ({
             )}
 
             {/* Real WYSIWYG Content */}
-            <div className="w-full h-full pointer-events-none select-none overflow-hidden">
+            <div className="w-full h-full overflow-hidden">
              <SectionErrorBoundary sectionId={sectionId}>
                 {/* 
                   Shim a PrintConfig object to satisfy the props.
@@ -177,7 +191,10 @@ export const Canvas: React.FC<CanvasProps> = ({
                     photoPositions: {},
                     showPageNumbers: documentSettings?.showPageNumbers ?? true,
                     showFooter: documentSettings?.showFooter ?? true,
-                    showCoverPhotos: sectionConfigs?.cover?.showPhotoGrid ?? true
+                    showPageNumbers: documentSettings?.showPageNumbers ?? true,
+                    showFooter: documentSettings?.showFooter ?? true,
+                    showCoverPhotos: sectionConfigs?.cover?.showPhotoGrid ?? true,
+                    branding: documentSettings?.branding // Pass branding down
                   };
 
                   // If data is missing

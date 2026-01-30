@@ -106,11 +106,11 @@ export function CoverProperties({ report, projectConfig, config, onUpdateConfig 
         <div className="flex items-center gap-2">
           <input
             type="color"
-            value={config?.heroOverlayColor || '#008B8B'}
+            value={config?.heroOverlayColor || config?.branding?.primaryColor || '#008B8B'}
             onChange={(e) => onUpdateConfig({ heroOverlayColor: e.target.value })}
             className="w-8 h-8 rounded border border-gray-200 cursor-pointer overflow-hidden p-0"
           />
-          <span className="text-xs font-mono text-gray-400">{config?.heroOverlayColor}</span>
+          <span className="text-xs font-mono text-gray-400">{config?.heroOverlayColor || config?.branding?.primaryColor || '#008B8B'}</span>
         </div>
       </div>
 

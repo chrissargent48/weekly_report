@@ -47,6 +47,13 @@ export interface ManualPageBreak {
   type: 'simple' | 'split'; // simple = just break; split = cut table (repeat headers, flat borders)
 }
 
+export interface BrandingConfig {
+  primaryColor: string; // Hex color for main accents (headers, dividers)
+  headingFont: 'Inter' | 'Roboto' | 'Outfit' | 'Times New Roman';
+  secondaryColor?: string; // Optional secondary accent
+  useSecondaryColor: boolean;
+}
+
 export interface PrintConfig {
   sections: PrintSection[];
   spacing: PrintSpacing;
@@ -60,6 +67,8 @@ export interface PrintConfig {
   showPageNumbers: boolean;
   showFooter: boolean;
   showCoverPhotos: boolean;
+  /** Global branding settings */
+  branding?: BrandingConfig;
   /** Manual page breaks inserted within sections (session-only by default) */
   manualBreaks?: ManualPageBreak[];
 }

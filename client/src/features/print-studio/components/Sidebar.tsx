@@ -64,6 +64,37 @@ export function Sidebar({
     }
   };
 
+  // Helper to check if section has data
+  const checkDataPresence = (sectionId: string): boolean => {
+    if (!reportData) return false;
+    
+    switch (sectionId) {
+      case 'cover':
+        return true; // Always has project info
+      case 'executive':
+        return !!reportData.overview?.executiveSummary || !!reportData.overview?.kpis;
+      case 'weather':
+        return (reportData.overview?.weather?.length || 0) > 0;
+      case 'progress':
+        return (reportData.progress?.bidItems?.length || 0) > 0;
+      case 'manpower':
+         return !!(reportData as any).manpower || (reportData as any).labor?.length > 0;
+      case 'equipment':
+         return !!(reportData as any).equipment || (reportData as any).equipmentLog?.length > 0;
+      case 'materials':
+         return !!(reportData as any).materials || (reportData as any).materialLog?.length > 0;
+      case 'photo_log':
+      case 'photos':
+         return (reportData.photos?.length || 0) > 0;
+      case 'safety':
+         return !!reportData.safety || (reportData.safety as any)?.incidents?.length > 0;
+      case 'financials':
+         return !!reportData.financials;
+      default:
+         return false;
+    }
+  };
+
   return (
     <>
       <div className="p-6 border-b border-zinc-100">
@@ -82,6 +113,7 @@ export function Sidebar({
                         <SortableSectionItem
                            key={section.id}
                            section={section}
+                           hasData={checkDataPresence(section.id)}
                            onToggle={() => onToggleSection(section.id)}
                            onTogglePageBreak={() => onTogglePageBreak(section.id)}
                         />
@@ -248,10 +280,12 @@ export function Sidebar({
 
 function SortableSectionItem({
    section,
+   hasData,
    onToggle,
    onTogglePageBreak
 }: {
    section: PrintSection;
+   hasData: boolean;
    onToggle: () => void;
    onTogglePageBreak: () => void;
 }) {
@@ -276,6 +310,13 @@ function SortableSectionItem({
                <span className={`text-sm font-medium ${section.included ? 'text-zinc-900' : 'text-zinc-400'}`}>
                   {section.label}
                </span>
+               {/* Data Indicator */}
+               {section.included && (
+                 <div 
+                   className={`w-2 h-2 rounded-full ${hasData ? 'bg-green-500' : 'bg-gray-200'}`} 
+                   title={hasData ? 'Data available' : 'No data found'} 
+                 />
+               )}
             </div>
             <div className="flex items-center gap-1">
                {/* Page Break Toggle */}

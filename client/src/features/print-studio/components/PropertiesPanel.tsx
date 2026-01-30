@@ -1,7 +1,8 @@
 import React from 'react';
 import { WeeklyReport, ProjectConfig } from '../../../types';
-import { Settings, Palette, HelpCircle } from 'lucide-react';
+import { Settings, Palette, HelpCircle, ChevronRight } from 'lucide-react';
 import { GlobalMargins } from './properties/GlobalMargins';
+import { GlobalBranding } from './properties/GlobalBranding';
 import { SectionMargins } from './properties/SectionMargins';
 import { CoverProperties } from './properties/CoverProperties';
 import { WeatherProperties } from './properties/WeatherProperties';
@@ -12,6 +13,7 @@ import { SafetyProperties } from './properties/SafetyProperties';
 
 interface PropertiesPanelProps {
   selectedSection: string;
+  selectedElementId?: string | null;
   report?: WeeklyReport;
   projectConfig?: ProjectConfig;
   onUpdateReport?: (updatedReport: WeeklyReport) => void;
@@ -25,6 +27,7 @@ interface PropertiesPanelProps {
 
 export const PropertiesPanel: React.FC<PropertiesPanelProps> = ({
   selectedSection,
+  selectedElementId,
   report,
   projectConfig,
   onUpdateReport,
@@ -50,9 +53,31 @@ export const PropertiesPanel: React.FC<PropertiesPanelProps> = ({
 
         {/* Section General Info */}
         <div className="flex items-center justify-between">
-          <div className="flex flex-col">
-            <span className="text-[10px] font-bold text-teal-600 uppercase tracking-tight">Active Section</span>
-            <span className="text-sm font-bold text-gray-800 capitalize">{selectedSection === 'document' ? 'Global Settings' : selectedSection}</span>
+          <div className="flex flex-col gap-1">
+            <div className="flex items-center text-[10px] font-bold text-gray-400">
+               <span 
+                 className="cursor-pointer hover:text-teal-600 transition-colors" 
+                 onClick={() => onToggleSection('document')}
+               >
+                 Document
+               </span>
+               {selectedSection !== 'document' && (
+                 <>
+                   <ChevronRight size={10} className="mx-1" />
+                   <span className="text-teal-700 capitalize">{selectedSection}</span>
+                 </>
+               )}
+               {selectedElementId && (
+                 <>
+                   <ChevronRight size={10} className="mx-1" />
+                   <span className="text-gray-900 truncate max-w-[80px]">{selectedElementId}</span>
+                 </>
+               )}
+            </div>
+            
+            <span className="text-sm font-bold text-gray-800 capitalize">
+                {selectedElementId ? 'Element Settings' : (selectedSection === 'document' ? 'Global Settings' : selectedSection)}
+            </span>
           </div>
           {selectedSection !== 'document' && (
             <button
@@ -70,7 +95,11 @@ export const PropertiesPanel: React.FC<PropertiesPanelProps> = ({
 
         {/* Global Controls (Settings) */}
         {selectedSection === 'document' && (
-          <GlobalMargins documentSettings={documentSettings} onUpdateDocumentSettings={onUpdateDocumentSettings} />
+          <>
+            <GlobalBranding config={config} onUpdateConfig={onUpdateConfig} />
+            <div className="border-t border-gray-100 my-4" />
+            <GlobalMargins documentSettings={documentSettings} onUpdateDocumentSettings={onUpdateDocumentSettings} />
+          </>
         )}
 
         {/* Section Margins (if not document) */}
@@ -86,7 +115,7 @@ export const PropertiesPanel: React.FC<PropertiesPanelProps> = ({
           )}
 
           {selectedSection === 'weather' && (
-            <WeatherProperties config={config} onUpdateConfig={onUpdateConfig} />
+            <WeatherProperties config={config} onUpdateConfig={onUpdateConfig} reportData={report} />
           )}
 
           {selectedSection === 'executive' && (

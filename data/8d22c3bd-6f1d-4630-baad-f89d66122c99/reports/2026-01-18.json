@@ -1000,7 +1000,7 @@
         "marginBottom": 0
       },
       "photos": {
-        "columns": 2,
+        "columns": 3,
         "showCaptions": true,
         "showDates": true,
         "marginTop": 0,

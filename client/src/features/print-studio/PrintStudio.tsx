@@ -66,7 +66,9 @@ export const PrintStudio: React.FC<PrintStudioProps> = ({
   }, []);
 
   const [showGrid, setShowGrid] = useState(false);
+  const [showGrid, setShowGrid] = useState(false);
   const [selectedSection, setSelectedSection] = useState<string>('document');
+  const [selectedElementId, setSelectedElementId] = useState<string | null>(null);
   const [saveStatus, setSaveStatus] = useState<'saving' | 'saved' | 'error'>('saved');
 
   const [documentSettings, setDocumentSettings] = useState<DocumentSettings>(() => 
@@ -263,6 +265,16 @@ export const PrintStudio: React.FC<PrintStudioProps> = ({
         ...updates
       }
     }));
+  };
+  
+  const handleSelectSection = (sectionId: string) => {
+    setSelectedSection(sectionId);
+    setSelectedElementId(null); // Clear element selection when changing sections
+  };
+
+  const handleEditPhoto = (photoId: string, url: string) => {
+    setSelectedSection('photos');
+    setSelectedElementId(photoId);
   };
 
   // --- Handlers ---
@@ -576,6 +588,9 @@ export const PrintStudio: React.FC<PrintStudioProps> = ({
                 projectConfig={projectConfig}
                 baselines={shimBaselines}
                 showPageBreakGuides={showGrid}
+                selectedSection={selectedSection}
+                onSelectSection={handleSelectSection}
+                onEditPhoto={handleEditPhoto}
               />
             ) : (
               <div className="flex items-center justify-center h-full text-gray-400">
@@ -594,13 +609,14 @@ export const PrintStudio: React.FC<PrintStudioProps> = ({
           />
           <PropertiesPanel 
             selectedSection={selectedSection}
+            selectedElementId={selectedElementId}
             report={report || undefined}
             projectConfig={projectConfig || undefined}
             onUpdateReport={onUpdate}
             enabledSections={enabledSections}
             onToggleSection={(id: string) => {
               if (id === 'document') {
-                setSelectedSection('document');
+                handleSelectSection('document');
               } else {
                 setEnabledSections(prev => ({...prev, [id]: !prev[id]}));
               }

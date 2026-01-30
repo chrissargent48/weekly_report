@@ -35,6 +35,8 @@ interface PrintPreviewProps {
   onUpdateReport?: (data: ReportData) => void;
   onToggleRowBreak?: (sectionId: string, afterRowIndex: number, afterRowId?: string) => void;
   onEditPhoto?: (photoId: string, url: string) => void;
+  onSelectSection?: (sectionId: string) => void;
+  selectedSection?: string;
 }
 
 // Map section IDs to their components
@@ -74,6 +76,8 @@ export const PrintPreview = forwardRef<HTMLDivElement, PrintPreviewProps>(functi
     onUpdateReport,
     onToggleRowBreak,
     onEditPhoto,
+    onSelectSection,
+    selectedSection,
   },
   ref
 ) {
@@ -159,18 +163,43 @@ export const PrintPreview = forwardRef<HTMLDivElement, PrintPreviewProps>(functi
               return null;
             }
 
+            const isSelected = selectedSection === baseId;
+            // Get brand color
+            const brandColor = config.branding?.primaryColor || '#008B8B';
+
             return (
-              <SectionComponent
+              <div
                 key={placement.sectionId}
-                config={config}
-                reportData={reportData}
-                projectConfig={projectConfig}
-                baselines={baselines}
-                placement={placement}
-                onUpdateReport={onUpdateReport}
-                onToggleRowBreak={onToggleRowBreak}
-                onEditPhoto={onEditPhoto}
-              />
+                className={`relative transition-all duration-200 ${isSelected ? 'z-10' : ''}`}
+                onClick={(e) => {
+                   e.stopPropagation();
+                   onSelectSection?.(baseId);
+                }}
+              >
+                  {/* Selection Ring */}
+                  {isSelected && (
+                    <div 
+                      className="absolute inset-0 pointer-events-none border-[3px] rounded bg-teal-50/5"
+                      style={{ borderColor: brandColor }}
+                    />
+                  )}
+                  
+                  {/* Hover Indicator */}
+                  {!isSelected && (
+                    <div className="absolute inset-0 opacity-0 hover:opacity-100 border-2 border-dashed border-gray-300 pointer-events-none rounded transition-opacity" />
+                  )}
+
+                  <SectionComponent
+                    config={config}
+                    reportData={reportData}
+                    projectConfig={projectConfig}
+                    baselines={baselines}
+                    placement={placement}
+                    onUpdateReport={onUpdateReport}
+                    onToggleRowBreak={onToggleRowBreak}
+                    onEditPhoto={onEditPhoto}
+                  />
+              </div>
             );
           })}
         </PreviewPage>
