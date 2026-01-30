@@ -54,6 +54,16 @@ export interface BrandingConfig {
   useSecondaryColor: boolean;
 }
 
+/**
+ * Per-section padding overrides (in pixels at 96 DPI).
+ * Allows users to manually push sections down or add spacing after,
+ * similar to paragraph spacing controls in Word.
+ */
+export interface SectionPaddingConfig {
+  top: number;     // 0–120, extra space above the section
+  bottom: number;  // 0–120, extra space below the section
+}
+
 export interface PrintConfig {
   sections: PrintSection[];
   spacing: PrintSpacing;
@@ -71,6 +81,8 @@ export interface PrintConfig {
   branding?: BrandingConfig;
   /** Manual page breaks inserted within sections (session-only by default) */
   manualBreaks?: ManualPageBreak[];
+  /** Per-section padding overrides for manual layout adjustment */
+  sectionPadding?: Record<string, SectionPaddingConfig>;
 }
 
 export interface PagePlacement {

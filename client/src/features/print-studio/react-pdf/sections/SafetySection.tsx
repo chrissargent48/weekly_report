@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet } from '@react-pdf/renderer';
 import { ReportData } from '../../utils/dataMapper';
+import { PagePlacement } from '../../config/printConfig.types';
 
 const styles = StyleSheet.create({
   container: {
@@ -110,15 +111,21 @@ interface SafetySectionProps {
     marginBottom?: number;
   };
   documentSettings?: any;
+  placement?: PagePlacement;
 }
 
-export const SafetySection: React.FC<SafetySectionProps> = ({ data, config = {}, documentSettings }) => {
+export const SafetySection: React.FC<SafetySectionProps> = ({ data, config = {}, documentSettings, placement }) => {
   const {
       showTable = true,
       showCards = true,
       marginTop: configMarginTop,
       marginBottom: configMarginBottom
   } = config;
+
+  // When placement is provided, use renderConfig to control what's shown
+  const isContinued = placement?.continuesFromPrevious ?? false;
+  const showHeader = placement?.renderConfig?.showHeader ?? true;
+  const showFooterSection = placement?.renderConfig?.showFooter ?? true;
 
   const margins = documentSettings?.defaultMargins || { top: 24, bottom: 24, left: 24, right: 24 };
   const applyToAll = documentSettings?.applyToAll || false;
@@ -138,11 +145,16 @@ export const SafetySection: React.FC<SafetySectionProps> = ({ data, config = {},
 
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>Safety Statistics & Performance</Text>
-      </View>
+      {showHeader && (
+        <View style={styles.header}>
+          <Text style={styles.headerTitle}>
+            {isContinued ? 'Safety Statistics & Performance (Continued)' : 'Safety Statistics & Performance'}
+          </Text>
+        </View>
+      )}
 
-      {showCards && (
+      {/* Show KPI cards only on first page of this section */}
+      {showCards && showHeader && !isContinued && (
         <View style={styles.statGrid}>
           {stats.map((stat, i) => (
             <View key={i} style={styles.statCard}>
@@ -174,9 +186,11 @@ export const SafetySection: React.FC<SafetySectionProps> = ({ data, config = {},
         </View>
       )}
 
-      <View style={styles.footerInfo}>
-        <Text style={styles.footerText}>Reported safety data is subject to verification upon project completion.</Text>
-      </View>
+      {showFooterSection && (
+        <View style={styles.footerInfo}>
+          <Text style={styles.footerText}>Reported safety data is subject to verification upon project completion.</Text>
+        </View>
+      )}
     </View>
   );
 };

@@ -104,7 +104,12 @@ export const PropertiesPanel: React.FC<PropertiesPanelProps> = ({
 
         {/* Section Margins (if not document) */}
         {selectedSection !== 'document' && (
-          <SectionMargins config={config} onUpdateConfig={onUpdateConfig} documentSettings={documentSettings} />
+          <SectionMargins
+            config={config}
+            onUpdateConfig={onUpdateConfig}
+            documentSettings={documentSettings}
+            selectedSection={selectedSection}
+          />
         )}
 
         {/* Section Specific Controls */}

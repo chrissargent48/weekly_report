@@ -63,9 +63,13 @@ export function PDFPreview({
           photos: true,
           safety: true
         }}
+        projectConfig={projectConfig}
+        config={config}
+        report={reportData}
+        pageMap={pageMap}
       />
     ),
-    [puckData, projectConfig]
+    [puckData, projectConfig, config, pageMap]
   );
 
   if (!showViewer) {
@@ -117,9 +121,13 @@ export function PDFDownloadButton({
           photos: true,
           safety: true
         }}
+        projectConfig={projectConfig}
+        config={config}
+        report={reportData}
+        pageMap={pageMap}
       />
     ),
-    [puckData, projectConfig]
+    [puckData, projectConfig, config, pageMap]
   );
 
   return (
@@ -175,6 +183,10 @@ export function usePDFGeneration() {
               photos: true,
               safety: true
             }}
+            projectConfig={projectConfig}
+            config={config}
+            report={reportData}
+            pageMap={pageMap}
           />
         );
 
@@ -264,9 +276,13 @@ export function PDFBlobProvider({
           photos: true,
           safety: true
         }}
+        projectConfig={projectConfig}
+        config={config}
+        report={reportData}
+        pageMap={pageMap}
       />
     ),
-    [puckData, projectConfig]
+    [puckData, projectConfig, config, pageMap]
   );
 
   return <BlobProvider document={document}>{children}</BlobProvider>;

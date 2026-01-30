@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet } from '@react-pdf/renderer';
 import { ReportData } from '../../utils/dataMapper';
+import { PagePlacement } from '../../config/printConfig.types';
 
 const styles = StyleSheet.create({
   container: {
@@ -45,9 +46,10 @@ interface ExecutiveSectionProps {
     marginBottom?: number;
   };
   documentSettings?: any;
+  placement?: PagePlacement;
 }
 
-export const ExecutiveSection: React.FC<ExecutiveSectionProps> = ({ data, config = {}, documentSettings }) => {
+export const ExecutiveSection: React.FC<ExecutiveSectionProps> = ({ data, config = {}, documentSettings, placement }) => {
   const { marginTop: configMarginTop, marginBottom: configMarginBottom } = config;
 
   const margins = documentSettings?.defaultMargins || { top: 24, bottom: 24, left: 24, right: 24 };

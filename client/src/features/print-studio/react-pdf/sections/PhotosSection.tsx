@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, Image, StyleSheet } from '@react-pdf/renderer';
 import { ReportData } from '../../utils/dataMapper';
+import { PagePlacement } from '../../config/printConfig.types';
 
 const styles = StyleSheet.create({
   container: {
@@ -84,9 +85,10 @@ interface PhotosSectionProps {
     marginBottom?: number;
   };
   documentSettings?: any;
+  placement?: PagePlacement;
 }
 
-export const PhotosSection: React.FC<PhotosSectionProps> = ({ data, config = {}, documentSettings }) => {
+export const PhotosSection: React.FC<PhotosSectionProps> = ({ data, config = {}, documentSettings, placement }) => {
   const {
       columns = 2,
       showCaptions = true,
@@ -109,6 +111,11 @@ export const PhotosSection: React.FC<PhotosSectionProps> = ({ data, config = {},
   const availableContentWidth = 612 - paddingLeft - paddingRight;
   const itemWidth = (availableContentWidth - (gap * (columns - 1))) / columns;
 
+  // Slice photos based on placement dataRange
+  const visiblePhotos = placement?.dataRange
+    ? data.photos.slice(placement.dataRange.start, placement.dataRange.end)
+    : data.photos;
+
   return (
     <View style={styles.container}>
       <View style={styles.header}>
@@ -116,8 +123,8 @@ export const PhotosSection: React.FC<PhotosSectionProps> = ({ data, config = {},
       </View>
 
       <View style={styles.grid}>
-        {data.photos.length > 0 ? (
-          data.photos.map((photo, i) => (
+        {visiblePhotos.length > 0 ? (
+          visiblePhotos.map((photo, i) => (
             <View key={i} style={[styles.photoItem, { width: itemWidth }]}>
               {photo.url ? (
                 <Image src={photo.url} style={styles.image} />
