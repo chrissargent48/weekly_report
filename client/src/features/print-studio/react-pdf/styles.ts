@@ -54,14 +54,16 @@ export const PAGE = {
   },
 } as const;
 
-// Cover section constants
+// Cover section constants — aligned with pageConstants.ts FIRST_PAGE values
+// HTML uses 96 DPI pixels; PDF uses 72 DPI points. Ratio = 0.75
+// We use slightly adjusted values to account for font/layout engine differences
 export const COVER = {
-  HEADER_HEIGHT: 280, // Reduced from 320 to match visual scale
-  TITLE_BLOCK_HEIGHT: 110,
-  PHOTO_STRIP_HEIGHT: 100, // Height for 3-photo strip
-  CLIENT_INFO_HEIGHT: 60,
-  SAFETY_BANNER_HEIGHT: 32,
-  FOOTER_HEIGHT: 24,       // Space for footer with border
+  HEADER_HEIGHT: 315,            // HTML: 420px → 315pt (420 * 0.75)
+  TITLE_BLOCK_HEIGHT: 105,      // HTML: 140px → 105pt
+  PHOTO_STRIP_HEIGHT: 162,      // HTML: 216px (240-24 gap) → 162pt
+  CLIENT_INFO_HEIGHT: 60,       // HTML: 80px → 60pt
+  SAFETY_BANNER_HEIGHT: 30,     // HTML: 40px → 30pt
+  FOOTER_HEIGHT: 24,            // Space for footer with border
 } as const;
 
 // Main stylesheet
@@ -295,7 +297,7 @@ export const styles = StyleSheet.create({
   },
   coverPhoto: {
     flex: 1,
-    height: 80,
+    height: COVER.PHOTO_STRIP_HEIGHT,
     borderRadius: 3,
     objectFit: "cover",
     backgroundColor: COLORS.borderLight,

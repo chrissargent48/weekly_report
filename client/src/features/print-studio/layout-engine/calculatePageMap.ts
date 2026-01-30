@@ -102,13 +102,17 @@ export function calculatePageMap(
     
     // 3. Handle Monolithic Blocks (Overview, etc.)
     // Standard measuring for non-splittable blocks
-    const sectionHeight = measureSection({
+    const baseSectionHeight = measureSection({
       section,
       spacing: config.spacing,
       reportData,
       projectConfig,
       baselines,
     });
+
+    // Add user-defined section padding (Word-style spacing)
+    const sectionPad = config.sectionPadding?.[section.id];
+    const sectionHeight = baseSectionHeight + (sectionPad?.top || 0) + (sectionPad?.bottom || 0);
 
     // ORPHAN PREVENTION: Check if header would be orphaned at page bottom
     const forcePageBreak = shouldForcePageBreak(currentPage.availableHeight, metrics);

@@ -166,11 +166,17 @@ export const PrintPreview = forwardRef<HTMLDivElement, PrintPreviewProps>(functi
             const isSelected = selectedSection === baseId;
             // Get brand color
             const brandColor = config.branding?.primaryColor || '#008B8B';
+            // Section padding from config
+            const sectionPad = config.sectionPadding?.[baseId];
 
             return (
               <div
                 key={placement.sectionId}
                 className={`relative transition-all duration-200 ${isSelected ? 'z-10' : ''}`}
+                style={{
+                  paddingTop: sectionPad?.top || 0,
+                  paddingBottom: sectionPad?.bottom || 0,
+                }}
                 onClick={(e) => {
                    e.stopPropagation();
                    onSelectSection?.(baseId);

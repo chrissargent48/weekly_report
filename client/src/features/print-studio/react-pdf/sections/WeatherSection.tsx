@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet } from '@react-pdf/renderer';
 import { ReportData } from '../../utils/dataMapper';
+import { PagePlacement } from '../../config/printConfig.types';
 import { WeatherDay } from '../../../../../../shared/schemas';
 
 const styles = StyleSheet.create({
@@ -78,9 +79,10 @@ interface WeatherSectionProps {
     marginBottom?: number;
   };
   documentSettings?: any;
+  placement?: PagePlacement;
 }
 
-export const WeatherSection: React.FC<WeatherSectionProps> = ({ data, config = {}, documentSettings }) => {
+export const WeatherSection: React.FC<WeatherSectionProps> = ({ data, config = {}, documentSettings, placement }) => {
   const {
     showSummary = true,
     showWorkImpact = true,

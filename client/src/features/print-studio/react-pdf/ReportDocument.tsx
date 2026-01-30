@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { Document, Page, StyleSheet } from '@react-pdf/renderer';
+import { Document, Page, View, StyleSheet } from '@react-pdf/renderer';
 import { ReportData } from '../utils/dataMapper';
 import { marginsPxToPt } from '../utils/layoutUtils';
 import { CoverSection } from './sections/CoverSection';
@@ -11,7 +11,7 @@ import { SafetySection } from './sections/SafetySection';
 import { LookAheadSection } from './sections/LookAheadSection';
 import { PageHeader } from './components/PageHeader';
 import { PageFooter } from './components/PageFooter';
-import { PrintConfig } from '../config/printConfig.types';
+import { PrintConfig, PageMap, PagePlacement } from '../config/printConfig.types';
 import { WeeklyReport, ProjectConfig } from '../../../types';
 
 interface ReportDocumentProps {
@@ -23,12 +23,13 @@ interface ReportDocumentProps {
   projectConfig?: ProjectConfig;
   config?: PrintConfig;
   report?: WeeklyReport;
+  pageMap?: PageMap;
 }
 
 const styles = StyleSheet.create({
   page: {
     backgroundColor: '#FFFFFF',
-    padding: 0, // Sections handle their own padding
+    padding: 0,
   },
   coverPage: {
     backgroundColor: '#FFFFFF',
@@ -45,6 +46,25 @@ const styles = StyleSheet.create({
   },
 });
 
+/**
+ * Map from layout-engine section IDs to react-pdf components.
+ * Strips '_continued_N' and '_footer' suffixes to find the base component.
+ */
+const PDF_SECTION_MAP: Record<string, React.ComponentType<any>> = {
+  overview: ExecutiveSection,
+  executive: ExecutiveSection,
+  weather: WeatherSection,
+  progress: ProgressSection,
+  safety: SafetySection,
+  lookahead: LookAheadSection,
+  photos: PhotosSection,
+};
+
+/** Extract the base section ID (e.g. 'safety' from 'safety_continued_2') */
+function getBaseSectionId(sectionId: string): string {
+  return sectionId.replace(/_continued_\d+$/, '').replace(/_footer$/, '');
+}
+
 export const ReportDocument: React.FC<ReportDocumentProps> = ({
   reportData,
   enabledSections,
@@ -54,9 +74,8 @@ export const ReportDocument: React.FC<ReportDocumentProps> = ({
   projectConfig,
   config,
   report,
+  pageMap,
 }) => {
-  // Convert CSS-pixel margins (96 DPI) → PDF points (72 DPI) so the PDF
-  // matches the Canvas preview exactly.
   const pdfDocSettings = useMemo(() => {
     const raw = documentSettings?.defaultMargins || { top: 24, bottom: 24, left: 24, right: 24 };
     return {
@@ -67,6 +86,66 @@ export const ReportDocument: React.FC<ReportDocumentProps> = ({
 
   const projectName = reportData.projectName || 'Weekly Report';
 
+  // ─── PageMap-aware rendering ───────────────────────────────────────
+  // When a pageMap is provided, iterate its pages so the PDF structure
+  // mirrors the HTML preview exactly (same page breaks, same data slicing).
+  if (pageMap && projectConfig && report && config) {
+    return (
+      <Document>
+        {pageMap.pages.map((page) => {
+          const isCover = page.isFirstPage;
+
+          if (isCover) {
+            return (
+              <Page key={page.pageNumber} size="LETTER" style={styles.coverPage}>
+                <CoverSection
+                  config={config}
+                  reportData={report}
+                  projectConfig={projectConfig}
+                />
+              </Page>
+            );
+          }
+
+          return (
+            <Page key={page.pageNumber} size="LETTER" style={styles.contentPage}>
+              <PageHeader projectConfig={projectConfig} weekEnding={reportData.reportDate} />
+
+              {page.sections.map((placement) => {
+                const baseId = getBaseSectionId(placement.sectionId);
+                const Component = PDF_SECTION_MAP[baseId];
+                if (!Component) return null;
+
+                // Apply section padding from config
+                const padding = config.sectionPadding?.[baseId];
+
+                return (
+                  <View
+                    key={placement.sectionId}
+                    style={{
+                      paddingTop: padding?.top || 0,
+                      paddingBottom: padding?.bottom || 0,
+                    }}
+                  >
+                    <Component
+                      data={reportData}
+                      config={sectionConfigs[baseId]}
+                      documentSettings={pdfDocSettings}
+                      placement={placement}
+                    />
+                  </View>
+                );
+              })}
+
+              <PageFooter projectName={projectName} />
+            </Page>
+          );
+        })}
+      </Document>
+    );
+  }
+
+  // ─── Legacy fallback: one page per section ─────────────────────────
   return (
     <Document>
       {sectionOrder.map(sectionId => {
@@ -74,7 +153,6 @@ export const ReportDocument: React.FC<ReportDocumentProps> = ({
 
         switch (sectionId) {
           case 'cover':
-            // Use CoverSection which matches the HTML preview layout
             if (projectConfig && report) {
               return (
                 <Page key="cover" size="LETTER" style={styles.coverPage}>
@@ -99,7 +177,6 @@ export const ReportDocument: React.FC<ReportDocumentProps> = ({
                 </Page>
               );
             }
-            // Fallback if no projectConfig/report - shouldn't happen
             return null;
 
           case 'executive':

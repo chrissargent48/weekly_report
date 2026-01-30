@@ -184,10 +184,10 @@ const coverStyles = StyleSheet.create({
   // ===== PHOTO STRIP =====
   photoStrip: {
     flexDirection: 'row',
-    gap: 8,
+    gap: 6,
     marginTop: 16,
     marginBottom: 16,
-    height: COVER.PHOTO_STRIP_HEIGHT, // 100pt
+    height: COVER.PHOTO_STRIP_HEIGHT, // 162pt (matches HTML 216px)
   },
   stripPhoto: {
     flex: 1, // Stretches to fill available width

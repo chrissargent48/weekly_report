@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet } from '@react-pdf/renderer';
 import { ReportData } from '../../utils/dataMapper';
+import { PagePlacement } from '../../config/printConfig.types';
 
 const styles = StyleSheet.create({
   container: {
@@ -60,15 +61,19 @@ interface ProgressSectionProps {
     marginBottom?: number;
   };
   documentSettings?: any;
+  placement?: PagePlacement;
 }
 
-export const ProgressSection: React.FC<ProgressSectionProps> = ({ data, config = {}, documentSettings }) => {
+export const ProgressSection: React.FC<ProgressSectionProps> = ({ data, config = {}, documentSettings, placement }) => {
   const {
     showPercent = true,
     showNotes = true,
     marginTop: configMarginTop,
     marginBottom: configMarginBottom
   } = config;
+
+  const isContinued = placement?.continuesFromPrevious ?? false;
+  const showHeader = placement?.renderConfig?.showHeader ?? true;
 
   const margins = documentSettings?.defaultMargins || { top: 24, bottom: 24, left: 24, right: 24 };
   const applyToAll = documentSettings?.applyToAll || false;
@@ -78,11 +83,21 @@ export const ProgressSection: React.FC<ProgressSectionProps> = ({ data, config =
   const paddingLeft = margins.left;
   const paddingRight = margins.right;
 
+  // Slice data if placement provides a dataRange
+  const allItems = data.activitiesThisWeek;
+  const visibleItems = placement?.dataRange
+    ? allItems.slice(placement.dataRange.start, placement.dataRange.end)
+    : allItems;
+
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>Progress Update</Text>
-      </View>
+      {showHeader && (
+        <View style={styles.header}>
+          <Text style={styles.headerTitle}>
+            {isContinued ? 'Progress Update (Continued)' : 'Progress Update'}
+          </Text>
+        </View>
+      )}
 
       <View style={styles.table}>
         <View style={styles.tableHeader}>
@@ -92,8 +107,8 @@ export const ProgressSection: React.FC<ProgressSectionProps> = ({ data, config =
           {showNotes && <Text style={[styles.tableHeaderCell, { flex: 2 }]}>Notes</Text>}
         </View>
 
-        {data.activitiesThisWeek.length > 0 ? (
-          data.activitiesThisWeek.map((item, i) => (
+        {visibleItems.length > 0 ? (
+          visibleItems.map((item, i) => (
             <View key={i} style={[styles.tableRow, { backgroundColor: i % 2 === 0 ? '#FFFFFF' : '#F9FAFB' }]}>
               <Text style={[styles.tableCell, { flex: 3 }]}>{item.activity}</Text>
               <Text style={[styles.tableCell, { flex: 1 }]}>{item.status}</Text>
