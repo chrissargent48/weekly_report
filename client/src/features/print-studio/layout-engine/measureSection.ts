@@ -50,14 +50,13 @@ export function getSectionMetrics(ctx: MeasurementContext): SectionMetrics {
   let totalHeight = 0;
 
   switch (section.id) {
-    case 'overview': // Executive Summary
+    case 'executive': // Executive Summary
       const summaryLength = reportData.overview?.executiveSummary?.length || 0;
-      // Not splittable in the list sense, but treated as a block
       isSplittable = false;
-      totalHeight = SECTION_BASE_HEIGHTS.overview + Math.floor(summaryLength / 100) * 16;
+      totalHeight = SECTION_BASE_HEIGHTS.executive + Math.floor(summaryLength / 100) * 16;
       break;
-      
-    case 'key_personnel':
+
+    case 'personnel':
       isSplittable = true;
       headerHeight = HEADER_HEIGHTS.simple;
       rowHeight = ROW_HEIGHTS.large;
@@ -203,7 +202,7 @@ export function getSectionMetrics(ctx: MeasurementContext): SectionMetrics {
   
   // Sections with internal headers (title boxes, KPI cards) have orphan risk
   // Safety and Progress have complex headers that shouldn't be orphaned
-  const hasOrphanRisk = ['safety', 'progress', 'overview', 'financials'].includes(section.id);
+  const hasOrphanRisk = ['safety', 'progress', 'executive', 'financials'].includes(section.id);
 
   return {
     totalHeight,

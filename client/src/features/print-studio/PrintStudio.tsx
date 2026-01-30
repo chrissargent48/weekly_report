@@ -8,7 +8,6 @@ import { SectionPalette } from './components/SectionPalette';
 import { PropertiesPanel } from './components/PropertiesPanel';
 import { WeeklyReport, ProjectConfig } from '../../types';
 import { ReportDocument } from './react-pdf/ReportDocument';
-import { mapReportData } from './utils/dataMapper';
 import { useAutoSave } from './hooks/useAutoSave';
 import { SelectionProvider } from './context/SelectionContext';
 import { ImagePositionProvider } from './context/ImagePositionContext';
@@ -156,16 +155,12 @@ export const PrintStudio: React.FC<PrintStudioProps> = ({
   );
 
   // --- Build PrintSection[] from UI state for the layout engine ---
+  // Section IDs are now unified: UI and layout engine use the same IDs
   const printSections: PrintSection[] = useMemo(() => {
-    // Map section IDs used in the UI to the IDs the layout engine expects
-    const sectionIdMap: Record<string, string> = {
-      executive: 'overview',
-      personnel: 'key_personnel',
-    };
     return sectionOrder
-      .filter((id: string) => id !== 'cover') // Cover is handled separately by the layout engine
+      .filter((id: string) => id !== 'cover')
       .map((id: string, idx: number) => ({
-        id: sectionIdMap[id] || id,
+        id,
         label: id,
         included: !!enabledSections[id],
         order: idx,
@@ -174,17 +169,14 @@ export const PrintStudio: React.FC<PrintStudioProps> = ({
 
   // --- Stable PrintConfig for the layout engine + ImagePositionProvider ---
   // Build sectionPadding from all sectionConfigs' marginTop/marginBottom values
-  // Map UI section IDs to layout-engine IDs
   const sectionPaddingMap = React.useMemo(() => {
-    const uiToLayoutId: Record<string, string> = { executive: 'overview', personnel: 'key_personnel' };
     const result: Record<string, { top: number; bottom: number }> = {};
-    for (const [uiId, cfg] of Object.entries(sectionConfigs)) {
+    for (const [sectionId, cfg] of Object.entries(sectionConfigs)) {
       if (!cfg) continue;
-      const layoutId = uiToLayoutId[uiId] || uiId;
-      const top = cfg.marginTop || cfg.sectionPadding?.[uiId]?.top || 0;
-      const bottom = cfg.marginBottom || cfg.sectionPadding?.[uiId]?.bottom || 0;
+      const top = cfg.marginTop || cfg.sectionPadding?.[sectionId]?.top || 0;
+      const bottom = cfg.marginBottom || cfg.sectionPadding?.[sectionId]?.bottom || 0;
       if (top || bottom) {
-        result[layoutId] = { top, bottom };
+        result[sectionId] = { top, bottom };
       }
     }
     return result;
@@ -383,25 +375,17 @@ export const PrintStudio: React.FC<PrintStudioProps> = ({
 
       console.log('Sections enabled:', enabledSections);
 
-      const reportData = mapReportData(pdfReport, pdfProjectConfig, sectionConfigs);
-      console.log('Report Data mapped:', {
-        projectName: reportData.projectName,
-        logoUrlLength: reportData.logoUrl?.length || 0,
-        logoUrlStart: reportData.logoUrl?.substring(0, 30),
-        heroPhotoId: sectionConfigs.cover?.heroPhotoId
-      });
-      
+      // Both preview and PDF now consume the same WeeklyReport shape directly.
+      // No mapReportData translation layer — the PDF sections read from the
+      // same fields as the HTML preview sections.
       const blob = await pdf(
         <ReportDocument
-          reportData={reportData}
-          enabledSections={enabledSections}
+          reportData={pdfReport as WeeklyReport}
           sectionConfigs={sectionConfigs}
-          sectionOrder={sectionOrder}
           documentSettings={documentSettings}
           projectConfig={pdfProjectConfig}
           config={shimPrintConfig}
-          report={pdfReport as WeeklyReport}
-          pageMap={pageMap || undefined}
+          pageMap={pageMap!}
         />
       ).toBlob();
       
@@ -416,7 +400,7 @@ export const PrintStudio: React.FC<PrintStudioProps> = ({
       window.open(url, '_blank');
 
       // Console log for debug
-      const filename = `${reportData.projectName.replace(/[^a-z0-9]/gi, '_')}_${report.weekEnding}.pdf`;
+      const filename = `${(projectConfig.identity?.projectName || 'report').replace(/[^a-z0-9]/gi, '_')}_${report.weekEnding}.pdf`;
       console.log('PDF ready:', filename, blob.size, 'bytes');
       
       // Clean up after delay

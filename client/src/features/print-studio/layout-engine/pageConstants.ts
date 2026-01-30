@@ -123,7 +123,7 @@ export const HEADER_HEIGHTS = {
 // Approximate heights for section types (will be refined by measureSection)
 // Kept for backward compatibility and fallback
 export const SECTION_BASE_HEIGHTS = {
-  overview: 280,              // Executive Summary - Stats row + paragraph
+  executive: 280,             // Executive Summary - Stats row + paragraph
   weather: 320,               // 7-day table
   progress: 200,              // Variable - paragraph content
   lookahead: 400,             // Table with ~15 rows
@@ -137,7 +137,7 @@ export const SECTION_BASE_HEIGHTS = {
   issues: 250,               // Issues list
   photos: 600,                // 2x3 photo grid per "page" of photos
   documents: 100,            // Link list
-  key_personnel: 240,        // 3 columns of personnel info
+  personnel: 240,             // 3 columns of personnel info
 } as const;
 
 // =============================================================================

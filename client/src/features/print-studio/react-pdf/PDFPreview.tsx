@@ -11,13 +11,15 @@ import { PDFViewer, PDFDownloadLink, pdf, BlobProvider } from '@react-pdf/render
 import { ReportDocument } from './ReportDocument';
 import { PrintConfig, PageMap } from '../config/printConfig.types';
 import { WeeklyReport, ProjectConfig, ProjectBaselines } from '../../../types';
-import { mapReportData, mapReportToPuckData } from '../utils/dataMapper';
+import { calculatePageMap } from '../layout-engine/calculatePageMap';
 
 interface PDFPreviewProps {
   config: PrintConfig;
   reportData: WeeklyReport;
   projectConfig: ProjectConfig;
   baselines?: ProjectBaselines;
+  sectionConfigs?: Record<string, any>;
+  documentSettings?: any;
   pageMap?: PageMap;
   showViewer?: boolean;
   viewerWidth?: string | number;
@@ -29,10 +31,17 @@ interface PDFDownloadButtonProps {
   reportData: WeeklyReport;
   projectConfig: ProjectConfig;
   baselines?: ProjectBaselines;
+  sectionConfigs?: Record<string, any>;
+  documentSettings?: any;
   pageMap?: PageMap;
   filename?: string;
   className?: string;
   children?: React.ReactNode;
+}
+
+function ensurePageMap(config: PrintConfig, reportData: WeeklyReport, pageMap?: PageMap): PageMap {
+  if (pageMap) return pageMap;
+  return calculatePageMap(config, reportData);
 }
 
 /**
@@ -42,34 +51,27 @@ export function PDFPreview({
   config,
   reportData,
   projectConfig,
-  baselines,
+  sectionConfigs,
+  documentSettings,
   pageMap,
   showViewer = true,
   viewerWidth = '100%',
   viewerHeight = '100%',
 }: PDFPreviewProps) {
-  const puckData = useMemo(() => mapReportToPuckData(reportData), [reportData]);
-  
+  const resolvedPageMap = useMemo(() => ensurePageMap(config, reportData, pageMap), [config, reportData, pageMap]);
+
   const document = useMemo(
     () => (
       <ReportDocument
-        reportData={mapReportData(reportData, projectConfig)}
-        enabledSections={{
-          cover: true,
-          executive: true,
-          weather: true,
-          progress: true,
-          lookahead: true,
-          photos: true,
-          safety: true
-        }}
+        reportData={reportData}
+        sectionConfigs={sectionConfigs}
+        documentSettings={documentSettings}
         projectConfig={projectConfig}
         config={config}
-        report={reportData}
-        pageMap={pageMap}
+        pageMap={resolvedPageMap}
       />
     ),
-    [puckData, projectConfig, config, pageMap]
+    [reportData, sectionConfigs, documentSettings, projectConfig, config, resolvedPageMap]
   );
 
   if (!showViewer) {
@@ -95,7 +97,8 @@ export function PDFDownloadButton({
   config,
   reportData,
   projectConfig,
-  baselines,
+  sectionConfigs,
+  documentSettings,
   pageMap,
   filename,
   className = '',
@@ -105,29 +108,21 @@ export function PDFDownloadButton({
   const weekEnding = reportData.weekEnding || 'Report';
   const defaultFilename = `${projectName.replace(/\s+/g, '_')}_Weekly_Report_${weekEnding}.pdf`;
   const actualFilename = filename || defaultFilename;
-  
-  const puckData = useMemo(() => mapReportToPuckData(reportData), [reportData]);
+
+  const resolvedPageMap = useMemo(() => ensurePageMap(config, reportData, pageMap), [config, reportData, pageMap]);
 
   const document = useMemo(
     () => (
       <ReportDocument
-        reportData={mapReportData(reportData, projectConfig)}
-        enabledSections={{
-          cover: true,
-          executive: true,
-          weather: true,
-          progress: true,
-          lookahead: true,
-          photos: true,
-          safety: true
-        }}
+        reportData={reportData}
+        sectionConfigs={sectionConfigs}
+        documentSettings={documentSettings}
         projectConfig={projectConfig}
         config={config}
-        report={reportData}
-        pageMap={pageMap}
+        pageMap={resolvedPageMap}
       />
     ),
-    [puckData, projectConfig, config, pageMap]
+    [reportData, sectionConfigs, documentSettings, projectConfig, config, resolvedPageMap]
   );
 
   return (
@@ -164,33 +159,27 @@ export function usePDFGeneration() {
       reportData: WeeklyReport,
       projectConfig: ProjectConfig,
       baselines?: ProjectBaselines,
-      pageMap?: PageMap
+      pageMap?: PageMap,
+      sectionConfigs?: Record<string, any>,
+      documentSettings?: any
     ): Promise<Blob | null> => {
       setIsGenerating(true);
       setError(null);
 
       try {
-        const puckData = mapReportToPuckData(reportData);
-        const document = (
+        const resolvedPageMap = ensurePageMap(config, reportData, pageMap);
+        const doc = (
           <ReportDocument
-            reportData={mapReportData(reportData, projectConfig)}
-            enabledSections={{
-              cover: true,
-              executive: true,
-              weather: true,
-              progress: true,
-              lookahead: true,
-              photos: true,
-              safety: true
-            }}
+            reportData={reportData}
+            sectionConfigs={sectionConfigs}
+            documentSettings={documentSettings}
             projectConfig={projectConfig}
             config={config}
-            report={reportData}
-            pageMap={pageMap}
+            pageMap={resolvedPageMap}
           />
         );
 
-        const blob = await pdf(document).toBlob();
+        const blob = await pdf(doc).toBlob();
         return blob;
       } catch (err) {
         console.error('PDF generation error:', err);
@@ -210,9 +199,11 @@ export function usePDFGeneration() {
       projectConfig: ProjectConfig,
       baselines?: ProjectBaselines,
       pageMap?: PageMap,
-      filename?: string
+      filename?: string,
+      sectionConfigs?: Record<string, any>,
+      documentSettings?: any
     ): Promise<boolean> => {
-      const blob = await generateBlob(config, reportData, projectConfig, baselines, pageMap);
+      const blob = await generateBlob(config, reportData, projectConfig, baselines, pageMap, sectionConfigs, documentSettings);
       if (!blob) return false;
 
       try {
@@ -256,33 +247,26 @@ export function PDFBlobProvider({
   config,
   reportData,
   projectConfig,
-  baselines,
+  sectionConfigs,
+  documentSettings,
   pageMap,
   children,
 }: PDFPreviewProps & {
   children: (props: { blob: Blob | null; url: string | null; loading: boolean; error: Error | null }) => React.ReactNode;
 }) {
-  const puckData = useMemo(() => mapReportToPuckData(reportData), [reportData]);
+  const resolvedPageMap = useMemo(() => ensurePageMap(config, reportData, pageMap), [config, reportData, pageMap]);
   const document = useMemo(
     () => (
       <ReportDocument
-        reportData={mapReportData(reportData, projectConfig)}
-        enabledSections={{
-          cover: true,
-          executive: true,
-          weather: true,
-          progress: true,
-          lookahead: true,
-          photos: true,
-          safety: true
-        }}
+        reportData={reportData}
+        sectionConfigs={sectionConfigs}
+        documentSettings={documentSettings}
         projectConfig={projectConfig}
         config={config}
-        report={reportData}
-        pageMap={pageMap}
+        pageMap={resolvedPageMap}
       />
     ),
-    [puckData, projectConfig, config, pageMap]
+    [reportData, sectionConfigs, documentSettings, projectConfig, config, resolvedPageMap]
   );
 
   return <BlobProvider document={document}>{children}</BlobProvider>;

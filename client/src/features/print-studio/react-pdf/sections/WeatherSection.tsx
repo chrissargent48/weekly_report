@@ -1,13 +1,10 @@
 import React from 'react';
 import { View, Text, StyleSheet } from '@react-pdf/renderer';
-import { ReportData } from '../../utils/dataMapper';
 import { PagePlacement } from '../../config/printConfig.types';
-import { WeatherDay } from '../../../../../../shared/schemas';
+import { WeeklyReport } from '../../../../types';
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
+  container: { flex: 1 },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -16,102 +13,37 @@ const styles = StyleSheet.create({
     borderBottomWidth: 2,
     borderBottomColor: '#008B8B',
   },
-  headerTitle: {
-    fontSize: 14,
-    fontWeight: 'bold',
-    color: '#111827',
-  },
-  table: {
-    width: '100%',
-    marginBottom: 20,
-  },
-  tableHeader: {
-    flexDirection: 'row',
-    backgroundColor: '#008B8B',
-    padding: 6,
-  },
-  tableHeaderCell: {
-    color: '#FFFFFF',
-    fontSize: 8,
-    fontWeight: 'bold',
-  },
-  tableRow: {
-    flexDirection: 'row',
-    padding: 6,
-    borderBottomWidth: 1,
-    borderBottomColor: '#F3F4F6',
-  },
-  tableCell: {
-    fontSize: 8,
-    color: '#374151',
-  },
-  summaryGrid: {
-    flexDirection: 'row',
-    gap: 10,
-    marginTop: 10,
-  },
-  summaryCard: {
-    flex: 1,
-    padding: 10,
-    backgroundColor: '#EFF6FF', // Blue-50
-    borderRadius: 4,
-    alignItems: 'center',
-  },
-  summaryValue: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#3B82F6', // Blue-500
-    marginBottom: 2,
-  },
-  summaryLabel: {
-    fontSize: 8,
-    color: '#6B7280',
-  }
+  headerTitle: { fontSize: 14, fontWeight: 'bold', color: '#111827' },
+  table: { width: '100%', marginBottom: 20 },
+  tableHeader: { flexDirection: 'row', backgroundColor: '#008B8B', padding: 6 },
+  tableHeaderCell: { color: '#FFFFFF', fontSize: 8, fontWeight: 'bold' },
+  tableRow: { flexDirection: 'row', padding: 6, borderBottomWidth: 1, borderBottomColor: '#F3F4F6' },
+  tableCell: { fontSize: 8, color: '#374151' },
+  summaryGrid: { flexDirection: 'row', gap: 10, marginTop: 10 },
+  summaryCard: { flex: 1, padding: 10, backgroundColor: '#EFF6FF', borderRadius: 4, alignItems: 'center' },
+  summaryValue: { fontSize: 16, fontWeight: 'bold', color: '#3B82F6', marginBottom: 2 },
+  summaryLabel: { fontSize: 8, color: '#6B7280' },
 });
 
 interface WeatherSectionProps {
-  data: ReportData;
-  config?: {
-    showSummary?: boolean;
-    showWorkImpact?: boolean;
-    tempUnit?: 'F' | 'C';
-    marginTop?: number;
-    marginBottom?: number;
-  };
+  reportData: WeeklyReport;
+  sectionConfig?: any;
   documentSettings?: any;
   placement?: PagePlacement;
 }
 
-export const WeatherSection: React.FC<WeatherSectionProps> = ({ data, config = {}, documentSettings, placement }) => {
-  const {
-    showSummary = true,
-    showWorkImpact = true,
-    tempUnit = 'F',
-    marginTop: configMarginTop,
-    marginBottom: configMarginBottom
-  } = config;
+export const WeatherSection: React.FC<WeatherSectionProps> = ({ reportData, sectionConfig = {}, documentSettings, placement }) => {
+  const { showSummary = true, showWorkImpact = true, tempUnit = 'F' } = sectionConfig;
 
-  const margins = documentSettings?.defaultMargins || { top: 24, bottom: 24, left: 24, right: 24 };
-  const applyToAll = documentSettings?.applyToAll || false;
-
-  const marginTop = applyToAll ? margins.top : (configMarginTop ?? margins.top);
-  const marginBottom = applyToAll ? margins.bottom : (configMarginBottom ?? margins.bottom);
-  const paddingLeft = margins.left;
-  const paddingRight = margins.right;
-
-  // Use originalReport data source if available
-  const report = data.originalReport;
-  const rawWeather = report?.overview?.weather || [];
-  
+  const rawWeather = reportData.overview?.weather || [];
   if (rawWeather.length === 0) return null;
 
-  // Date Calculation Logic (Replicated from HTML Preview)
   let startDate: Date;
-  if (report.periodStart) {
-    const [y, m, d] = report.periodStart.split('-').map(Number);
+  if (reportData.periodStart) {
+    const [y, m, d] = reportData.periodStart.split('-').map(Number);
     startDate = new Date(y, m - 1, d);
-  } else if (report.weekEnding) {
-    const [y, m, d] = report.weekEnding.split('-').map(Number);
+  } else if (reportData.weekEnding) {
+    const [y, m, d] = reportData.weekEnding.split('-').map(Number);
     const end = new Date(y, m - 1, d);
     startDate = new Date(end);
     startDate.setDate(end.getDate() - 6);
@@ -119,47 +51,29 @@ export const WeatherSection: React.FC<WeatherSectionProps> = ({ data, config = {
     startDate = new Date();
   }
 
-  // Generate 7-day array
   const weatherDays = Array.from({ length: 7 }).map((_, index) => {
-    const d = new Date(startDate);
-    d.setDate(startDate.getDate() + index);
-
-    // Find matching data from rawWeather (index based)
-    const dayData = rawWeather[index] || {};
-    
-    // Day Name
-    const dayName = d.toLocaleDateString('en-US', { weekday: 'short' });
-    const monthDay = d.toLocaleDateString('en-US', { month: 'numeric', day: 'numeric' });
-
+    const dt = new Date(startDate);
+    dt.setDate(startDate.getDate() + index);
+    const dayData = rawWeather[index] || {} as any;
+    const dayName = dt.toLocaleDateString('en-US', { weekday: 'short' });
+    const monthDay = dt.toLocaleDateString('en-US', { month: 'numeric', day: 'numeric' });
     return {
-      dateObj: d,
       displayDate: `${dayName} ${monthDay}`,
       condition: dayData.condition || 'Sunny',
       tempHigh: dayData.tempHigh || '-',
       tempLow: dayData.tempLow || '-',
-      precipitation: Number(dayData.hoursLost) || 0, // In schema "precipitation" isn't explicitly hoursLost but we map it here? 
-      // Wait, in schema WeatherDaySchema: { hoursLost: number, precipitation: ??? }
-      // Dashboard uses hoursLost. Let's assume precipitation field is just visual here or we map hoursLost?
-      // HTML preview shows "hoursLost" as impact.
-      // We'll stick to displaying hoursLost as "Hours Lost" column if showWorkImpact is true.
       hoursLost: Number(dayData.hoursLost) || 0,
-      notes: dayData.notes
     };
   });
 
-  // Helper for temp conversion
   const formatTemp = (val: number | string) => {
     if (typeof val !== 'number') return '-';
-    if (tempUnit === 'C') {
-      return `${Math.round((val - 32) * 5/9)}°C`;
-    }
+    if (tempUnit === 'C') return `${Math.round((val - 32) * 5 / 9)}°C`;
     return `${val}°F`;
   };
 
-  // Helpers for summary
   const validHighs = weatherDays.filter(d => typeof d.tempHigh === 'number').map(d => d.tempHigh as number);
   const validLows = weatherDays.filter(d => typeof d.tempLow === 'number').map(d => d.tempLow as number);
-  
   const avgHigh = validHighs.length ? Math.round(validHighs.reduce((a, b) => a + b, 0) / validHighs.length) : 0;
   const avgLow = validLows.length ? Math.round(validLows.reduce((a, b) => a + b, 0) / validLows.length) : 0;
   const totalHoursLost = weatherDays.reduce((acc, d) => acc + d.hoursLost, 0);
@@ -170,7 +84,6 @@ export const WeatherSection: React.FC<WeatherSectionProps> = ({ data, config = {
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Weather Conditions</Text>
       </View>
-
       <View style={styles.table}>
         <View style={styles.tableHeader}>
           <Text style={[styles.tableHeaderCell, { flex: 2 }]}>Date</Text>
@@ -179,7 +92,6 @@ export const WeatherSection: React.FC<WeatherSectionProps> = ({ data, config = {
           <Text style={[styles.tableHeaderCell, { flex: 1, textAlign: 'center' }]}>Low</Text>
           {showWorkImpact && <Text style={[styles.tableHeaderCell, { flex: 2, textAlign: 'right' }]}>Impact</Text>}
         </View>
-
         {weatherDays.map((day, i) => (
           <View key={i} style={[styles.tableRow, { backgroundColor: i % 2 === 0 ? '#FFFFFF' : '#F9FAFB' }]}>
             <Text style={[styles.tableCell, { flex: 2, fontWeight: 'medium' }]}>{day.displayDate}</Text>
@@ -194,24 +106,23 @@ export const WeatherSection: React.FC<WeatherSectionProps> = ({ data, config = {
           </View>
         ))}
       </View>
-
       {showSummary && (
         <View style={styles.summaryGrid}>
           <View style={styles.summaryCard}>
-              <Text style={styles.summaryValue}>{formatTemp(avgHigh)}</Text>
-              <Text style={styles.summaryLabel}>Avg High</Text>
+            <Text style={styles.summaryValue}>{formatTemp(avgHigh)}</Text>
+            <Text style={styles.summaryLabel}>Avg High</Text>
           </View>
           <View style={styles.summaryCard}>
-              <Text style={styles.summaryValue}>{formatTemp(avgLow)}</Text>
-              <Text style={styles.summaryLabel}>Avg Low</Text>
+            <Text style={styles.summaryValue}>{formatTemp(avgLow)}</Text>
+            <Text style={styles.summaryLabel}>Avg Low</Text>
           </View>
           <View style={styles.summaryCard}>
-              <Text style={[styles.summaryValue, { color: '#DC2626' }]}>{totalHoursLost}</Text>
-              <Text style={styles.summaryLabel}>Hours Lost</Text>
+            <Text style={[styles.summaryValue, { color: '#DC2626' }]}>{totalHoursLost}</Text>
+            <Text style={styles.summaryLabel}>Hours Lost</Text>
           </View>
           <View style={[styles.summaryCard, { backgroundColor: '#ECFDF5' }]}>
-              <Text style={[styles.summaryValue, { color: '#059669' }]}>{daysWorked}</Text>
-              <Text style={styles.summaryLabel}>Days Worked</Text>
+            <Text style={[styles.summaryValue, { color: '#059669' }]}>{daysWorked}</Text>
+            <Text style={styles.summaryLabel}>Days Worked</Text>
           </View>
         </View>
       )}

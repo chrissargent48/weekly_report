@@ -45,15 +45,9 @@ import { KeyPersonnelSection } from '../../sections/KeyPersonnelSection';
 
 // ... (existing imports)
 
-// Map layout-engine section IDs back to sectionConfigs keys
-const SECTION_CONFIG_KEY_MAP: Record<string, string> = {
-  overview: 'executive',
-  key_personnel: 'personnel',
-};
-
 const SECTION_COMPONENTS: Record<string, React.ComponentType<any>> = {
-  key_personnel: KeyPersonnelSection,
-  overview: ExecutiveSummary,
+  personnel: KeyPersonnelSection,
+  executive: ExecutiveSummary,
   weather: WeatherSection,
   progress: ProgressSection,
   lookahead: LookAheadSection,
@@ -210,7 +204,7 @@ export const PrintPreview = forwardRef<HTMLDivElement, PrintPreviewProps>(functi
                     projectConfig={projectConfig}
                     baselines={baselines}
                     placement={placement}
-                    sectionConfig={sectionConfigs?.[SECTION_CONFIG_KEY_MAP[baseId] || baseId]}
+                    sectionConfig={sectionConfigs?.[baseId]}
                     onUpdateReport={onUpdateReport}
                     onToggleRowBreak={onToggleRowBreak}
                     onEditPhoto={onEditPhoto}
