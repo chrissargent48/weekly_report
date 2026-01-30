@@ -15,13 +15,13 @@ import { PrintConfig } from '../config/printConfig.types';
 import { WeeklyReport, ProjectConfig } from '../../../types';
 
 interface ReportDocumentProps {
-  data: ReportData;
+  reportData: ReportData;
   enabledSections: Record<string, boolean>;
   sectionConfigs?: Record<string, any>;
   sectionOrder?: string[];
   documentSettings?: any;
   projectConfig?: ProjectConfig;
-  printConfig?: PrintConfig;
+  config?: PrintConfig;
   report?: WeeklyReport;
 }
 
@@ -46,13 +46,13 @@ const styles = StyleSheet.create({
 });
 
 export const ReportDocument: React.FC<ReportDocumentProps> = ({
-  data,
+  reportData,
   enabledSections,
   sectionConfigs = {},
   sectionOrder = ['cover', 'executive', 'safety', 'weather', 'progress', 'lookahead', 'photos'],
   documentSettings = {},
   projectConfig,
-  printConfig,
+  config,
   report,
 }) => {
   // Convert CSS-pixel margins (96 DPI) → PDF points (72 DPI) so the PDF
@@ -65,7 +65,7 @@ export const ReportDocument: React.FC<ReportDocumentProps> = ({
     };
   }, [documentSettings]);
 
-  const projectName = data.projectName || 'Weekly Report';
+  const projectName = reportData.projectName || 'Weekly Report';
 
   return (
     <Document>
@@ -79,7 +79,7 @@ export const ReportDocument: React.FC<ReportDocumentProps> = ({
               return (
                 <Page key="cover" size="LETTER" style={styles.coverPage}>
                   <CoverSection
-                    config={printConfig || {
+                    config={config || {
                       sections: [],
                       spacing: { type: 'standard', sectionGap: 24, elementGap: 12, tablePadding: 8 },
                       logoScale: 100,
@@ -106,9 +106,9 @@ export const ReportDocument: React.FC<ReportDocumentProps> = ({
             return (
               <Page key="executive" size="LETTER" style={styles.contentPage}>
                 {projectConfig && (
-                  <PageHeader projectConfig={projectConfig} weekEnding={data.reportDate} />
+                  <PageHeader projectConfig={projectConfig} weekEnding={reportData.reportDate} />
                 )}
-                <ExecutiveSection data={data} config={sectionConfigs.executive} documentSettings={pdfDocSettings} />
+                <ExecutiveSection data={reportData} config={sectionConfigs.executive} documentSettings={pdfDocSettings} />
                 <PageFooter projectName={projectName} />
               </Page>
             );
@@ -116,9 +116,9 @@ export const ReportDocument: React.FC<ReportDocumentProps> = ({
             return (
               <Page key="safety" size="LETTER" style={styles.contentPage}>
                 {projectConfig && (
-                  <PageHeader projectConfig={projectConfig} weekEnding={data.reportDate} />
+                  <PageHeader projectConfig={projectConfig} weekEnding={reportData.reportDate} />
                 )}
-                <SafetySection data={data} config={sectionConfigs.safety} documentSettings={pdfDocSettings} />
+                <SafetySection data={reportData} config={sectionConfigs.safety} documentSettings={pdfDocSettings} />
                 <PageFooter projectName={projectName} />
               </Page>
             );
@@ -126,9 +126,9 @@ export const ReportDocument: React.FC<ReportDocumentProps> = ({
             return (
               <Page key="weather" size="LETTER" style={styles.contentPage}>
                 {projectConfig && (
-                  <PageHeader projectConfig={projectConfig} weekEnding={data.reportDate} />
+                  <PageHeader projectConfig={projectConfig} weekEnding={reportData.reportDate} />
                 )}
-                <WeatherSection data={data} config={sectionConfigs.weather} documentSettings={pdfDocSettings} />
+                <WeatherSection data={reportData} config={sectionConfigs.weather} documentSettings={pdfDocSettings} />
                 <PageFooter projectName={projectName} />
               </Page>
             );
@@ -136,9 +136,9 @@ export const ReportDocument: React.FC<ReportDocumentProps> = ({
             return (
               <Page key="progress" size="LETTER" style={styles.contentPage}>
                 {projectConfig && (
-                  <PageHeader projectConfig={projectConfig} weekEnding={data.reportDate} />
+                  <PageHeader projectConfig={projectConfig} weekEnding={reportData.reportDate} />
                 )}
-                <ProgressSection data={data} config={sectionConfigs.progress} documentSettings={pdfDocSettings} />
+                <ProgressSection data={reportData} config={sectionConfigs.progress} documentSettings={pdfDocSettings} />
                 <PageFooter projectName={projectName} />
               </Page>
             );
@@ -146,9 +146,9 @@ export const ReportDocument: React.FC<ReportDocumentProps> = ({
             return (
               <Page key="lookahead" size="LETTER" style={styles.contentPage}>
                 {projectConfig && (
-                  <PageHeader projectConfig={projectConfig} weekEnding={data.reportDate} />
+                  <PageHeader projectConfig={projectConfig} weekEnding={reportData.reportDate} />
                 )}
-                <LookAheadSection data={data} config={sectionConfigs.lookahead} documentSettings={pdfDocSettings} />
+                <LookAheadSection data={reportData} config={sectionConfigs.lookahead} documentSettings={pdfDocSettings} />
                 <PageFooter projectName={projectName} />
               </Page>
             );
@@ -156,9 +156,9 @@ export const ReportDocument: React.FC<ReportDocumentProps> = ({
             return (
               <Page key="photos" size="LETTER" style={styles.contentPage}>
                 {projectConfig && (
-                  <PageHeader projectConfig={projectConfig} weekEnding={data.reportDate} />
+                  <PageHeader projectConfig={projectConfig} weekEnding={reportData.reportDate} />
                 )}
-                <PhotosSection data={data} config={sectionConfigs.photos} documentSettings={pdfDocSettings} />
+                <PhotosSection data={reportData} config={sectionConfigs.photos} documentSettings={pdfDocSettings} />
                 <PageFooter projectName={projectName} />
               </Page>
             );

@@ -364,13 +364,13 @@ export const PrintStudio: React.FC<PrintStudioProps> = ({
       
       const blob = await pdf(
         <ReportDocument
-          data={reportData}
+          reportData={reportData}
           enabledSections={enabledSections}
           sectionConfigs={sectionConfigs}
           sectionOrder={sectionOrder}
           documentSettings={documentSettings}
           projectConfig={pdfProjectConfig}
-          printConfig={shimPrintConfig}
+          config={shimPrintConfig}
           report={pdfReport as WeeklyReport}
         />
       ).toBlob();

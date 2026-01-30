@@ -53,7 +53,7 @@ export function PDFPreview({
   const document = useMemo(
     () => (
       <ReportDocument
-        data={mapReportData(reportData, projectConfig)}
+        reportData={mapReportData(reportData, projectConfig)}
         enabledSections={{
           cover: true,
           executive: true,
@@ -107,7 +107,7 @@ export function PDFDownloadButton({
   const document = useMemo(
     () => (
       <ReportDocument
-        data={mapReportData(reportData, projectConfig)}
+        reportData={mapReportData(reportData, projectConfig)}
         enabledSections={{
           cover: true,
           executive: true,
@@ -165,7 +165,7 @@ export function usePDFGeneration() {
         const puckData = mapReportToPuckData(reportData);
         const document = (
           <ReportDocument
-            data={mapReportData(reportData, projectConfig)}
+            reportData={mapReportData(reportData, projectConfig)}
             enabledSections={{
               cover: true,
               executive: true,
@@ -254,7 +254,7 @@ export function PDFBlobProvider({
   const document = useMemo(
     () => (
       <ReportDocument
-        data={mapReportData(reportData, projectConfig)}
+        reportData={mapReportData(reportData, projectConfig)}
         enabledSections={{
           cover: true,
           executive: true,
