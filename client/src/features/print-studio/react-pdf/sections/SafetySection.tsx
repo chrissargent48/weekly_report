@@ -4,7 +4,6 @@ import { ReportData } from '../../utils/dataMapper';
 
 const styles = StyleSheet.create({
   container: {
-    padding: 30,
     flex: 1,
   },
   header: {
@@ -138,7 +137,7 @@ export const SafetySection: React.FC<SafetySectionProps> = ({ data, config = {},
   ];
 
   return (
-    <View style={[styles.container, { marginTop, marginBottom, paddingLeft, paddingRight }]}>
+    <View style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Safety Statistics & Performance</Text>
       </View>

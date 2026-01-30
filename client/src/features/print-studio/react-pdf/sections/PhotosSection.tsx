@@ -4,7 +4,6 @@ import { ReportData } from '../../utils/dataMapper';
 
 const styles = StyleSheet.create({
   container: {
-    padding: 30,
     flex: 1,
   },
   header: {
@@ -111,7 +110,7 @@ export const PhotosSection: React.FC<PhotosSectionProps> = ({ data, config = {},
   const itemWidth = (availableContentWidth - (gap * (columns - 1))) / columns;
 
   return (
-    <View style={[styles.container, { marginTop, marginBottom, paddingLeft, paddingRight }]}>
+    <View style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Progress Photos</Text>
       </View>

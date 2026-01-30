@@ -363,12 +363,15 @@ export const PrintStudio: React.FC<PrintStudioProps> = ({
       });
       
       const blob = await pdf(
-        <ReportDocument 
-          data={reportData} 
-          enabledSections={enabledSections} 
+        <ReportDocument
+          data={reportData}
+          enabledSections={enabledSections}
           sectionConfigs={sectionConfigs}
           sectionOrder={sectionOrder}
           documentSettings={documentSettings}
+          projectConfig={pdfProjectConfig}
+          printConfig={shimPrintConfig}
+          report={pdfReport as WeeklyReport}
         />
       ).toBlob();
       
@@ -559,23 +562,27 @@ export const PrintStudio: React.FC<PrintStudioProps> = ({
         {/* Center Panel: Paginated Preview */}
         <div
           ref={containerRef}
-          className="bg-gray-400/20 overflow-auto relative flex flex-col items-center py-8"
-          style={{ transform: `scale(${zoom / 100})`, transformOrigin: 'top center' }}
+          className="bg-gray-400/20 overflow-auto relative"
         >
-          {normalizedReport && pageMap && projectConfig ? (
-            <PrintPreview
-              config={shimPrintConfig}
-              pageMap={pageMap}
-              reportData={normalizedReport}
-              projectConfig={projectConfig}
-              baselines={shimBaselines}
-              showPageBreakGuides={showGrid}
-            />
-          ) : (
-            <div className="flex items-center justify-center h-full text-gray-400">
-              No report data available
-            </div>
-          )}
+          <div
+            className="flex flex-col items-center py-8"
+            style={{ transform: `scale(${zoom / 100})`, transformOrigin: 'top center' }}
+          >
+            {normalizedReport && pageMap && projectConfig ? (
+              <PrintPreview
+                config={shimPrintConfig}
+                pageMap={pageMap}
+                reportData={normalizedReport}
+                projectConfig={projectConfig}
+                baselines={shimBaselines}
+                showPageBreakGuides={showGrid}
+              />
+            ) : (
+              <div className="flex items-center justify-center h-full text-gray-400">
+                No report data available
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Right Panel: Properties */}

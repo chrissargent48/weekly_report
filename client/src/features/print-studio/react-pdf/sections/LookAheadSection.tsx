@@ -4,7 +4,6 @@ import { ReportData } from '../../utils/dataMapper';
 
 const styles = StyleSheet.create({
   container: {
-    padding: 30,
     flex: 1,
   },
   header: {
@@ -79,7 +78,7 @@ export const LookAheadSection: React.FC<LookAheadSectionProps> = ({ data, config
   const paddingRight = margins.right;
 
   return (
-    <View style={[styles.container, { marginTop, marginBottom, paddingLeft, paddingRight }]}>
+    <View style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.headerTitle}>3-Week Look Ahead Schedule</Text>
       </View>
