@@ -191,8 +191,7 @@ export const Canvas: React.FC<CanvasProps> = ({
                     photoPositions: {},
                     showPageNumbers: documentSettings?.showPageNumbers ?? true,
                     showFooter: documentSettings?.showFooter ?? true,
-                    showPageNumbers: documentSettings?.showPageNumbers ?? true,
-                    showFooter: documentSettings?.showFooter ?? true,
+
                     showCoverPhotos: sectionConfigs?.cover?.showPhotoGrid ?? true,
                     branding: documentSettings?.branding // Pass branding down
                   };

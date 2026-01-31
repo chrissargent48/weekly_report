@@ -144,7 +144,7 @@ export function calculatePageMap(
         estimatedHeight: sectionHeight,
         continuesFromPrevious: false,
         // Add CSS hint for forced page break
-        cssHints: forcePageBreak ? { pageBreakBefore: true } : undefined,
+        cssHints: forcePageBreak ? { pageBreakBefore: 'always' } : undefined,
       };
       
       currentPage.sections.push(placement);
@@ -402,7 +402,7 @@ function handleSplittableList(
                     showFooter: false
                 },
                 // Add CSS hint for manual breaks
-                cssHints: forcePageBreakAfter ? { pageBreakBefore: true } : undefined,
+                cssHints: forcePageBreakAfter ? { pageBreakBefore: 'always' } : undefined,
             };
 
             workingPage.sections.push(placement);

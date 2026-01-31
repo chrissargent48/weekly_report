@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect, useMemo } from 'react';
+import { ErrorBoundary } from '../../components/ui/ErrorBoundary';
 import {
   Undo, Redo, ZoomOut, ZoomIn, Grid3X3, Eye, Check, Download,
   ChevronLeft, AlertCircle
@@ -12,7 +13,7 @@ import { mapReportData } from './utils/dataMapper';
 import { useAutoSave } from './hooks/useAutoSave';
 import { SelectionProvider } from './context/SelectionContext';
 import { ImagePositionProvider } from './context/ImagePositionContext';
-import { PrintConfig, PrintSection } from './config/printConfig.types';
+import { PrintConfig, PrintSection, PrintBranding } from './config/printConfig.types';
 import { PrintPreview } from './renderers/html-preview/PrintPreview';
 import { calculatePageMap } from './layout-engine/calculatePageMap';
 
@@ -37,6 +38,7 @@ interface DocumentSettings {
   logoAlign?: 'left' | 'center' | 'right';
   showPageNumbers?: boolean;
   showFooter?: boolean;
+  branding?: PrintBranding;
 }
 
 export const PrintStudio: React.FC<PrintStudioProps> = ({ 
@@ -66,6 +68,7 @@ export const PrintStudio: React.FC<PrintStudioProps> = ({
   }, []);
 
   const [showGrid, setShowGrid] = useState(false);
+
   const [selectedSection, setSelectedSection] = useState<string>('document');
   const [selectedElementId, setSelectedElementId] = useState<string | null>(null);
   const [saveStatus, setSaveStatus] = useState<'saving' | 'saved' | 'error'>('saved');
@@ -209,6 +212,9 @@ export const PrintStudio: React.FC<PrintStudioProps> = ({
     showFooter: documentSettings?.showFooter ?? true,
     showCoverPhotos: sectionConfigs?.cover?.showPhotoGrid ?? true,
     sectionPadding: Object.keys(sectionPaddingMap).length > 0 ? sectionPaddingMap : undefined,
+    branding: documentSettings.branding,
+    // [NEW] Pass specific section configs to the renderer
+    cover: sectionConfigs?.cover,
   }), [printSections, documentSettings, sectionConfigs, sectionPaddingMap]);
 
   // --- Normalize report data for rendering ---
@@ -599,18 +605,20 @@ export const PrintStudio: React.FC<PrintStudioProps> = ({
             style={{ transform: `scale(${zoom / 100})`, transformOrigin: 'top center' }}
           >
             {normalizedReport && pageMap && projectConfig ? (
-              <PrintPreview
-                config={shimPrintConfig}
-                pageMap={pageMap}
-                reportData={normalizedReport}
-                projectConfig={projectConfig}
-                baselines={shimBaselines}
-                sectionConfigs={sectionConfigs}
-                showPageBreakGuides={showGrid}
-                selectedSection={selectedSection}
-                onSelectSection={handleSelectSection}
-                onEditPhoto={handleEditPhoto}
-              />
+              <ErrorBoundary name="PrintPreview">
+                <PrintPreview
+                  config={shimPrintConfig}
+                  pageMap={pageMap}
+                  reportData={normalizedReport}
+                  projectConfig={projectConfig}
+                  baselines={shimBaselines}
+                  sectionConfigs={sectionConfigs}
+                  showPageBreakGuides={showGrid}
+                  selectedSection={selectedSection}
+                  onSelectSection={handleSelectSection}
+                  onEditPhoto={handleEditPhoto}
+                />
+              </ErrorBoundary>
             ) : (
               <div className="flex items-center justify-center h-full text-gray-400">
                 No report data available

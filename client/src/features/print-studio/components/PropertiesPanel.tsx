@@ -96,7 +96,7 @@ export const PropertiesPanel: React.FC<PropertiesPanelProps> = ({
         {/* Global Controls (Settings) */}
         {selectedSection === 'document' && (
           <>
-            <GlobalBranding config={config} onUpdateConfig={onUpdateConfig} />
+            <GlobalBranding config={documentSettings} onUpdateConfig={onUpdateDocumentSettings} />
             <div className="border-t border-gray-100 my-4" />
             <GlobalMargins documentSettings={documentSettings} onUpdateDocumentSettings={onUpdateDocumentSettings} />
           </>

@@ -3,8 +3,8 @@ import { Palette, Type, Check } from 'lucide-react';
 import { PrintConfig } from '../../config/printConfig.types';
 
 interface GlobalBrandingProps {
-  config: PrintConfig;
-  onUpdateConfig: (updates: Partial<PrintConfig>) => void;
+  config: { branding?: import('../../config/printConfig.types').PrintBranding };
+  onUpdateConfig: (updates: any) => void;
 }
 
 export function GlobalBranding({ config, onUpdateConfig }: GlobalBrandingProps) {

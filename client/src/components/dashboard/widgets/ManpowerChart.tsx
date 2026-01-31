@@ -62,7 +62,7 @@ export function ManpowerChart({ report }: Props) {
             </div>
             
             <div className="flex-1 min-h-[200px]">
-                <ResponsiveContainer width="100%" height="100%">
+                <ResponsiveContainer width="99%" height="100%">
                     <BarChart data={data} margin={{ top: 10, right: 10, left: -20, bottom: 0 }} barSize={32}>
                         <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f4f4f5" />
                         <XAxis 

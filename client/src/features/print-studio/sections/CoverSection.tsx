@@ -75,6 +75,17 @@ export function CoverSection({ config, reportData, projectConfig, sectionConfig 
   // --- Subtitle ---
   const subtitle = sc.subtitle || '';
 
+  // Use configured color or fallback to branding primary
+  const overlayColor = heroOverlayColor || config.branding?.primaryColor || COLORS.primary;
+  const showPhotoGrid = sc.showPhotoGrid ?? true;
+
+  // --- Divider Line Defaults ---
+  const showDivider = divider?.show ?? true;
+  const dividerColor = divider?.color || overlayColor;
+  const dividerWidth = divider?.width ?? 100;
+  const dividerThickness = divider?.thickness ?? 2;
+  const dividerAlign = divider?.alignment || 'left';
+
   return (
     <div className="flex flex-col h-full relative">
       {/* 1. HEADER SECTION (Hero + Logo) */}
@@ -95,7 +106,8 @@ export function CoverSection({ config, reportData, projectConfig, sectionConfig 
             <div
               className="absolute inset-0 pointer-events-none"
               style={{
-                background: `linear-gradient(to bottom, ${hexToRgba(heroOverlayColor, heroOverlayOpacity)}, ${hexToRgba(heroOverlayColor, heroOverlayOpacity * 0.75)}, ${hexToRgba(heroOverlayColor, heroOverlayOpacity * 1.1 > 1 ? 1 : heroOverlayOpacity * 1.1)})`
+                backgroundColor: overlayColor,
+                opacity: heroOverlayOpacity / 100
               }}
             />
           </div>
@@ -153,31 +165,39 @@ export function CoverSection({ config, reportData, projectConfig, sectionConfig 
           <div className="text-lg font-medium text-cyan-600 mb-4">
             {projectConfig.identity.location || projectConfig.identity.companyAddress}
           </div>
-
-          {/* Divider Line - configurable */}
-          {divider.show && (
-            <div
+          
+          {/* DIVIDER LINE - CONTROLLED BY SIDEBAR */}
+          {showDivider && (
+            <div 
               className="mb-4"
               style={{
-                width: `${divider.width}%`,
-                height: `${divider.thickness || 2}px`,
-                backgroundColor: divider.color || COLORS.golden,
-                marginLeft: divider.alignment === 'center' ? 'auto' : (divider.alignment === 'right' ? 'auto' : 0),
-                marginRight: divider.alignment === 'center' ? 'auto' : (divider.alignment === 'right' ? 0 : 'auto'),
+                display: 'flex',
+                justifyContent: dividerAlign === 'center' ? 'center' : (dividerAlign === 'right' ? 'flex-end' : 'flex-start')
               }}
-            />
+            >
+              <div 
+                style={{
+                  width: `${dividerWidth}%`,
+                  height: `${dividerThickness}px`,
+                  backgroundColor: dividerColor
+                }}
+              />
+            </div>
           )}
 
           <h2 className="text-lg font-bold text-zinc-900 uppercase tracking-wide mb-1">
             Weekly Progress Report
           </h2>
-          <div className="font-bold" style={{ color: heroOverlayColor }}>
+          {subtitle && (
+             <div className="text-sm font-medium text-gray-500 mb-2">{subtitle}</div>
+          )}
+          <div className="text-cyan-600 font-bold">
             Week Ending: {reportData.weekEnding || 'YYYY-MM-DD'}
           </div>
         </div>
 
         {/* Photo Strip - Now with Draggable Images */}
-        {showStrip && (
+        {showStrip && showPhotoGrid && (
           <div
             className="grid gap-3 my-6"
             style={{
@@ -217,7 +237,7 @@ export function CoverSection({ config, reportData, projectConfig, sectionConfig 
           className="w-full flex items-center justify-center text-white italic font-medium"
           style={{
             height: FIRST_PAGE.SAFETY_BANNER_HEIGHT,
-            backgroundColor: heroOverlayColor,
+            backgroundColor: overlayColor, // Match hero overlay color
           }}
         >
           {safetySlogan}

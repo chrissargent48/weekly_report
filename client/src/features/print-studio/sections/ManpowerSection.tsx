@@ -105,7 +105,8 @@ export function ManpowerSection({ config, reportData, placement, onUpdateReport 
 
               const updateItem = (field: string, val: any) => {
                   if (!onUpdateReport) return;
-                  const newManpower = reportData.resources.manpower.map(m => 
+                  const currentManpower = reportData.resources?.manpower || [];
+                  const newManpower = currentManpower.map((m: any) => 
                       m.id === item.id ? { ...m, [field]: val } : m
                   );
                   onUpdateReport({

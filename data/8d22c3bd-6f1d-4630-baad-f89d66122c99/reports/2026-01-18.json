@@ -973,7 +973,7 @@
         ],
         "dividerLine": {
           "show": true,
-          "color": "#afa20d",
+          "color": "#403e2b",
           "width": 62,
           "thickness": 2,
           "alignment": "left"
@@ -991,7 +991,13 @@
       },
       "executive": {
         "marginTop": 0,
-        "marginBottom": 0
+        "marginBottom": 0,
+        "sectionPadding": {
+          "executive": {
+            "top": 0,
+            "bottom": 0
+          }
+        }
       },
       "progress": {
         "showPercent": true,
@@ -1000,7 +1006,7 @@
         "marginBottom": 0
       },
       "photos": {
-        "columns": 3,
+        "columns": 2,
         "showCaptions": true,
         "showDates": true,
         "marginTop": 0,
@@ -1020,7 +1026,12 @@
         "left": 24,
         "right": 24
       },
-      "applyToAll": true
+      "applyToAll": true,
+      "branding": {
+        "primaryColor": "#008B8B",
+        "headingFont": "Inter",
+        "useSecondaryColor": false
+      }
     }
   }
 }
