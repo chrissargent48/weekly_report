@@ -55,27 +55,28 @@ We use **Client-Side Generation** via `@react-pdf/renderer`.
 
 ### Directory Structure
 
-```text
 .
-├── client/                 # React Frontend
-│   ├── src/
-│   │   ├── features/       # Feature-based architecture (e.g., print-studio)
-│   │   ├── components/     # Shared UI Components
-│   │   └── types.ts        # Client-specific UI types
-│   └── package.json
-├── server/                 # Node.js Backend
-│   ├── index.ts            # Express App & API Routes
-│   ├── DataManager.ts      # File System Persistence Layer (Atomic Writes)
-│   ├── services/           # Layout Engine & internal services
-│   └── types.ts            # Server-side exports of shared schemas
-├── shared/                 # Unified Schemas & Logic
-│   └── schemas.ts          # Zod schemas used by both Client & Server
-├── electron/               # Electron Main Process layer
-├── data/                   # Local Database (JSON files)
-│   ├── projects.json       # Index of projects
-│   └── [project-id]/       # Per-project data (reports, images, config)
-└── AGENTS.md               # This file
-```
+├── client/ # React Frontend
+│ ├── src/
+│ │ ├── features/ # Feature-based architecture
+│ │ │ └── print-studio/ # PDF Report Builder
+│ │ ├── components/ # Shared UI Components
+│ │ └── types.ts # Client-specific UI types
+│ └── package.json
+├── server/ # Node.js Backend
+│ ├── index.ts # Express App & API Routes
+│ ├── DataManager.ts # File System Persistence Layer (Atomic Writes)
+│ ├── services/ # Layout Engine & internal services
+│ └── types.ts # Server-side exports of shared schemas
+├── shared/ # Unified Schemas & Logic
+│ ├── schemas.ts # Zod schemas used by both Client & Server
+│ └── print-schema.ts # Print-specific types
+├── electron/ # Electron Main Process layer
+├── .agent/ # AI Context & Memory (Skills, Workflows)
+├── data/ # Local Database (JSON files)
+│ ├── projects.json # Index of projects
+│ └── [project-id]/ # Per-project data (reports, images, config)
+└── AGENTS.md # This file
 
 ### Data Flow
 
