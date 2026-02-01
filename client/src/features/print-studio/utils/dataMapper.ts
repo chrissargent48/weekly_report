@@ -21,6 +21,16 @@ export interface ReportData {
     percentComplete: string;
     notes: string;
   }>;
+  
+  // Bid Items (Detailed Progress)
+  bidItems: Array<{
+    itemNumber: string;
+    description: string;
+    thisWeekQty: number;
+    toDateQty: number;
+    unit: string;
+    contractQty: number;
+  }>;
 
   // Look Ahead
   lookAhead: Array<{
@@ -30,10 +40,22 @@ export interface ReportData {
 
   // Photos
   photos: Array<{
+    id: string;
     url: string;
-    caption: string;
+    caption: string; // This will now hold the "directionLooking"
     date: string;
   }>;
+
+  // Resources (passed through)
+  resources: WeeklyReport['resources'];
+
+  // Issues & Changes
+  issues: WeeklyReport['issues'];
+  fieldDirectives: WeeklyReport['fieldDirectives'];
+  changeOrders: WeeklyReport['changeOrders'];
+
+  // Financials
+  financials: WeeklyReport['financials'];
 
   // Safety
   safetyStats: {
@@ -41,7 +63,7 @@ export interface ReportData {
     firstAids: { week: number; ytd: number };
     recordables: { week: number; ytd: number };
     lostTime: { week: number; ytd: number };
-    stopWorks: { week: number; ytd: number }; // Fixed casing
+    stopWorks: { week: number; ytd: number };
   };
 
   // Weather
@@ -52,7 +74,7 @@ export interface ReportData {
     tempHigh: number;
     tempLow: number;
     wind: number;
-    precipitation: number; // mapped from hoursLost for now if not explicit? Or just 0 defaults
+    precipitation: number;
     workImpact: string;
     notes: string;
   }>;
@@ -104,6 +126,16 @@ export function mapReportData(
       notes: ''
     })),
 
+    // Bid Items (New mapping)
+    bidItems: (report.progress?.bidItems || []).map(item => ({
+      itemNumber: item.itemNumber,
+      description: item.description,
+      thisWeekQty: item.thisWeekQty,
+      toDateQty: item.toDateQty,
+      unit: 'LS', // Defaulting as it's not in WeeklyBidEntry
+      contractQty: 0 // Defaulting as it's not in WeeklyBidEntry
+    })),
+
     // Look Ahead
     // Support both simple string array (current schema) or future structured items
     lookAhead: (report.progress?.lookAheadThreeWeek || []).map(item => ({
@@ -112,18 +144,36 @@ export function mapReportData(
     })),
 
     // Photos – resolve all URLs to absolute before they touch the UI or PDF
+    // CRITICAL: Mapping directionLooking to caption as per PRD
     photos: (report.photos || []).map(p => ({
+      id: p.id,
       url: resolveImageUrl(p.url),
-      caption: p.caption,
+      caption: p.directionLooking || p.caption || 'No caption', 
       date: p.date ? new Date(p.date).toLocaleDateString() : ''
     })),
+
+    // Resources (Pass through)
+    resources: report.resources || {
+      manpower: [],
+      equipment: { onSite: [], mobilized: [], demobilized: [] },
+      materials: [],
+      procurement: []
+    },
+
+    // Issues & Changes (Pass through)
+    issues: report.issues || [],
+    fieldDirectives: report.fieldDirectives || [],
+    changeOrders: report.changeOrders || [],
+
+    // Financials (Pass through)
+    financials: report.financials || { invoices: [], summary: { earnedToDate: 0, remainingContractValue: 0, totalBilled: 0 } },
 
     // Safety
     safetyStats: {
       nearMisses: report.safety?.stats?.nearMisses || { week: 0, ytd: 0 },
       firstAids: report.safety?.stats?.firstAids || { week: 0, ytd: 0 },
       recordables: report.safety?.stats?.recordables || { week: 0, ytd: 0 },
-      lostTime: report.safety?.stats?.lostTime || { week: 0, ytd: 0 }, // Check casing in schema
+      lostTime: report.safety?.stats?.lostTime || { week: 0, ytd: 0 },
       stopWorks: report.safety?.stats?.stopWorks || { week: 0, ytd: 0 },
     },
 
@@ -143,7 +193,7 @@ export function mapReportData(
     availablePhotos: (report.photos || []).map(p => ({
       id: p.id,
       url: resolveImageUrl(p.url),
-      caption: p.caption || ''
+      caption: p.directionLooking || p.caption || ''
     })),
 
     configs: sectionConfigs || {},
@@ -162,3 +212,4 @@ export function mapReportToPuckData(report: any): any {
 export function mapPuckDataToReport(puckData: any, originalReport: WeeklyReport): WeeklyReport {
   return originalReport;
 }
+

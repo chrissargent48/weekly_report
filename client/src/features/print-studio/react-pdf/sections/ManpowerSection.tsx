@@ -8,10 +8,11 @@ import { COLORS } from '../styles';
 import { SectionHeader, Table, TableColumn } from '../primitives';
 import { PrintConfig, PagePlacement } from '../../config/printConfig.types';
 import { WeeklyReport, ManpowerEntry } from '../../../../types';
+import { ReportData } from '../../utils/dataMapper';
 
 interface ManpowerSectionProps {
   config: PrintConfig;
-  reportData: WeeklyReport;
+  reportData: ReportData;
   placement?: PagePlacement;
 }
 

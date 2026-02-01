@@ -124,8 +124,82 @@ export interface PagePlacement {
   cssHints?: React.CSSProperties;
 }
 
+/**
+ * NORMALIZED PAGE MAP ARCHITECTURE
+ * --------------------------------
+ * Replaces the monolithic list processing with a fragment-based approach.
+ */
+
+// The Source of Truth: Raw Data Entities
+export interface ReportEntity {
+  id: string;
+  type: string; // 'table' | 'chart' | 'summary' | etc.
+  data: any;
+  config?: any;
+}
+
+// A specific slice of an entity assigned to a page
+export interface LayoutFragment {
+  id: string;            // Unique Render ID (e.g., "table-weather-part1")
+  entityId: string;      // Reference to Source Data (e.g., "table-weather")
+  type: 'full' | 'head' | 'body' | 'tail'; // Split state
+  
+  // Precise Split Metadata
+  slice?: {
+    startIndex: number; // e.g., Row 0
+    endIndex: number;   // e.g., Row 15
+  };
+  
+  // Continuation Context
+  continuation?: {
+    hasHeader: boolean;      // Should we repeat the header?
+    hasFooter: boolean;
+    footerLabel?: string;    // "Continued on next page..."
+    pageIndex: number;       // 0-based index of this fragment in the entity's sequence
+  };
+  
+  estimatedHeight: number;
+}
+
+// The Page Container
+export interface PageDefinition {
+  id: string;
+  pageIndex: number;
+  fragments: LayoutFragment[]; 
+  usedHeight: number; 
+  availableHeight: number;
+}
+
+// The Master State
+export interface ReportState {
+  // Master list of all raw data items (The Source of Truth)
+  entities: Record<string, ReportEntity>; 
+
+  // The calculated physical layout (Derived State)
+  pages: Record<string, PageDefinition>;
+  
+  pageOrder: string[]; // List of Page IDs
+}
+
+// Legacy Compatibility (to be phased out or adapted)
 export interface PageMap {
   totalPages: number;
   pages: PageContent[];
   sectionPlacements: Map<string, PagePlacement>;
+  // New normalized state (optional during migration)
+  normalized?: ReportState; 
+}
+export interface PagePlacement extends Partial<LayoutFragment> {
+  // Keeping existing fields for backward compatibility during migration
+  sectionId: string;
+  startsOnPage: number;
+  estimatedHeight: number;
+  continuesFromPrevious: boolean;
+  dataRange?: { start: number; end: number };
+  renderConfig?: {
+      showHeader?: boolean;
+      showContinuedHeader?: boolean;
+      showFooter?: boolean;
+  };
+  cssHints?: React.CSSProperties;
 }

@@ -7,11 +7,12 @@ import { View, Text, StyleSheet } from '@react-pdf/renderer';
 import { COLORS } from '../styles';
 import { SectionHeader, Table, TableColumn } from '../primitives';
 import { PrintConfig, PagePlacement } from '../../config/printConfig.types';
-import { WeeklyReport, MaterialDelivery } from '../../../../types';
+import { MaterialDelivery } from '../../../../types'; // WeeklyReport removed
+import { ReportData } from '../../utils/dataMapper';
 
-interface MaterialsSectionProps {
+interface MaterialsSectionProps { // Interface name remains MaterialsSectionProps
   config: PrintConfig;
-  reportData: WeeklyReport;
+  reportData: ReportData; // Type remains ReportData
   placement?: PagePlacement;
 }
 

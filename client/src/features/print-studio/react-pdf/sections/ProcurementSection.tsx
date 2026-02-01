@@ -10,10 +10,11 @@ import { COLORS } from '../styles';
 import { SectionHeader, Table, TableColumn } from '../primitives';
 import { PrintConfig, PagePlacement } from '../../config/printConfig.types';
 import { WeeklyReport, ProcurementEntry } from '../../../../types';
+import { ReportData } from '../../utils/dataMapper';
 
 interface ProcurementSectionProps {
   config: PrintConfig;
-  reportData: WeeklyReport;
+  reportData: ReportData;
   placement?: PagePlacement;
 }
 

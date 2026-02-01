@@ -2,10 +2,23 @@ import React from 'react';
 import { View, Text, StyleSheet } from '@react-pdf/renderer';
 import { ReportData } from '../../utils/dataMapper';
 import { PagePlacement } from '../../config/printConfig.types';
+import { COLORS } from '../styles';
+import { SectionHeader, Table, TableColumn } from '../primitives';
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    marginBottom: 16,
+  },
+  subHeader: {
+    fontSize: 10,
+    fontWeight: 'bold',
+    color: '#374151',
+    marginTop: 12,
+    marginBottom: 6,
+    borderBottomWidth: 1,
+    borderBottomColor: '#E5E7EB',
+    paddingBottom: 2,
   },
   header: {
     flexDirection: 'row',
@@ -22,7 +35,7 @@ const styles = StyleSheet.create({
   },
   table: {
     width: '100%',
-    marginBottom: 20,
+    marginBottom: 12,
   },
   tableHeader: {
     flexDirection: 'row',
@@ -68,26 +81,26 @@ export const ProgressSection: React.FC<ProgressSectionProps> = ({ data, config =
   const {
     showPercent = true,
     showNotes = true,
-    marginTop: configMarginTop,
-    marginBottom: configMarginBottom
   } = config;
 
   const isContinued = placement?.continuesFromPrevious ?? false;
   const showHeader = placement?.renderConfig?.showHeader ?? true;
 
-  const margins = documentSettings?.defaultMargins || { top: 24, bottom: 24, left: 24, right: 24 };
-  const applyToAll = documentSettings?.applyToAll || false;
+  // Pagination logic: Decide what to show based on placement
+  // Ideally, layout engine would split 'activities' and 'bidItems' into separate placement blocks
+  // For now, we'll just render both if they exist, or let the engine clip it
+  // TODO: Advanced pagination for multi-table sections
+  
+  const activities = data.activitiesThisWeek || [];
+  const bidItems = data.bidItems || [];
 
-  const marginTop = applyToAll ? margins.top : (configMarginTop ?? margins.top);
-  const marginBottom = applyToAll ? margins.bottom : (configMarginBottom ?? margins.bottom);
-  const paddingLeft = margins.left;
-  const paddingRight = margins.right;
-
-  // Slice data if placement provides a dataRange
-  const allItems = data.activitiesThisWeek;
-  const visibleItems = placement?.dataRange
-    ? allItems.slice(placement.dataRange.start, placement.dataRange.end)
-    : allItems;
+  const bidItemColumns: TableColumn[] = [
+    { key: 'itemNumber', header: 'Item #', width: '10%', render: (val) => <Text style={{fontSize: 8, color: COLORS.text, fontWeight: 'bold'}}>{val}</Text> },
+    { key: 'description', header: 'Description', width: '50%', render: (val) => <Text style={{fontSize: 8, color: COLORS.text}}>{val}</Text> },
+    { key: 'thisWeekQty', header: 'This Week', width: '15%', align: 'right', render: (val) => <Text style={{fontSize: 8, color: COLORS.text}}>{val}</Text> },
+    { key: 'toDateQty', header: 'To Date', width: '15%', align: 'right', render: (val) => <Text style={{fontSize: 8, color: COLORS.text}}>{val}</Text> },
+    { key: 'unit', header: 'Unit', width: '10%', align: 'center', render: (val) => <Text style={{fontSize: 8, color: COLORS.textMuted}}>{val}</Text> },
+  ];
 
   return (
     <View style={styles.container}>
@@ -99,27 +112,46 @@ export const ProgressSection: React.FC<ProgressSectionProps> = ({ data, config =
         </View>
       )}
 
-      <View style={styles.table}>
-        <View style={styles.tableHeader}>
-          <Text style={[styles.tableHeaderCell, { flex: 3 }]}>Activity</Text>
-          <Text style={[styles.tableHeaderCell, { flex: 1 }]}>Status</Text>
-          {showPercent && <Text style={[styles.tableHeaderCell, { flex: 1, textAlign: 'center' }]}>% Complete</Text>}
-          {showNotes && <Text style={[styles.tableHeaderCell, { flex: 2 }]}>Notes</Text>}
-        </View>
-
-        {visibleItems.length > 0 ? (
-          visibleItems.map((item, i) => (
-            <View key={i} style={[styles.tableRow, { backgroundColor: i % 2 === 0 ? '#FFFFFF' : '#F9FAFB' }]}>
-              <Text style={[styles.tableCell, { flex: 3 }]}>{item.activity}</Text>
-              <Text style={[styles.tableCell, { flex: 1 }]}>{item.status}</Text>
-              {showPercent && <Text style={[styles.tableCell, { flex: 1, textAlign: 'center' }]}>{item.percentComplete}</Text>}
-              {showNotes && <Text style={[styles.tableCell, { flex: 2 }]}>{item.notes}</Text>}
+      {/* Activities Table */}
+      {(activities.length > 0) && (
+        <>
+          <Text style={styles.subHeader}>Activities This Week</Text>
+          <View style={styles.table}>
+            <View style={styles.tableHeader}>
+              <Text style={[styles.tableHeaderCell, { flex: 3 }]}>Activity</Text>
+              <Text style={[styles.tableHeaderCell, { flex: 1 }]}>Status</Text>
+              {showPercent && <Text style={[styles.tableHeaderCell, { flex: 1, textAlign: 'center' }]}>% Complete</Text>}
+              {showNotes && <Text style={[styles.tableHeaderCell, { flex: 2 }]}>Notes</Text>}
             </View>
-          ))
-        ) : (
-          <Text style={styles.emptyText}>No activities recorded for this week.</Text>
-        )}
-      </View>
+            {activities.map((item, i) => (
+              <View key={i} style={[styles.tableRow, { backgroundColor: i % 2 === 0 ? '#FFFFFF' : '#F9FAFB' }]}>
+                <Text style={[styles.tableCell, { flex: 3 }]}>{item.activity}</Text>
+                <Text style={[styles.tableCell, { flex: 1 }]}>{item.status}</Text>
+                {showPercent && <Text style={[styles.tableCell, { flex: 1, textAlign: 'center' }]}>{item.percentComplete}</Text>}
+                {showNotes && <Text style={[styles.tableCell, { flex: 2 }]}>{item.notes}</Text>}
+              </View>
+            ))}
+          </View>
+        </>
+      )}
+
+      {/* Bid Items Table */}
+      {(bidItems.length > 0 && !isContinued) && (
+        <>
+          <Text style={styles.subHeader}>Bid Item Progress</Text>
+          <Table 
+            columns={bidItemColumns}
+            data={bidItems}
+            keyExtractor={(item) => item.itemNumber}
+            alternateRowColor={true}
+          />
+        </>
+      )}
+
+      {activities.length === 0 && bidItems.length === 0 && (
+         <Text style={styles.emptyText}>No progress recorded for this week.</Text>
+      )}
     </View>
   );
 };
+

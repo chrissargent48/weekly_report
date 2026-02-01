@@ -108,3 +108,9 @@ Run this sequence:
 **Trigger:** "Fix bug", "Why is this broken", "Error trace"
 **Path:** `.agent/skills_library/skills/systematic-debugging/SKILL.md`
 **Use for:** rigorous root cause analysis when stuck.
+
+### 📄 Print Studio & PDF
+
+**Trigger:** "Print Studio", "PDF generation", "React-PDF", "Fix PDF layout"
+**Path:** `.agent/skills_library/skills/print-studio/SKILL.md`
+**Use for:** Best practices for complex PDF generation, pagination, and React-PDF quirks.
