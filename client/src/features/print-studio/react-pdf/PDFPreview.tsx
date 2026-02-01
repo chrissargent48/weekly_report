@@ -64,6 +64,7 @@ export function PDFPreview({
           safety: true
         }}
         projectConfig={projectConfig}
+        baselines={baselines}
         config={config}
         report={reportData}
         pageMap={pageMap}
@@ -122,6 +123,7 @@ export function PDFDownloadButton({
           safety: true
         }}
         projectConfig={projectConfig}
+        baselines={baselines}
         config={config}
         report={reportData}
         pageMap={pageMap}
@@ -277,6 +279,7 @@ export function PDFBlobProvider({
           safety: true
         }}
         projectConfig={projectConfig}
+        baselines={baselines}
         config={config}
         report={reportData}
         pageMap={pageMap}

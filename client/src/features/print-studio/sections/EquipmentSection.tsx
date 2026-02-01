@@ -32,6 +32,7 @@ export function EquipmentSection({ config, reportData, placement }: Props) {
           <thead className="bg-zinc-50 border-b border-zinc-200">
             <tr>
               <th className="px-4 py-2 text-left font-bold text-zinc-500">Equipment Type</th>
+              <th className="px-4 py-2 text-center font-bold text-zinc-500 w-24">Status</th>
               <th className="px-4 py-2 text-center font-bold text-zinc-500 w-24">Sun</th>
               <th className="px-4 py-2 text-center font-bold text-zinc-500 w-24">Mon</th>
               <th className="px-4 py-2 text-center font-bold text-zinc-500 w-24">Tue</th>
@@ -51,6 +52,16 @@ export function EquipmentSection({ config, reportData, placement }: Props) {
                return (
                   <tr key={i} className={i % 2 === 0 ? 'bg-white' : 'bg-zinc-50/50'}>
                     <td className="px-4 py-2 font-medium text-zinc-900 border-r border-zinc-100">{name}</td>
+                    <td className="px-4 py-2 text-center border-r border-zinc-100">
+                      <span className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${
+                        item.status?.toLowerCase() === 'active' ? 'bg-green-100 text-green-700' :
+                        item.status?.toLowerCase() === 'standby' ? 'bg-amber-100 text-amber-700' :
+                        item.status?.toLowerCase() === 'down' ? 'bg-red-100 text-red-700' :
+                        'bg-zinc-100 text-zinc-500'
+                      }`}>
+                        {item.status || '-'}
+                      </span>
+                    </td>
                     {['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'].map(day => (
                         <td key={day} className="px-4 py-2 text-center text-zinc-600">
                           {dailyHours[day] || '-'}

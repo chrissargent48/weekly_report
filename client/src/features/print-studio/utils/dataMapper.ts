@@ -64,7 +64,15 @@ export interface ReportData {
     recordables: { week: number; ytd: number };
     lostTime: { week: number; ytd: number };
     stopWorks: { week: number; ytd: number };
+    hofs: { week: number; ytd: number };
+    safetyAudits: { week: number; ytd: number };
   };
+
+  // Safety Detail (full safety block for parity with HTML preview)
+  safety: WeeklyReport['safety'];
+
+  // Overview (full overview block for parity with HTML preview)
+  overview: WeeklyReport['overview'];
 
   // Weather
   weatherDays: Array<{
@@ -175,7 +183,15 @@ export function mapReportData(
       recordables: report.safety?.stats?.recordables || { week: 0, ytd: 0 },
       lostTime: report.safety?.stats?.lostTime || { week: 0, ytd: 0 },
       stopWorks: report.safety?.stats?.stopWorks || { week: 0, ytd: 0 },
+      hofs: report.safety?.stats?.hofs || { week: 0, ytd: 0 },
+      safetyAudits: report.safety?.stats?.safetyAudits || { week: 0, ytd: 0 },
     },
+
+    // Safety Detail
+    safety: report.safety,
+
+    // Overview
+    overview: report.overview,
 
     // Weather Data
     weatherDays: (report.overview?.weather || []).map(day => ({
