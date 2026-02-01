@@ -11,7 +11,7 @@ import { WeeklyReport, EquipmentEntry } from '../../../../types';
 import { ReportData } from '../../utils/dataMapper';
 
 interface EquipmentSectionProps {
-  config: PrintConfig;
+  config?: PrintConfig;
   reportData: ReportData;
   placement?: PagePlacement;
 }
@@ -244,7 +244,7 @@ export function EquipmentSection({ config, reportData, placement }: EquipmentSec
         data={visibleEquipment}
         keyExtractor={(item) => item.id}
         alternateRowColor={true}
-        manualBreaks={config.manualBreaks
+        manualBreaks={config?.manualBreaks
           ?.filter(b => b.sectionId === 'equipment')
           .map(b => b.afterRowIndex)}
       />

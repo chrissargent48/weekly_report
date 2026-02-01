@@ -11,7 +11,7 @@ import { WeeklyReport, ProjectConfig, ProjectBaselines, Invoice } from '../../..
 import { ReportData } from '../../utils/dataMapper';
 
 interface FinancialsSectionProps {
-  config: PrintConfig;
+  config?: PrintConfig;
   reportData: ReportData;
   projectConfig: ProjectConfig;
   baselines?: ProjectBaselines;
@@ -213,7 +213,7 @@ export function FinancialsSection({
             data={visibleInvoices}
             keyExtractor={(item) => item.id}
             alternateRowColor={true}
-            manualBreaks={config.manualBreaks
+            manualBreaks={config?.manualBreaks
               ?.filter(b => b.sectionId === 'financials')
               .map(b => b.afterRowIndex)}
           />

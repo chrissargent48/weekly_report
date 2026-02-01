@@ -95,6 +95,7 @@ export function calculatePageMap(
       );
       
       currentPage = result.currentPage;
+      currentPageId = currentPage.id;
       // Legacy placements update
       result.params.forEach((p, idx) => {
         if (idx === 0) sectionPlacements.set(section.id, p);
@@ -118,6 +119,7 @@ export function calculatePageMap(
        );
 
        currentPage = result.currentPage;
+       currentPageId = currentPage.id;
        result.params.forEach((p, idx) => {
            if (idx === 0) sectionPlacements.set(section.id, p);
        });
