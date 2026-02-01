@@ -36,7 +36,6 @@ export function calculatePageMap(
   };
 
   const sectionPlacements = new Map<string, PagePlacement>();
-  const pages: PageContent[] = []; // Legacy array for compatibility
   
   // Get sorted, visible sections
   const visibleSections = config.sections
@@ -80,7 +79,6 @@ export function calculatePageMap(
       // Commit current page
       state.pages[currentPageId] = currentPage;
       state.pageOrder.push(currentPageId);
-      pages.push(mapPageDefToContent(currentPage, pages.length === 0));
 
       // Start new page
       currentPageId = `page_${state.pageOrder.length + 1}`;
@@ -164,27 +162,26 @@ export function calculatePageMap(
       if (currentPage.fragments.length > 0) {
         state.pages[currentPageId] = currentPage;
         state.pageOrder.push(currentPageId);
-        pages.push(mapPageDefToContent(currentPage, pages.length === 0));
 
         currentPageId = `page_${state.pageOrder.length + 1}`;
         currentPage = createNewPageDef(currentPageId, state.pageOrder.length + 1);
       }
-      
+
       const fragment: LayoutFragment = {
           id: `${section.id}_full`,
           entityId: section.id,
           type: 'full',
           estimatedHeight: sectionHeight
       };
-      
+
       currentPage.fragments.push(fragment);
       currentPage.usedHeight += sectionHeight;
       currentPage.availableHeight -= sectionHeight;
-      
-      sectionPlacements.set(section.id, { 
-          sectionId: section.id, 
-          startsOnPage: currentPage.pageIndex, 
-          estimatedHeight: sectionHeight, 
+
+      sectionPlacements.set(section.id, {
+          sectionId: section.id,
+          startsOnPage: currentPage.pageIndex,
+          estimatedHeight: sectionHeight,
           continuesFromPrevious: false,
           cssHints: forcePageBreak ? { pageBreakBefore: 'always' } : undefined
       });
@@ -195,12 +192,18 @@ export function calculatePageMap(
   if (currentPage.fragments.length > 0 || currentPage.pageIndex === 1) {
     state.pages[currentPageId] = currentPage;
     state.pageOrder.push(currentPageId);
-    pages.push(mapPageDefToContent(currentPage, pages.length === 0));
   }
-  
+
+  // Reconstruct the pages array from normalized state so ALL pages are included.
+  // Helper functions (handleSplittableList, handlePhotosSection) commit intermediate
+  // pages to state.pages/state.pageOrder but not to the legacy pages[] array.
+  const finalPages = state.pageOrder.map((pageId, idx) =>
+    mapPageDefToContent(state.pages[pageId], idx === 0)
+  );
+
   return {
-    totalPages: state.pageOrder.length,
-    pages,
+    totalPages: finalPages.length,
+    pages: finalPages,
     sectionPlacements,
     normalized: state // Return the full normalized state tree
   };

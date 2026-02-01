@@ -9,6 +9,14 @@ import { ProgressSection } from './sections/ProgressSection';
 import { PhotosSection } from './sections/PhotosSection';
 import { SafetySection } from './sections/SafetySection';
 import { LookAheadSection } from './sections/LookAheadSection';
+import { ManpowerSection } from './sections/ManpowerSection';
+import { EquipmentSection } from './sections/EquipmentSection';
+import { MaterialsSection } from './sections/MaterialsSection';
+import { ProcurementSection } from './sections/ProcurementSection';
+import { FinancialsSection } from './sections/FinancialsSection';
+import { ScheduleSection } from './sections/ScheduleSection';
+import { IssuesSection } from './sections/IssuesSection';
+import { KeyPersonnelSection } from './sections/KeyPersonnelSection';
 import { PageHeader } from './components/PageHeader';
 import { PageFooter } from './components/PageFooter';
 import { PrintConfig, PageMap, PagePlacement } from '../config/printConfig.types';
@@ -58,6 +66,14 @@ const PDF_SECTION_MAP: Record<string, React.ComponentType<any>> = {
   safety: SafetySection,
   lookahead: LookAheadSection,
   photos: PhotosSection,
+  manpower: ManpowerSection,
+  equipment: EquipmentSection,
+  materials: MaterialsSection,
+  procurement: ProcurementSection,
+  financials: FinancialsSection,
+  schedule: ScheduleSection,
+  issues: IssuesSection,
+  key_personnel: KeyPersonnelSection,
 };
 
 /** Extract the base section ID (e.g. 'safety' from 'safety_continued_2') */
@@ -110,6 +126,7 @@ export const ReportDocument: React.FC<ReportDocumentProps> = ({
                   projectConfig={projectConfig}
                   sectionConfig={sectionConfigs.cover}
                 />
+                <PageFooter projectName={projectName} />
               </Page>
             );
           }
