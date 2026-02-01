@@ -963,7 +963,7 @@
         "subtitle": "2024 Site Improvements",
         "showPhotoGrid": true,
         "showSafetyQuote": true,
-        "heroOverlayColor": "#008B8B",
+        "heroOverlayColor": "#098686",
         "marginTop": 0,
         "marginBottom": 0,
         "coverPhotos": [
@@ -1003,14 +1003,24 @@
         "showPercent": true,
         "showNotes": true,
         "marginTop": 0,
-        "marginBottom": 0
+        "marginBottom": 0,
+        "sectionPadding": {
+          "progress": {
+            "bottom": 0
+          }
+        }
       },
       "photos": {
         "columns": 2,
         "showCaptions": true,
         "showDates": true,
         "marginTop": 0,
-        "marginBottom": 0
+        "marginBottom": 0,
+        "sectionPadding": {
+          "photos": {
+            "bottom": 0
+          }
+        }
       },
       "safety": {
         "showTable": true,
