@@ -72,10 +72,11 @@ export function getSectionMetrics(ctx: MeasurementContext): SectionMetrics {
       break;
       
     case 'weather':
-      isSplittable = true;
-      headerHeight = HEADER_HEIGHTS.standard;
-      rowHeight = ROW_HEIGHTS.weather;
-      itemCount = reportData.overview?.weather?.length || 0;
+      // Weather always renders a full 7-day strip (Mon-Sun) regardless of
+      // how many raw entries exist.  Treat as non-splittable to avoid
+      // incorrect dataRange slicing that hides days.
+      isSplittable = false;
+      totalHeight = HEADER_HEIGHTS.standard + ROW_HEIGHTS.weather + 60;
       break;
       
     case 'lookahead':

@@ -13,7 +13,7 @@ import { mapReportData } from './utils/dataMapper';
 import { useAutoSave } from './hooks/useAutoSave';
 import { SelectionProvider } from './context/SelectionContext';
 import { ImagePositionProvider } from './context/ImagePositionContext';
-import { PrintConfig, PrintSection, PrintBranding } from './config/printConfig.types';
+import { PrintConfig, PrintSection, PrintBranding, ImagePosition, PhotoPositions } from './config/printConfig.types';
 import { PrintPreview } from './renderers/html-preview/PrintPreview';
 import { calculatePageMap } from './layout-engine/calculatePageMap';
 
@@ -158,6 +158,53 @@ export const PrintStudio: React.FC<PrintStudioProps> = ({
     }
   );
 
+  // --- Image position state for drag-to-pan ---
+  const [heroPhotoPosition, setHeroPhotoPositionState] = useState<ImagePosition>(
+    () => report?.printSettings?.heroPhotoPosition || { x: 50, y: 50 }
+  );
+  const [stripPhotoPositions, setStripPhotoPositionsState] = useState<PhotoPositions>(
+    () => report?.printSettings?.stripPhotoPositions || {}
+  );
+  const [photoPositions, setPhotoPositionsState] = useState<PhotoPositions>(
+    () => report?.printSettings?.photoPositions || {}
+  );
+
+  const handleSetHeroPhotoPosition = React.useCallback((x: number, y: number) => {
+    setHeroPhotoPositionState({ x, y });
+  }, []);
+
+  const handleSetStripPhotoPosition = React.useCallback((index: number, x: number, y: number) => {
+    setStripPhotoPositionsState(prev => ({ ...prev, [index]: { x, y } }));
+  }, []);
+
+  const handleSetPhotoPosition = React.useCallback((index: number, x: number, y: number) => {
+    setPhotoPositionsState(prev => ({ ...prev, [index]: { x, y } }));
+  }, []);
+
+  const handleSetPhotoZoom = React.useCallback((id: string, zoom: number) => {
+    const idx = parseInt(id.replace('photo-', ''), 10);
+    if (id === 'hero-image') {
+      setHeroPhotoPositionState(prev => ({ ...prev, zoom }));
+    } else if (id.startsWith('strip-photo-')) {
+      const i = parseInt(id.replace('strip-photo-', ''), 10);
+      setStripPhotoPositionsState(prev => ({ ...prev, [i]: { ...(prev[i] || { x: 50, y: 50 }), zoom } }));
+    } else {
+      setPhotoPositionsState(prev => ({ ...prev, [idx]: { ...(prev[idx] || { x: 50, y: 50 }), zoom } }));
+    }
+  }, []);
+
+  const handleSetPhotoCrop = React.useCallback((id: string, crop: { x: number; y: number; width: number; height: number }) => {
+    const idx = parseInt(id.replace('photo-', ''), 10);
+    if (id === 'hero-image') {
+      setHeroPhotoPositionState(prev => ({ ...prev, crop }));
+    } else if (id.startsWith('strip-photo-')) {
+      const i = parseInt(id.replace('strip-photo-', ''), 10);
+      setStripPhotoPositionsState(prev => ({ ...prev, [i]: { ...(prev[i] || { x: 50, y: 50 }), crop } }));
+    } else {
+      setPhotoPositionsState(prev => ({ ...prev, [idx]: { ...(prev[idx] || { x: 50, y: 50 }), crop } }));
+    }
+  }, []);
+
   // --- Build PrintSection[] from UI state for the layout engine ---
   const printSections: PrintSection[] = useMemo(() => {
     // Map section IDs used in the UI to the IDs the layout engine expects
@@ -204,10 +251,10 @@ export const PrintStudio: React.FC<PrintStudioProps> = ({
     logoScale: documentSettings?.logoScale || 100,
     logoAlign: documentSettings?.logoAlign || 'left',
     heroPhotoIndex: sectionConfigs?.cover?.heroPhotoId ? 0 : null,
-    heroPhotoPosition: { x: 50, y: 50 },
+    heroPhotoPosition,
     stripPhotoIndexes: [],
-    stripPhotoPositions: {},
-    photoPositions: {},
+    stripPhotoPositions,
+    photoPositions,
     showPageNumbers: documentSettings?.showPageNumbers ?? true,
     showFooter: documentSettings?.showFooter ?? true,
     showCoverPhotos: sectionConfigs?.cover?.showPhotoGrid ?? true,
@@ -215,7 +262,7 @@ export const PrintStudio: React.FC<PrintStudioProps> = ({
     branding: documentSettings.branding,
     // [NEW] Pass specific section configs to the renderer
     cover: sectionConfigs?.cover,
-  }), [printSections, documentSettings, sectionConfigs, sectionPaddingMap]);
+  }), [printSections, documentSettings, sectionConfigs, sectionPaddingMap, heroPhotoPosition, stripPhotoPositions, photoPositions]);
 
   // --- Normalize report data for rendering ---
   const normalizedReport = useMemo(() => {
@@ -266,8 +313,7 @@ export const PrintStudio: React.FC<PrintStudioProps> = ({
     );
   }, [shimPrintConfig, normalizedReport, projectConfig, shimBaselines]);
 
-  // No-op setters for the hoisted ImagePositionProvider (Canvas is read-only preview)
-  const noOp = React.useCallback(() => {}, []);
+  // Image position setters are wired above (handleSetHeroPhotoPosition, etc.)
 
   // Combine settings into single object for the hook
   const printSettings = React.useMemo(() => ({
@@ -484,11 +530,11 @@ export const PrintStudio: React.FC<PrintStudioProps> = ({
     <SelectionProvider>
     <ImagePositionProvider
       config={shimPrintConfig}
-      setHeroPhotoPosition={noOp}
-      setStripPhotoPosition={noOp}
-      setPhotoPosition={noOp}
-      setPhotoZoom={noOp}
-      setPhotoCrop={noOp}
+      setHeroPhotoPosition={handleSetHeroPhotoPosition}
+      setStripPhotoPosition={handleSetStripPhotoPosition}
+      setPhotoPosition={handleSetPhotoPosition}
+      setPhotoZoom={handleSetPhotoZoom}
+      setPhotoCrop={handleSetPhotoCrop}
     >
     <div className="h-screen flex flex-col bg-gray-100 text-gray-900 text-sm overflow-hidden font-sans">
 
