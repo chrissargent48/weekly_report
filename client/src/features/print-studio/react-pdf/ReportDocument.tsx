@@ -20,7 +20,7 @@ import { KeyPersonnelSection } from './sections/KeyPersonnelSection';
 import { PageHeader } from './components/PageHeader';
 import { PageFooter } from './components/PageFooter';
 import { PrintConfig, PageMap, PagePlacement } from '../config/printConfig.types';
-import { WeeklyReport, ProjectConfig } from '../../../types';
+import { WeeklyReport, ProjectConfig, ProjectBaselines } from '../../../types';
 
 interface ReportDocumentProps {
   reportData: ReportData;
@@ -29,6 +29,7 @@ interface ReportDocumentProps {
   sectionOrder?: string[];
   documentSettings?: any;
   projectConfig?: ProjectConfig;
+  baselines?: ProjectBaselines;
   config?: PrintConfig;
   report?: WeeklyReport;
   pageMap?: PageMap;
@@ -94,6 +95,7 @@ export const ReportDocument: React.FC<ReportDocumentProps> = ({
   sectionOrder = ['cover', 'executive', 'safety', 'weather', 'progress', 'lookahead', 'photos'],
   documentSettings = {},
   projectConfig,
+  baselines,
   config,
   report,
   pageMap,
@@ -153,9 +155,12 @@ export const ReportDocument: React.FC<ReportDocumentProps> = ({
                   >
                     <Component
                       data={reportData}
+                      reportData={reportData}
                       config={sectionConfigs[SECTION_CONFIG_KEY_MAP[baseId] || baseId]}
                       documentSettings={pdfDocSettings}
                       placement={placement}
+                      projectConfig={projectConfig}
+                      baselines={baselines}
                     />
                   </View>
                 );

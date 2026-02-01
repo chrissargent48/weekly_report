@@ -38,6 +38,7 @@ export function MaterialsSection({ config, reportData, placement, onToggleRowBre
               <th className="px-4 py-2 text-left font-bold text-zinc-500">Material / Description</th>
               <th className="px-4 py-2 text-left font-bold text-zinc-500">Ticket #</th>
               <th className="px-4 py-2 text-right font-bold text-zinc-500 w-32">Quantity</th>
+              <th className="px-4 py-2 text-left font-bold text-zinc-500">Notes</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-zinc-100">
@@ -59,6 +60,7 @@ export function MaterialsSection({ config, reportData, placement, onToggleRowBre
                     </td>
                     <td className="px-4 py-2 text-zinc-600 font-mono text-xs">{item.ticketNumber}</td>
                     <td className="px-4 py-2 text-right font-bold text-zinc-700">{item.quantity} {item.uom}</td>
+                    <td className="px-4 py-2 text-xs text-zinc-500 italic">{item.notes || '-'}</td>
                   </tr>
                   {/* Row break divider - show after each row except the last */}
                   {!isLastRow && onToggleRowBreak && (

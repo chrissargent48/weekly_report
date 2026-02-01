@@ -7,9 +7,10 @@ interface Props {
   config: PrintConfig;
   reportData: ReportData;
   placement?: PagePlacement;
+  projectConfig?: any;
 }
 
-export function FinancialsSection({ config, reportData, placement }: Props) {
+export function FinancialsSection({ config, reportData, placement, projectConfig }: Props) {
   const data = reportData.financials;
   if (!data) return null;
 
@@ -36,7 +37,14 @@ export function FinancialsSection({ config, reportData, placement }: Props) {
        <div className="flex flex-col gap-6">
           {/* Top Cards - Only show if main header is requested (Page 1) */}
           {showMainHeader && (
-          <div className="grid grid-cols-3 gap-4">
+          <div className="grid grid-cols-4 gap-4">
+             <div className="bg-zinc-50 p-4 rounded border border-zinc-100 flex flex-col justify-between">
+                <div className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest mb-2">Contract Value</div>
+                <div className="text-xl font-bold text-zinc-900 flex items-center gap-1">
+                   <DollarSign size={16} className="text-zinc-400" />
+                   {(projectConfig?.contract?.originalValue || 0).toLocaleString()}
+                </div>
+             </div>
              <div className="bg-zinc-50 p-4 rounded border border-zinc-100 flex flex-col justify-between">
                 <div className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest mb-2">Earned To Date</div>
                 <div className="text-xl font-bold text-zinc-900 flex items-center gap-1">
@@ -45,17 +53,17 @@ export function FinancialsSection({ config, reportData, placement }: Props) {
                 </div>
              </div>
              <div className="bg-zinc-50 p-4 rounded border border-zinc-100 flex flex-col justify-between">
-                <div className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest mb-2">Billed to Date</div>
-                <div className="text-xl font-bold text-cyan-700 flex items-center gap-1">
-                   <DollarSign size={16} className="text-cyan-400" />
-                   {summary.totalBilled?.toLocaleString() || '0.00'}
-                </div>
-             </div>
-             <div className="bg-zinc-50 p-4 rounded border border-zinc-100 flex flex-col justify-between">
                 <div className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest mb-2">Remaining</div>
                 <div className="text-xl font-bold text-zinc-900 flex items-center gap-1">
                    <DollarSign size={16} className="text-zinc-400" />
                    {summary.remainingContractValue?.toLocaleString() || '0.00'}
+                </div>
+             </div>
+             <div className="bg-zinc-50 p-4 rounded border border-zinc-100 flex flex-col justify-between">
+                <div className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest mb-2">Total Billed</div>
+                <div className="text-xl font-bold text-cyan-700 flex items-center gap-1">
+                   <DollarSign size={16} className="text-cyan-400" />
+                   {summary.totalBilled?.toLocaleString() || '0.00'}
                 </div>
              </div>
           </div>
@@ -71,6 +79,7 @@ export function FinancialsSection({ config, reportData, placement }: Props) {
                          <th className="px-4 py-2 text-left font-bold text-zinc-500">Invoice #</th>
                          <th className="px-4 py-2 text-left font-bold text-zinc-500">Period</th>
                          <th className="px-4 py-2 text-right font-bold text-zinc-500 w-32">Amount</th>
+                         <th className="px-4 py-2 text-right font-bold text-zinc-500 w-32">Retainage</th>
                          <th className="px-4 py-2 text-center font-bold text-zinc-500 w-24">Status</th>
                       </tr>
                    </thead>
@@ -84,6 +93,7 @@ export function FinancialsSection({ config, reportData, placement }: Props) {
                             </td>
                             <td className="px-4 py-2 text-zinc-600 text-xs">{inv.period}</td>
                             <td className="px-4 py-2 text-right font-bold text-zinc-900">${inv.amount}</td>
+                            <td className="px-4 py-2 text-right text-zinc-500">{inv.retainage != null ? `$${inv.retainage}` : '-'}</td>
                             <td className="px-4 py-2 text-center">
                                <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-bold uppercase tracking-wider
                                   ${inv.status === 'Paid' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}
